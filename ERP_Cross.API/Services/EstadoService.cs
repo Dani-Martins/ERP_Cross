@@ -13,9 +13,9 @@ public class EstadoService
         _repository = repository;
     }
 
-    public async Task<IEnumerable<Estado>> GetAllAsync()
+    public async Task<IEnumerable<Estado>> GetAllAsync(string? q = null)
     {
-        return await _repository.GetAllAsync();
+        return await _repository.GetAllAsync(q);
     }
 
     public async Task<Estado?> GetByIdAsync(int id)

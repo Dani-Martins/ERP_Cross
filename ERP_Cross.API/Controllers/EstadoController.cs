@@ -1,3 +1,4 @@
+using ERP_Cross.API.Entities;
 using ERP_Cross.API.Models;
 using ERP_Cross.API.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -6,50 +7,33 @@ namespace ERP_Cross.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class EstadoController : ControllerBase
+public class EstadoController(EstadoService service) : ControllerBase
 {
-    private readonly EstadoService _service;
-
-    public EstadoController(EstadoService service)
-    {
-        _service = service;
-    }
+    private readonly EstadoService _service = service;
 
     [HttpGet]
-    public async Task<IActionResult> GetAll()
-    {
-        var estados = await _service.GetAllAsync();
-        return Ok(estados);
-    }
+    public async Task<ActionResult<IEnumerable<EstadoView>>> GetAll([FromQuery] string? q)
+        => Ok(await _service.GetAllAsync(q));
 
-    [HttpGet("{id}")]
-    public async Task<IActionResult> GetById(int id)
+    [HttpGet("{id:int}")]
+    public async Task<ActionResult<EstadoView>> GetById(int id)
     {
         var estado = await _service.GetByIdAsync(id);
-        if (estado == null) return NotFound();
-        return Ok(estado);
+        return estado == null ? NotFound() : Ok(estado);
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] CreateEstadoDto dto)
+    public async Task<ActionResult<EstadoView>> Create([FromBody] CreateEstadoDto dto)
     {
         var estado = await _service.CreateAsync(dto);
         return CreatedAtAction(nameof(GetById), new { id = estado.Id }, estado);
     }
 
-    [HttpPut("{id}")]
+    [HttpPut("{id:int}")]
     public async Task<IActionResult> Update(int id, [FromBody] UpdateEstadoDto dto)
-    {
-        var result = await _service.UpdateAsync(id, dto);
-        if (!result) return NotFound();
-        return NoContent();
-    }
+        => await _service.UpdateAsync(id, dto) ? NoContent() : NotFound();
 
-    [HttpDelete("{id}")]
+    [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id)
-    {
-        var result = await _service.DeleteAsync(id);
-        if (!result) return NotFound();
-        return NoContent();
-    }
+        => await _service.DeleteAsync(id) ? NoContent() : NotFound();
 }

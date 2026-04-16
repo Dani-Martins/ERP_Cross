@@ -13,10 +13,12 @@ public class EstadoRepository
         _connection = connection;
     }
 
-    public async Task<IEnumerable<Estado>> GetAllAsync()
+    public async Task<IEnumerable<Estado>> GetAllAsync(string? q = null)
     {
-        const string sql = "SELECT Id, NomeEstado, Uf, IdPais, DataCriacao, DataAtualizacao FROM Estados";
-        return await _connection.QueryAsync<Estado>(sql);
+        var sql = "SELECT Id, NomeEstado, Uf, IdPais, DataCriacao, DataAtualizacao FROM Estados";
+        if (!string.IsNullOrWhiteSpace(q))
+            sql += " WHERE NomeEstado LIKE @q";
+        return await _connection.QueryAsync<Estado>(sql, new { q = $"%{q}%" });
     }
 
     public async Task<Estado?> GetByIdAsync(int id)

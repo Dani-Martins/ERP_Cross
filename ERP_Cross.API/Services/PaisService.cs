@@ -13,9 +13,9 @@ public class PaisService
         _repository = repository;
     }
 
-    public async Task<IEnumerable<Pais>> GetAllAsync()
+    public async Task<IEnumerable<Pais>> GetAllAsync(string? q = null)
     {
-        return await _repository.GetAllAsync();
+        return await _repository.GetAllAsync(q);
     }
 
     public async Task<Pais?> GetByIdAsync(int id)

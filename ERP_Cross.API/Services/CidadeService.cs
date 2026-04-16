@@ -13,9 +13,9 @@ public class CidadeService
         _repository = repository;
     }
 
-    public async Task<IEnumerable<Cidade>> GetAllAsync()
+    public async Task<IEnumerable<Cidade>> GetAllAsync(string? q = null)
     {
-        return await _repository.GetAllAsync();
+        return await _repository.GetAllAsync(q);
     }
 
     public async Task<Cidade?> GetByIdAsync(int id)

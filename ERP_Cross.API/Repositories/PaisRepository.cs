@@ -13,10 +13,12 @@ public class PaisRepository
         _connection = connection;
     }
 
-    public async Task<IEnumerable<Pais>> GetAllAsync()
+    public async Task<IEnumerable<Pais>> GetAllAsync(string? q = null)
     {
-        const string sql = "SELECT Id, NomePais, Sigla, Ddi, DataCriacao, DataAtualizacao FROM Paises";
-        return await _connection.QueryAsync<Pais>(sql);
+        var sql = "SELECT Id, NomePais, Sigla, Ddi, DataCriacao, DataAtualizacao FROM Paises";
+        if (!string.IsNullOrWhiteSpace(q))
+            sql += " WHERE NomePais LIKE @q";
+        return await _connection.QueryAsync<Pais>(sql, new { q = $"%{q}%" });
     }
 
     public async Task<Pais?> GetByIdAsync(int id)
