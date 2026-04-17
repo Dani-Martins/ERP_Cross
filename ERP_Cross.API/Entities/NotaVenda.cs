@@ -16,6 +16,10 @@ public class NotaVenda
     public int? CondicaoPagamentoId { get; set; }
     public string? Observacao { get; set; }
     public string? Status { get; set; }
+    public bool Ativo { get; set; } = true;
     public DateTime CriadoEm { get; set; }
     public DateTime? AtualizadoEm { get; set; }
+    public string? NomeCliente { get; set; }
+    public string? NomeCondicaoPagamento { get; set; }
+    public string? NomeTransportadora { get; set; }
 }

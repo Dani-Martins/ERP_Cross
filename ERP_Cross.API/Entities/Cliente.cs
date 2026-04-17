@@ -8,4 +8,6 @@ public class Cliente : ModeloPessoa
     public string? Sexo { get; set; }
     public int? IdCondicaoPagamento { get; set; }
     public decimal LimiteCredito { get; set; }
+    public string? NomeCidade { get; set; }
+    public string? NomeCondicaoPagamento { get; set; }
 }

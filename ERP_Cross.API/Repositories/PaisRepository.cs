@@ -15,7 +15,7 @@ public class PaisRepository
 
     public async Task<IEnumerable<Pais>> GetAllAsync(string? q = null)
     {
-        var sql = "SELECT Id, NomePais, Sigla, Ddi, DataCriacao, DataAtualizacao FROM Paises";
+        var sql = "SELECT Id, NomePais, Sigla, Ddi, Ativo, DataCriacao, DataAtualizacao FROM Paises";
         if (!string.IsNullOrWhiteSpace(q))
             sql += " WHERE NomePais LIKE @q";
         return await _connection.QueryAsync<Pais>(sql, new { q = $"%{q}%" });
@@ -23,15 +23,15 @@ public class PaisRepository
 
     public async Task<Pais?> GetByIdAsync(int id)
     {
-        const string sql = "SELECT Id, NomePais, Sigla, Ddi, DataCriacao, DataAtualizacao FROM Paises WHERE Id = @Id";
+        const string sql = "SELECT Id, NomePais, Sigla, Ddi, Ativo, DataCriacao, DataAtualizacao FROM Paises WHERE Id = @Id";
         return await _connection.QueryFirstOrDefaultAsync<Pais>(sql, new { Id = id });
     }
 
     public async Task<int> InsertAsync(Pais pais)
     {
         const string sql = @"
-            INSERT INTO Paises (NomePais, Sigla, Ddi, DataCriacao, DataAtualizacao)
-            VALUES (@NomePais, @Sigla, @Ddi, NOW(), NOW());
+            INSERT INTO Paises (NomePais, Sigla, Ddi, Ativo, DataCriacao, DataAtualizacao)
+            VALUES (@NomePais, @Sigla, @Ddi, @Ativo, NOW(), NOW());
             SELECT LAST_INSERT_ID();";
         return await _connection.ExecuteScalarAsync<int>(sql, pais);
     }
@@ -40,7 +40,7 @@ public class PaisRepository
     {
         const string sql = @"
             UPDATE Paises 
-            SET NomePais = @NomePais, Sigla = @Sigla, Ddi = @Ddi, DataAtualizacao = NOW()
+            SET NomePais = @NomePais, Sigla = @Sigla, Ddi = @Ddi, Ativo = @Ativo, DataAtualizacao = NOW()
             WHERE Id = @Id";
         var rows = await _connection.ExecuteAsync(sql, pais);
         return rows > 0;

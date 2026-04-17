@@ -20,7 +20,7 @@ public class ContaReceberService
             NumParcela = dto.NumParcela, ValorParcela = dto.ValorParcela, DataEmissao = dto.DataEmissao,
             DataVencimento = dto.DataVencimento, DataRecebimento = dto.DataRecebimento,
             ValorRecebido = dto.ValorRecebido, Juros = dto.Juros, Multa = dto.Multa,
-            Desconto = dto.Desconto, Status = dto.Status, FormaPagamentoId = dto.FormaPagamentoId,
+            Desconto = dto.Desconto, Status = dto.Status, Ativo = dto.Ativo, FormaPagamentoId = dto.FormaPagamentoId,
             Observacao = dto.Observacao
         };
         c.Id = await _repository.InsertAsync(c);
@@ -36,7 +36,7 @@ public class ContaReceberService
         c.NumParcela = dto.NumParcela; c.ValorParcela = dto.ValorParcela; c.DataEmissao = dto.DataEmissao;
         c.DataVencimento = dto.DataVencimento; c.DataRecebimento = dto.DataRecebimento;
         c.ValorRecebido = dto.ValorRecebido; c.Juros = dto.Juros; c.Multa = dto.Multa;
-        c.Desconto = dto.Desconto; c.Status = dto.Status; c.FormaPagamentoId = dto.FormaPagamentoId;
+        c.Desconto = dto.Desconto; c.Status = dto.Status; c.Ativo = dto.Ativo; c.FormaPagamentoId = dto.FormaPagamentoId;
         c.Observacao = dto.Observacao;
 
         return await _repository.UpdateAsync(c);

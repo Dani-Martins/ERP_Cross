@@ -10,24 +10,30 @@ public class ContaPagarRepository
     public ContaPagarRepository(IDbConnection db) { _db = db; }
 
     private const string SelectColumns =
-        "Id, NotaCompraId, FornecedorId, Modelo, Serie, NumeroNota, NumParcela, ValorParcela, " +
-        "DataEmissao, DataVencimento, DataPagamento, ValorPago, Juros, Multa, Desconto, " +
-        "Status, FormaPagamentoId, Observacao, CriadoEm, AtualizadoEm";
+        "cp.Id, cp.NotaCompraId, cp.FornecedorId, cp.Modelo, cp.Serie, cp.NumeroNota, cp.NumParcela, cp.ValorParcela, " +
+        "cp.DataEmissao, cp.DataVencimento, cp.DataPagamento, cp.ValorPago, cp.Juros, cp.Multa, cp.Desconto, " +
+        "cp.Status, cp.Ativo, cp.FormaPagamentoId, cp.Observacao, cp.CriadoEm, cp.AtualizadoEm, " +
+        "f.Nome AS NomeFornecedor, fp.NomeFormaPagamento";
+
+    private const string FromJoin = @"
+        FROM ContaPagar cp
+        LEFT JOIN Fornecedores f ON cp.FornecedorId = f.Id
+        LEFT JOIN FormasPagamento fp ON cp.FormaPagamentoId = fp.Id";
 
     public async Task<IEnumerable<ContaPagar>> GetAllAsync()
-        => await _db.QueryAsync<ContaPagar>($"SELECT {SelectColumns} FROM ContaPagar");
+        => await _db.QueryAsync<ContaPagar>($"SELECT {SelectColumns} {FromJoin}");
 
     public async Task<ContaPagar?> GetByIdAsync(long id)
-        => await _db.QueryFirstOrDefaultAsync<ContaPagar>($"SELECT {SelectColumns} FROM ContaPagar WHERE Id = @Id", new { Id = id });
+        => await _db.QueryFirstOrDefaultAsync<ContaPagar>($"SELECT {SelectColumns} {FromJoin} WHERE cp.Id = @Id", new { Id = id });
 
     public async Task<long> InsertAsync(ContaPagar c)
         => await _db.ExecuteScalarAsync<long>(
             @"INSERT INTO ContaPagar (NotaCompraId, FornecedorId, Modelo, Serie, NumeroNota, NumParcela, ValorParcela,
               DataEmissao, DataVencimento, DataPagamento, ValorPago, Juros, Multa, Desconto,
-              Status, FormaPagamentoId, Observacao, CriadoEm)
+              Status, Ativo, FormaPagamentoId, Observacao, CriadoEm)
               VALUES (@NotaCompraId, @FornecedorId, @Modelo, @Serie, @NumeroNota, @NumParcela, @ValorParcela,
               @DataEmissao, @DataVencimento, @DataPagamento, @ValorPago, @Juros, @Multa, @Desconto,
-              @Status, @FormaPagamentoId, @Observacao, NOW());
+              @Status, @Ativo, @FormaPagamentoId, @Observacao, NOW());
               SELECT LAST_INSERT_ID();", c);
 
     public async Task<bool> UpdateAsync(ContaPagar c)
@@ -36,7 +42,7 @@ public class ContaPagarRepository
               Serie=@Serie, NumeroNota=@NumeroNota, NumParcela=@NumParcela, ValorParcela=@ValorParcela,
               DataEmissao=@DataEmissao, DataVencimento=@DataVencimento, DataPagamento=@DataPagamento,
               ValorPago=@ValorPago, Juros=@Juros, Multa=@Multa, Desconto=@Desconto,
-              Status=@Status, FormaPagamentoId=@FormaPagamentoId, Observacao=@Observacao, AtualizadoEm=NOW()
+              Status=@Status, Ativo=@Ativo, FormaPagamentoId=@FormaPagamentoId, Observacao=@Observacao, AtualizadoEm=NOW()
               WHERE Id=@Id", c) > 0;
 
     public async Task<bool> DeleteAsync(long id)

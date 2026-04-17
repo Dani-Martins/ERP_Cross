@@ -23,7 +23,8 @@ public class CondicaoPagamentoService
             NomeCondicao = dto.NomeCondicao,
             TaxaJuros = dto.TaxaJuros,
             Multa = dto.Multa,
-            Desconto = dto.Desconto
+            Desconto = dto.Desconto,
+            Ativo = dto.Ativo
         };
         condicao.Id = await _repository.InsertAsync(condicao);
         return condicao;
@@ -38,6 +39,7 @@ public class CondicaoPagamentoService
         condicao.TaxaJuros = dto.TaxaJuros;
         condicao.Multa = dto.Multa;
         condicao.Desconto = dto.Desconto;
+        condicao.Ativo = dto.Ativo;
 
         return await _repository.UpdateAsync(condicao);
     }

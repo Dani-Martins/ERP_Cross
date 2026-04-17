@@ -10,19 +10,26 @@ public class ProdutoRepository
     public ProdutoRepository(IDbConnection db) { _db = db; }
 
     private const string SelectColumns =
-        "Id, NomeProduto, UnidadeId, MarcaId, CategoriaId, Descricao, CodigoBarras, " +
-        "CustoCompra, PrecoVenda, LucroPercentual, Estoque, EstoqueMinimo, Ativo, DataCriacao, DataAtualizacao";
+        "p.Id, p.NomeProduto, p.UnidadeId, p.MarcaId, p.CategoriaId, p.Descricao, p.CodigoBarras, " +
+        "p.CustoCompra, p.PrecoVenda, p.LucroPercentual, p.Estoque, p.EstoqueMinimo, p.Ativo, p.DataCriacao, p.DataAtualizacao, " +
+        "um.NomeUnidade, m.NomeMarca, cat.NomeCategoria";
+
+    private const string FromJoin = @"
+        FROM Produto p
+        LEFT JOIN UnidadesMedida um ON p.UnidadeId = um.Id
+        LEFT JOIN Marcas m ON p.MarcaId = m.Id
+        LEFT JOIN Categorias cat ON p.CategoriaId = cat.Id";
 
     public async Task<IEnumerable<Produto>> GetAllAsync(string? q = null)
     {
-        var sql = $"SELECT {SelectColumns} FROM Produto";
+        var sql = $"SELECT {SelectColumns} {FromJoin}";
         if (!string.IsNullOrWhiteSpace(q))
-            sql += " WHERE NomeProduto LIKE @q";
+            sql += " WHERE p.NomeProduto LIKE @q";
         return await _db.QueryAsync<Produto>(sql, new { q = $"%{q}%" });
     }
 
     public async Task<Produto?> GetByIdAsync(int id)
-        => await _db.QueryFirstOrDefaultAsync<Produto>($"SELECT {SelectColumns} FROM Produto WHERE Id = @Id", new { Id = id });
+        => await _db.QueryFirstOrDefaultAsync<Produto>($"SELECT {SelectColumns} {FromJoin} WHERE p.Id = @Id", new { Id = id });
 
     public async Task<int> InsertAsync(Produto p)
         => await _db.ExecuteScalarAsync<int>(

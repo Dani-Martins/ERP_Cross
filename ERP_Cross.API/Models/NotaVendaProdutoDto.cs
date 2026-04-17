@@ -15,6 +15,7 @@ public class CreateNotaVendaProdutoDto
     public decimal Quantidade { get; set; }
     public decimal PrecoUnit { get; set; }
     public decimal Desconto { get; set; }
+    public bool Ativo { get; set; } = true;
 }
 
 public class UpdateNotaVendaProdutoDto
@@ -22,6 +23,7 @@ public class UpdateNotaVendaProdutoDto
     public decimal Quantidade { get; set; }
     public decimal PrecoUnit { get; set; }
     public decimal Desconto { get; set; }
+    public bool Ativo { get; set; } = true;
 }
 
 public class NotaVendaProdutoView
@@ -34,5 +36,8 @@ public class NotaVendaProdutoView
     public decimal Quantidade { get; set; }
     public decimal PrecoUnit { get; set; }
     public decimal Desconto { get; set; }
+    public bool Ativo { get; set; }
     public DateTime CriadoEm { get; set; }
+    public string? NomeProduto { get; set; }
+    public string? NomeCliente { get; set; }
 }

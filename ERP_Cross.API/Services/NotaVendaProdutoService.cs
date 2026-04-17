@@ -20,7 +20,8 @@ public class NotaVendaProdutoService
         var p = new NotaVendaProduto
         {
             NumeroNota = dto.NumeroNota, Modelo = dto.Modelo, Serie = dto.Serie, ClienteId = dto.ClienteId,
-            ProdutoId = dto.ProdutoId, Quantidade = dto.Quantidade, PrecoUnit = dto.PrecoUnit, Desconto = dto.Desconto
+            ProdutoId = dto.ProdutoId, Quantidade = dto.Quantidade, PrecoUnit = dto.PrecoUnit, Desconto = dto.Desconto,
+            Ativo = dto.Ativo
         };
         var ok = await _repository.InsertAsync(p);
         return ok ? p : null;
@@ -32,6 +33,7 @@ public class NotaVendaProdutoService
         if (p == null) return false;
 
         p.Quantidade = dto.Quantidade; p.PrecoUnit = dto.PrecoUnit; p.Desconto = dto.Desconto;
+        p.Ativo = dto.Ativo;
 
         return await _repository.UpdateAsync(p);
     }

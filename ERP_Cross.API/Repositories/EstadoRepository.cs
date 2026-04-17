@@ -15,23 +15,30 @@ public class EstadoRepository
 
     public async Task<IEnumerable<Estado>> GetAllAsync(string? q = null)
     {
-        var sql = "SELECT Id, NomeEstado, Uf, IdPais, DataCriacao, DataAtualizacao FROM Estados";
+        var sql = @"SELECT e.Id, e.NomeEstado, e.Uf, e.IdPais, e.Ativo, e.DataCriacao, e.DataAtualizacao,
+                           p.NomePais
+                    FROM Estados e
+                    LEFT JOIN Paises p ON e.IdPais = p.Id";
         if (!string.IsNullOrWhiteSpace(q))
-            sql += " WHERE NomeEstado LIKE @q";
+            sql += " WHERE e.NomeEstado LIKE @q";
         return await _connection.QueryAsync<Estado>(sql, new { q = $"%{q}%" });
     }
 
     public async Task<Estado?> GetByIdAsync(int id)
     {
-        const string sql = "SELECT Id, NomeEstado, Uf, IdPais, DataCriacao, DataAtualizacao FROM Estados WHERE Id = @Id";
+        const string sql = @"SELECT e.Id, e.NomeEstado, e.Uf, e.IdPais, e.Ativo, e.DataCriacao, e.DataAtualizacao,
+                                    p.NomePais
+                             FROM Estados e
+                             LEFT JOIN Paises p ON e.IdPais = p.Id
+                             WHERE e.Id = @Id";
         return await _connection.QueryFirstOrDefaultAsync<Estado>(sql, new { Id = id });
     }
 
     public async Task<int> InsertAsync(Estado estado)
     {
         const string sql = @"
-            INSERT INTO Estados (NomeEstado, Uf, IdPais, DataCriacao, DataAtualizacao)
-            VALUES (@NomeEstado, @Uf, @IdPais, NOW(), NOW());
+            INSERT INTO Estados (NomeEstado, Uf, IdPais, Ativo, DataCriacao, DataAtualizacao)
+            VALUES (@NomeEstado, @Uf, @IdPais, @Ativo, NOW(), NOW());
             SELECT LAST_INSERT_ID();";
         return await _connection.ExecuteScalarAsync<int>(sql, estado);
     }
@@ -40,7 +47,7 @@ public class EstadoRepository
     {
         const string sql = @"
             UPDATE Estados 
-            SET NomeEstado = @NomeEstado, Uf = @Uf, IdPais = @IdPais, DataAtualizacao = NOW()
+            SET NomeEstado = @NomeEstado, Uf = @Uf, IdPais = @IdPais, Ativo = @Ativo, DataAtualizacao = NOW()
             WHERE Id = @Id";
         var rows = await _connection.ExecuteAsync(sql, estado);
         return rows > 0;

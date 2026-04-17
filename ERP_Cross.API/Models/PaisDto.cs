@@ -10,6 +10,7 @@ public class CreatePaisDto
     public string Sigla { get; set; } = string.Empty;
     [Required]
     public string Ddi { get; set; } = string.Empty;
+    public bool Ativo { get; set; } = true;
 }
 
 public class UpdatePaisDto
@@ -20,6 +21,7 @@ public class UpdatePaisDto
     public string Sigla { get; set; } = string.Empty;
     [Required]
     public string Ddi { get; set; } = string.Empty;
+    public bool Ativo { get; set; } = true;
 }
 
 public class PaisView
@@ -28,6 +30,7 @@ public class PaisView
     public string NomePais { get; set; } = string.Empty;
     public string Sigla { get; set; } = string.Empty;
     public string Ddi { get; set; } = string.Empty;
+    public bool Ativo { get; set; }
     public DateTime DataCriacao { get; set; }
     public DateTime DataAtualizacao { get; set; }
 }

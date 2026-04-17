@@ -10,24 +10,30 @@ public class ContaReceberRepository
     public ContaReceberRepository(IDbConnection db) { _db = db; }
 
     private const string SelectColumns =
-        "Id, NumeroNota, Modelo, Serie, ClienteId, NumParcela, ValorParcela, " +
-        "DataEmissao, DataVencimento, DataRecebimento, ValorRecebido, Juros, Multa, Desconto, " +
-        "Status, FormaPagamentoId, Observacao, CriadoEm, AtualizadoEm";
+        "cr.Id, cr.NumeroNota, cr.Modelo, cr.Serie, cr.ClienteId, cr.NumParcela, cr.ValorParcela, " +
+        "cr.DataEmissao, cr.DataVencimento, cr.DataRecebimento, cr.ValorRecebido, cr.Juros, cr.Multa, cr.Desconto, " +
+        "cr.Status, cr.Ativo, cr.FormaPagamentoId, cr.Observacao, cr.CriadoEm, cr.AtualizadoEm, " +
+        "cl.Nome AS NomeCliente, fp.NomeFormaPagamento";
+
+    private const string FromJoin = @"
+        FROM ContaReceber cr
+        LEFT JOIN Clientes cl ON cr.ClienteId = cl.Id
+        LEFT JOIN FormasPagamento fp ON cr.FormaPagamentoId = fp.Id";
 
     public async Task<IEnumerable<ContaReceber>> GetAllAsync()
-        => await _db.QueryAsync<ContaReceber>($"SELECT {SelectColumns} FROM ContaReceber");
+        => await _db.QueryAsync<ContaReceber>($"SELECT {SelectColumns} {FromJoin}");
 
     public async Task<ContaReceber?> GetByIdAsync(long id)
-        => await _db.QueryFirstOrDefaultAsync<ContaReceber>($"SELECT {SelectColumns} FROM ContaReceber WHERE Id = @Id", new { Id = id });
+        => await _db.QueryFirstOrDefaultAsync<ContaReceber>($"SELECT {SelectColumns} {FromJoin} WHERE cr.Id = @Id", new { Id = id });
 
     public async Task<long> InsertAsync(ContaReceber c)
         => await _db.ExecuteScalarAsync<long>(
             @"INSERT INTO ContaReceber (NumeroNota, Modelo, Serie, ClienteId, NumParcela, ValorParcela,
               DataEmissao, DataVencimento, DataRecebimento, ValorRecebido, Juros, Multa, Desconto,
-              Status, FormaPagamentoId, Observacao, CriadoEm)
+              Status, Ativo, FormaPagamentoId, Observacao, CriadoEm)
               VALUES (@NumeroNota, @Modelo, @Serie, @ClienteId, @NumParcela, @ValorParcela,
               @DataEmissao, @DataVencimento, @DataRecebimento, @ValorRecebido, @Juros, @Multa, @Desconto,
-              @Status, @FormaPagamentoId, @Observacao, NOW());
+              @Status, @Ativo, @FormaPagamentoId, @Observacao, NOW());
               SELECT LAST_INSERT_ID();", c);
 
     public async Task<bool> UpdateAsync(ContaReceber c)
@@ -35,7 +41,7 @@ public class ContaReceberRepository
             @"UPDATE ContaReceber SET NumeroNota=@NumeroNota, Modelo=@Modelo, Serie=@Serie, ClienteId=@ClienteId,
               NumParcela=@NumParcela, ValorParcela=@ValorParcela, DataEmissao=@DataEmissao,
               DataVencimento=@DataVencimento, DataRecebimento=@DataRecebimento, ValorRecebido=@ValorRecebido,
-              Juros=@Juros, Multa=@Multa, Desconto=@Desconto, Status=@Status,
+              Juros=@Juros, Multa=@Multa, Desconto=@Desconto, Status=@Status, Ativo=@Ativo,
               FormaPagamentoId=@FormaPagamentoId, Observacao=@Observacao, AtualizadoEm=NOW()
               WHERE Id=@Id", c) > 0;
 

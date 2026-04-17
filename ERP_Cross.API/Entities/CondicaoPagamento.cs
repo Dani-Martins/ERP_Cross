@@ -6,4 +6,5 @@ public class CondicaoPagamento : ModeloBase
     public decimal TaxaJuros { get; set; }
     public decimal Multa { get; set; }
     public decimal Desconto { get; set; }
+    public bool Ativo { get; set; } = true;
 }

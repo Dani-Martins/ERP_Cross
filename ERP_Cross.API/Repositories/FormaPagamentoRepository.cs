@@ -15,7 +15,7 @@ public class FormaPagamentoRepository
 
     public async Task<IEnumerable<FormaPagamento>> GetAllAsync(string? q = null)
     {
-        var sql = "SELECT Id, NomeFormaPagamento, DataCriacao, DataAtualizacao FROM FormasPagamento";
+        var sql = "SELECT Id, NomeFormaPagamento, Ativo, DataCriacao, DataAtualizacao FROM FormasPagamento";
         if (!string.IsNullOrWhiteSpace(q))
             sql += " WHERE NomeFormaPagamento LIKE @q";
         return await _connection.QueryAsync<FormaPagamento>(sql, new { q = $"%{q}%" });
@@ -23,15 +23,15 @@ public class FormaPagamentoRepository
 
     public async Task<FormaPagamento?> GetByIdAsync(int id)
     {
-        const string sql = "SELECT Id, NomeFormaPagamento, DataCriacao, DataAtualizacao FROM FormasPagamento WHERE Id = @Id";
+        const string sql = "SELECT Id, NomeFormaPagamento, Ativo, DataCriacao, DataAtualizacao FROM FormasPagamento WHERE Id = @Id";
         return await _connection.QueryFirstOrDefaultAsync<FormaPagamento>(sql, new { Id = id });
     }
 
     public async Task<int> InsertAsync(FormaPagamento forma)
     {
         const string sql = @"
-            INSERT INTO FormasPagamento (NomeFormaPagamento, DataCriacao, DataAtualizacao)
-            VALUES (@NomeFormaPagamento, NOW(), NOW());
+            INSERT INTO FormasPagamento (NomeFormaPagamento, Ativo, DataCriacao, DataAtualizacao)
+            VALUES (@NomeFormaPagamento, @Ativo, NOW(), NOW());
             SELECT LAST_INSERT_ID();";
         return await _connection.ExecuteScalarAsync<int>(sql, forma);
     }
@@ -40,7 +40,7 @@ public class FormaPagamentoRepository
     {
         const string sql = @"
             UPDATE FormasPagamento 
-            SET NomeFormaPagamento = @NomeFormaPagamento, DataAtualizacao = NOW()
+            SET NomeFormaPagamento = @NomeFormaPagamento, Ativo = @Ativo, DataAtualizacao = NOW()
             WHERE Id = @Id";
         var rows = await _connection.ExecuteAsync(sql, forma);
         return rows > 0;

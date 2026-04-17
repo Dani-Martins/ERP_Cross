@@ -18,7 +18,8 @@ public class ParcelaCondicaoPagamentoService
         var p = new ParcelaCondicaoPagamento
         {
             Numero = dto.Numero, Dias = dto.Dias, Percentual = dto.Percentual,
-            FormaPagamentoId = dto.FormaPagamentoId, CondicaoPagamentoId = dto.CondicaoPagamentoId
+            FormaPagamentoId = dto.FormaPagamentoId, CondicaoPagamentoId = dto.CondicaoPagamentoId,
+            Ativo = dto.Ativo
         };
         p.Id = await _repository.InsertAsync(p);
         return p;
@@ -31,6 +32,7 @@ public class ParcelaCondicaoPagamentoService
 
         p.Numero = dto.Numero; p.Dias = dto.Dias; p.Percentual = dto.Percentual;
         p.FormaPagamentoId = dto.FormaPagamentoId; p.CondicaoPagamentoId = dto.CondicaoPagamentoId;
+        p.Ativo = dto.Ativo;
 
         return await _repository.UpdateAsync(p);
     }

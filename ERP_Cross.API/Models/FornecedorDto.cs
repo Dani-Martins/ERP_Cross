@@ -64,4 +64,6 @@ public class FornecedorView
     public bool Ativo { get; set; }
     public DateTime DataCriacao { get; set; }
     public DateTime DataAtualizacao { get; set; }
+    public string? NomeCidade { get; set; }
+    public string? NomeCondicaoPagamento { get; set; }
 }

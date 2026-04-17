@@ -9,6 +9,7 @@ public class CreateCondicaoPagamentoDto
     public decimal TaxaJuros { get; set; }
     public decimal Multa { get; set; }
     public decimal Desconto { get; set; }
+    public bool Ativo { get; set; } = true;
 }
 
 public class UpdateCondicaoPagamentoDto
@@ -18,6 +19,7 @@ public class UpdateCondicaoPagamentoDto
     public decimal TaxaJuros { get; set; }
     public decimal Multa { get; set; }
     public decimal Desconto { get; set; }
+    public bool Ativo { get; set; } = true;
 }
 
 public class CondicaoPagamentoView
@@ -27,6 +29,7 @@ public class CondicaoPagamentoView
     public decimal TaxaJuros { get; set; }
     public decimal Multa { get; set; }
     public decimal Desconto { get; set; }
+    public bool Ativo { get; set; }
     public DateTime DataCriacao { get; set; }
     public DateTime DataAtualizacao { get; set; }
 }

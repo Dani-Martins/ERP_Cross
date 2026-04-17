@@ -9,6 +9,7 @@ public class CreateEstadoDto
     [Required]
     public string Uf { get; set; } = string.Empty;
     public int IdPais { get; set; }
+    public bool Ativo { get; set; } = true;
 }
 
 public class UpdateEstadoDto
@@ -18,6 +19,7 @@ public class UpdateEstadoDto
     [Required]
     public string Uf { get; set; } = string.Empty;
     public int IdPais { get; set; }
+    public bool Ativo { get; set; } = true;
 }
 
 public class EstadoView
@@ -26,6 +28,8 @@ public class EstadoView
     public string NomeEstado { get; set; } = string.Empty;
     public string Uf { get; set; } = string.Empty;
     public int IdPais { get; set; }
+    public bool Ativo { get; set; }
+    public string? NomePais { get; set; }
     public DateTime DataCriacao { get; set; }
     public DateTime DataAtualizacao { get; set; }
 }

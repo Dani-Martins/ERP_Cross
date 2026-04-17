@@ -24,6 +24,7 @@ public class CreateNotaCompraDto
     public string? PlacaVeiculo { get; set; }
     public string? Observacao { get; set; }
     public string? Status { get; set; }
+    public bool Ativo { get; set; } = true;
 }
 
 public class UpdateNotaCompraDto
@@ -48,6 +49,7 @@ public class UpdateNotaCompraDto
     public string? PlacaVeiculo { get; set; }
     public string? Observacao { get; set; }
     public string? Status { get; set; }
+    public bool Ativo { get; set; } = true;
 }
 
 public class NotaCompraView
@@ -70,6 +72,10 @@ public class NotaCompraView
     public string? PlacaVeiculo { get; set; }
     public string? Observacao { get; set; }
     public string? Status { get; set; }
+    public bool Ativo { get; set; }
     public DateTime CriadoEm { get; set; }
     public DateTime? AtualizadoEm { get; set; }
+    public string? NomeFornecedor { get; set; }
+    public string? NomeCondicaoPagamento { get; set; }
+    public string? NomeTransportadora { get; set; }
 }

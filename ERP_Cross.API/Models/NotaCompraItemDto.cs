@@ -13,6 +13,7 @@ public class CreateNotaCompraItemDto
     public decimal Rateio { get; set; }
     public decimal CustoFinalUnit { get; set; }
     public decimal CustoFinal { get; set; }
+    public bool Ativo { get; set; } = true;
 }
 
 public class UpdateNotaCompraItemDto
@@ -28,6 +29,7 @@ public class UpdateNotaCompraItemDto
     public decimal Rateio { get; set; }
     public decimal CustoFinalUnit { get; set; }
     public decimal CustoFinal { get; set; }
+    public bool Ativo { get; set; } = true;
 }
 
 public class NotaCompraItemView
@@ -44,5 +46,8 @@ public class NotaCompraItemView
     public decimal Rateio { get; set; }
     public decimal CustoFinalUnit { get; set; }
     public decimal CustoFinal { get; set; }
+    public bool Ativo { get; set; }
     public DateTime CriadoEm { get; set; }
+    public string? NomeProduto { get; set; }
+    public string? NomeUnidade { get; set; }
 }

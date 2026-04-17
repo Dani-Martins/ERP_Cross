@@ -21,7 +21,7 @@ public class ContaPagarService
             ValorParcela = dto.ValorParcela, DataEmissao = dto.DataEmissao, DataVencimento = dto.DataVencimento,
             DataPagamento = dto.DataPagamento, ValorPago = dto.ValorPago, Juros = dto.Juros,
             Multa = dto.Multa, Desconto = dto.Desconto, Status = dto.Status,
-            FormaPagamentoId = dto.FormaPagamentoId, Observacao = dto.Observacao
+            Ativo = dto.Ativo, FormaPagamentoId = dto.FormaPagamentoId, Observacao = dto.Observacao
         };
         c.Id = await _repository.InsertAsync(c);
         return c;
@@ -37,7 +37,7 @@ public class ContaPagarService
         c.ValorParcela = dto.ValorParcela; c.DataEmissao = dto.DataEmissao; c.DataVencimento = dto.DataVencimento;
         c.DataPagamento = dto.DataPagamento; c.ValorPago = dto.ValorPago; c.Juros = dto.Juros;
         c.Multa = dto.Multa; c.Desconto = dto.Desconto; c.Status = dto.Status;
-        c.FormaPagamentoId = dto.FormaPagamentoId; c.Observacao = dto.Observacao;
+        c.Ativo = dto.Ativo; c.FormaPagamentoId = dto.FormaPagamentoId; c.Observacao = dto.Observacao;
 
         return await _repository.UpdateAsync(c);
     }

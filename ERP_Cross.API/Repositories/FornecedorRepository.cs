@@ -10,20 +10,26 @@ public class FornecedorRepository
     public FornecedorRepository(IDbConnection connection) { _connection = connection; }
 
     private const string SelectColumns = @"
-        Id, Nome, NomeFantasia, CpfCnpj, RgIe, Telefone, Celular, Email,
-        Cep, Endereco, Numero, Complemento, Bairro, IdCidade,
-        IdCondicaoPagamento, Ativo, DataCriacao, DataAtualizacao";
+        f.Id, f.Nome, f.NomeFantasia, f.CpfCnpj, f.RgIe, f.Telefone, f.Celular, f.Email,
+        f.Cep, f.Endereco, f.Numero, f.Complemento, f.Bairro, f.IdCidade,
+        f.IdCondicaoPagamento, f.Ativo, f.DataCriacao, f.DataAtualizacao,
+        ci.NomeCidade, cp.NomeCondicao AS NomeCondicaoPagamento";
+
+    private const string FromJoin = @"
+        FROM Fornecedores f
+        LEFT JOIN Cidades ci ON f.IdCidade = ci.Id
+        LEFT JOIN CondicoesPagamento cp ON f.IdCondicaoPagamento = cp.Id";
 
     public async Task<IEnumerable<Fornecedor>> GetAllAsync(string? q = null)
     {
-        var sql = $"SELECT {SelectColumns} FROM Fornecedores";
+        var sql = $"SELECT {SelectColumns} {FromJoin}";
         if (!string.IsNullOrWhiteSpace(q))
-            sql += " WHERE Nome LIKE @q OR NomeFantasia LIKE @q";
+            sql += " WHERE f.Nome LIKE @q OR f.NomeFantasia LIKE @q";
         return await _connection.QueryAsync<Fornecedor>(sql, new { q = $"%{q}%" });
     }
 
     public async Task<Fornecedor?> GetByIdAsync(int id)
-        => await _connection.QueryFirstOrDefaultAsync<Fornecedor>($"SELECT {SelectColumns} FROM Fornecedores WHERE Id = @Id", new { Id = id });
+        => await _connection.QueryFirstOrDefaultAsync<Fornecedor>($"SELECT {SelectColumns} {FromJoin} WHERE f.Id = @Id", new { Id = id });
 
     public async Task<int> InsertAsync(Fornecedor f)
     {

@@ -29,7 +29,8 @@ public class CidadeService
         {
             NomeCidade = dto.NomeCidade,
             Ddd = dto.Ddd,
-            IdEstado = dto.IdEstado
+            IdEstado = dto.IdEstado,
+            Ativo = dto.Ativo
         };
 
         cidade.Id = await _repository.InsertAsync(cidade);
@@ -44,6 +45,7 @@ public class CidadeService
         cidade.NomeCidade = dto.NomeCidade;
         cidade.Ddd = dto.Ddd;
         cidade.IdEstado = dto.IdEstado;
+        cidade.Ativo = dto.Ativo;
 
         return await _repository.UpdateAsync(cidade);
     }

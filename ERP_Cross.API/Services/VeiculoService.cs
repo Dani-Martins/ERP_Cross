@@ -22,7 +22,9 @@ public class VeiculoService
         {
             Placa = dto.Placa,
             Modelo = dto.Modelo,
-            Rntrc = dto.Rntrc,
+            Marca = dto.Marca,
+            Ano = dto.Ano,
+            Descricao = dto.Descricao,
             Ativo = dto.Ativo
         };
         veiculo.Id = await _repository.InsertAsync(veiculo);
@@ -36,7 +38,9 @@ public class VeiculoService
 
         veiculo.Placa = dto.Placa;
         veiculo.Modelo = dto.Modelo;
-        veiculo.Rntrc = dto.Rntrc;
+        veiculo.Marca = dto.Marca;
+        veiculo.Ano = dto.Ano;
+        veiculo.Descricao = dto.Descricao;
         veiculo.Ativo = dto.Ativo;
 
         return await _repository.UpdateAsync(veiculo);

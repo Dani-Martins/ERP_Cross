@@ -22,6 +22,7 @@ public class CreateContaPagarDto
     public decimal Multa { get; set; }
     public decimal Desconto { get; set; }
     public string Status { get; set; } = "ABERTO";
+    public bool Ativo { get; set; } = true;
     public int? FormaPagamentoId { get; set; }
     public string? Observacao { get; set; }
 }
@@ -46,6 +47,7 @@ public class UpdateContaPagarDto
     public decimal Multa { get; set; }
     public decimal Desconto { get; set; }
     public string Status { get; set; } = "ABERTO";
+    public bool Ativo { get; set; } = true;
     public int? FormaPagamentoId { get; set; }
     public string? Observacao { get; set; }
 }
@@ -68,8 +70,11 @@ public class ContaPagarView
     public decimal Multa { get; set; }
     public decimal Desconto { get; set; }
     public string Status { get; set; } = string.Empty;
+    public bool Ativo { get; set; }
     public int? FormaPagamentoId { get; set; }
     public string? Observacao { get; set; }
     public DateTime CriadoEm { get; set; }
     public DateTime? AtualizadoEm { get; set; }
+    public string? NomeFornecedor { get; set; }
+    public string? NomeFormaPagamento { get; set; }
 }

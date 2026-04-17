@@ -9,4 +9,6 @@ public class Funcionario : ModeloPessoa
     public DateTime? DataAdmissao { get; set; }
     public DateTime? DataDemissao { get; set; }
     public string? Sexo { get; set; }
+    public string? NomeCidade { get; set; }
+    public string? NomeCargo { get; set; }
 }

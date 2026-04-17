@@ -21,7 +21,8 @@ public class NotaCompraService
             ValorFrete = dto.ValorFrete, ValorSeguro = dto.ValorSeguro, OutrasDespesas = dto.OutrasDespesas,
             TotalProdutos = dto.TotalProdutos, TotalPagar = dto.TotalPagar,
             CondicaoPagamentoId = dto.CondicaoPagamentoId, TransportadoraId = dto.TransportadoraId,
-            PlacaVeiculo = dto.PlacaVeiculo, Observacao = dto.Observacao, Status = dto.Status
+            PlacaVeiculo = dto.PlacaVeiculo, Observacao = dto.Observacao, Status = dto.Status,
+            Ativo = dto.Ativo
         };
         n.Id = await _repository.InsertAsync(n);
         return n;
@@ -38,6 +39,7 @@ public class NotaCompraService
         n.TotalProdutos = dto.TotalProdutos; n.TotalPagar = dto.TotalPagar;
         n.CondicaoPagamentoId = dto.CondicaoPagamentoId; n.TransportadoraId = dto.TransportadoraId;
         n.PlacaVeiculo = dto.PlacaVeiculo; n.Observacao = dto.Observacao; n.Status = dto.Status;
+        n.Ativo = dto.Ativo;
 
         return await _repository.UpdateAsync(n);
     }

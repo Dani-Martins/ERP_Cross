@@ -29,7 +29,8 @@ public class EstadoService
         {
             NomeEstado = dto.NomeEstado,
             Uf = dto.Uf,
-            IdPais = dto.IdPais
+            IdPais = dto.IdPais,
+            Ativo = dto.Ativo
         };
 
         estado.Id = await _repository.InsertAsync(estado);
@@ -44,6 +45,7 @@ public class EstadoService
         estado.NomeEstado = dto.NomeEstado;
         estado.Uf = dto.Uf;
         estado.IdPais = dto.IdPais;
+        estado.Ativo = dto.Ativo;
 
         return await _repository.UpdateAsync(estado);
     }

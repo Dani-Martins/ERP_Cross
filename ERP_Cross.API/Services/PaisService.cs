@@ -29,7 +29,8 @@ public class PaisService
         {
             NomePais = dto.NomePais,
             Sigla = dto.Sigla,
-            Ddi = dto.Ddi
+            Ddi = dto.Ddi,
+            Ativo = dto.Ativo
         };
 
         pais.Id = await _repository.InsertAsync(pais);
@@ -44,6 +45,7 @@ public class PaisService
         pais.NomePais = dto.NomePais;
         pais.Sigla = dto.Sigla;
         pais.Ddi = dto.Ddi;
+        pais.Ativo = dto.Ativo;
 
         return await _repository.UpdateAsync(pais);
     }

@@ -49,10 +49,6 @@
               "target": "Package",
               "version": "[2.1.72, )"
             },
-            "Microsoft.OpenApi": {
-              "target": "Package",
-              "version": "[3.5.2, )"
-            },
             "MySqlConnector": {
               "target": "Package",
               "version": "[2.5.0, )"

@@ -9,6 +9,7 @@ public class CreateCidadeDto
     [Required]
     public string Ddd { get; set; } = string.Empty;
     public int IdEstado { get; set; }
+    public bool Ativo { get; set; } = true;
 }
 
 public class UpdateCidadeDto
@@ -18,6 +19,7 @@ public class UpdateCidadeDto
     [Required]
     public string Ddd { get; set; } = string.Empty;
     public int IdEstado { get; set; }
+    public bool Ativo { get; set; } = true;
 }
 
 public class CidadeView
@@ -26,6 +28,8 @@ public class CidadeView
     public string NomeCidade { get; set; } = string.Empty;
     public string Ddd { get; set; } = string.Empty;
     public int IdEstado { get; set; }
+    public bool Ativo { get; set; }
+    public string? NomeEstado { get; set; }
     public DateTime DataCriacao { get; set; }
     public DateTime DataAtualizacao { get; set; }
 }

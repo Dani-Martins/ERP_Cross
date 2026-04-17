@@ -17,8 +17,11 @@ public class ContaReceber
     public decimal Multa { get; set; }
     public decimal Desconto { get; set; }
     public string Status { get; set; } = "ABERTO";
+    public bool Ativo { get; set; } = true;
     public int? FormaPagamentoId { get; set; }
     public string? Observacao { get; set; }
     public DateTime CriadoEm { get; set; }
     public DateTime? AtualizadoEm { get; set; }
+    public string? NomeCliente { get; set; }
+    public string? NomeFormaPagamento { get; set; }
 }

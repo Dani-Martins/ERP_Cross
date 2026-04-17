@@ -15,7 +15,7 @@ public class CondicaoPagamentoRepository
 
     public async Task<IEnumerable<CondicaoPagamento>> GetAllAsync(string? q = null)
     {
-        var sql = "SELECT Id, NomeCondicao, TaxaJuros, Multa, Desconto, DataCriacao, DataAtualizacao FROM CondicoesPagamento";
+        var sql = "SELECT Id, NomeCondicao, TaxaJuros, Multa, Desconto, Ativo, DataCriacao, DataAtualizacao FROM CondicoesPagamento";
         if (!string.IsNullOrWhiteSpace(q))
             sql += " WHERE NomeCondicao LIKE @q";
         return await _connection.QueryAsync<CondicaoPagamento>(sql, new { q = $"%{q}%" });
@@ -23,15 +23,15 @@ public class CondicaoPagamentoRepository
 
     public async Task<CondicaoPagamento?> GetByIdAsync(int id)
     {
-        const string sql = "SELECT Id, NomeCondicao, TaxaJuros, Multa, Desconto, DataCriacao, DataAtualizacao FROM CondicoesPagamento WHERE Id = @Id";
+        const string sql = "SELECT Id, NomeCondicao, TaxaJuros, Multa, Desconto, Ativo, DataCriacao, DataAtualizacao FROM CondicoesPagamento WHERE Id = @Id";
         return await _connection.QueryFirstOrDefaultAsync<CondicaoPagamento>(sql, new { Id = id });
     }
 
     public async Task<int> InsertAsync(CondicaoPagamento condicao)
     {
         const string sql = @"
-            INSERT INTO CondicoesPagamento (NomeCondicao, TaxaJuros, Multa, Desconto, DataCriacao, DataAtualizacao)
-            VALUES (@NomeCondicao, @TaxaJuros, @Multa, @Desconto, NOW(), NOW());
+            INSERT INTO CondicoesPagamento (NomeCondicao, TaxaJuros, Multa, Desconto, Ativo, DataCriacao, DataAtualizacao)
+            VALUES (@NomeCondicao, @TaxaJuros, @Multa, @Desconto, @Ativo, NOW(), NOW());
             SELECT LAST_INSERT_ID();";
         return await _connection.ExecuteScalarAsync<int>(sql, condicao);
     }
@@ -41,7 +41,7 @@ public class CondicaoPagamentoRepository
         const string sql = @"
             UPDATE CondicoesPagamento 
             SET NomeCondicao = @NomeCondicao, TaxaJuros = @TaxaJuros, Multa = @Multa, 
-                Desconto = @Desconto, DataAtualizacao = NOW()
+                Desconto = @Desconto, Ativo = @Ativo, DataAtualizacao = NOW()
             WHERE Id = @Id";
         var rows = await _connection.ExecuteAsync(sql, condicao);
         return rows > 0;

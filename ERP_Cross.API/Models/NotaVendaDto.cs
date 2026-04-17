@@ -21,6 +21,7 @@ public class CreateNotaVendaDto
     public int? CondicaoPagamentoId { get; set; }
     public string? Observacao { get; set; }
     public string? Status { get; set; }
+    public bool Ativo { get; set; } = true;
 }
 
 public class UpdateNotaVendaDto
@@ -35,6 +36,7 @@ public class UpdateNotaVendaDto
     public int? CondicaoPagamentoId { get; set; }
     public string? Observacao { get; set; }
     public string? Status { get; set; }
+    public bool Ativo { get; set; } = true;
 }
 
 public class NotaVendaView
@@ -53,6 +55,10 @@ public class NotaVendaView
     public int? CondicaoPagamentoId { get; set; }
     public string? Observacao { get; set; }
     public string? Status { get; set; }
+    public bool Ativo { get; set; }
     public DateTime CriadoEm { get; set; }
     public DateTime? AtualizadoEm { get; set; }
+    public string? NomeCliente { get; set; }
+    public string? NomeCondicaoPagamento { get; set; }
+    public string? NomeTransportadora { get; set; }
 }

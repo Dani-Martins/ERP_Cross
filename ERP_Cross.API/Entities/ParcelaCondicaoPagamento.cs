@@ -7,4 +7,7 @@ public class ParcelaCondicaoPagamento : ModeloBase
     public decimal Percentual { get; set; }
     public int FormaPagamentoId { get; set; }
     public int CondicaoPagamentoId { get; set; }
+    public bool Ativo { get; set; } = true;
+    public string? NomeFormaPagamento { get; set; }
+    public string? NomeCondicao { get; set; }
 }

@@ -10,5 +10,8 @@ public class NotaVendaProduto
     public decimal Quantidade { get; set; }
     public decimal PrecoUnit { get; set; }
     public decimal Desconto { get; set; }
+    public bool Ativo { get; set; } = true;
     public DateTime CriadoEm { get; set; }
+    public string? NomeProduto { get; set; }
+    public string? NomeCliente { get; set; }
 }

@@ -20,7 +20,8 @@ public class NotaCompraItemService
             NotaCompraId = dto.NotaCompraId, ProdutoId = dto.ProdutoId, UnidadeId = dto.UnidadeId,
             Quantidade = dto.Quantidade, PrecoUnit = dto.PrecoUnit, DescontoUnit = dto.DescontoUnit,
             LiquidoUnit = dto.LiquidoUnit, Total = dto.Total, Rateio = dto.Rateio,
-            CustoFinalUnit = dto.CustoFinalUnit, CustoFinal = dto.CustoFinal
+            CustoFinalUnit = dto.CustoFinalUnit, CustoFinal = dto.CustoFinal,
+            Ativo = dto.Ativo
         };
         i.Id = await _repository.InsertAsync(i);
         return i;
@@ -35,6 +36,7 @@ public class NotaCompraItemService
         i.Quantidade = dto.Quantidade; i.PrecoUnit = dto.PrecoUnit; i.DescontoUnit = dto.DescontoUnit;
         i.LiquidoUnit = dto.LiquidoUnit; i.Total = dto.Total; i.Rateio = dto.Rateio;
         i.CustoFinalUnit = dto.CustoFinalUnit; i.CustoFinal = dto.CustoFinal;
+        i.Ativo = dto.Ativo;
 
         return await _repository.UpdateAsync(i);
     }
