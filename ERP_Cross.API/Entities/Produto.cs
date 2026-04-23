@@ -1,3 +1,4 @@
+﻿#nullable enable
 namespace ERP_Cross.API.Entities;
 
 public class Produto : ModeloBase
@@ -18,3 +19,4 @@ public class Produto : ModeloBase
     public string? NomeMarca { get; set; }
     public string? NomeCategoria { get; set; }
 }
+

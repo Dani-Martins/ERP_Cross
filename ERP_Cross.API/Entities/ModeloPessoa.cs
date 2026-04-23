@@ -1,3 +1,4 @@
+﻿#nullable enable
 namespace ERP_Cross.API.Entities;
 
 public abstract class ModeloPessoa : ModeloBase
@@ -16,3 +17,4 @@ public abstract class ModeloPessoa : ModeloBase
     public int IdCidade { get; set; }
     public bool Ativo { get; set; } = true;
 }
+

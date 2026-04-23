@@ -1,3 +1,4 @@
+﻿#nullable enable
 using System.ComponentModel.DataAnnotations;
 
 namespace ERP_Cross.API.Models;
@@ -82,3 +83,4 @@ public class FuncionarioView
     public string? NomeCidade { get; set; }
     public string? NomeCargo { get; set; }
 }
+

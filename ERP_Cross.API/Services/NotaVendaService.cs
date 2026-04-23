@@ -1,3 +1,4 @@
+﻿#nullable enable
 using ERP_Cross.API.Entities;
 using ERP_Cross.API.Models;
 using ERP_Cross.API.Repositories;
@@ -46,3 +47,4 @@ public class NotaVendaService
     public async Task<bool> DeleteAsync(string numeroNota, string modelo, string serie, int clienteId)
         => await _repository.DeleteAsync(numeroNota, modelo, serie, clienteId);
 }
+

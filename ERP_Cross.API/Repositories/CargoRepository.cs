@@ -1,3 +1,4 @@
+﻿#nullable enable
 using System.Data;
 using Dapper;
 using ERP_Cross.API.Entities;
@@ -54,3 +55,4 @@ public class CargoRepository
         return rows > 0;
     }
 }
+

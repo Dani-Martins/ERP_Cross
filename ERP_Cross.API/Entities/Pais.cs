@@ -1,3 +1,4 @@
+﻿#nullable enable
 namespace ERP_Cross.API.Entities;
 
 public class Pais : ModeloBase
@@ -7,3 +8,4 @@ public class Pais : ModeloBase
     public string Ddi { get; set; } = string.Empty;
     public bool Ativo { get; set; } = true;
 }
+

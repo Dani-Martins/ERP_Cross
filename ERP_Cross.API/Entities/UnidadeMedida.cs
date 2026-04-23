@@ -1,3 +1,4 @@
+﻿#nullable enable
 namespace ERP_Cross.API.Entities;
 
 public class UnidadeMedida : ModeloBase
@@ -6,3 +7,4 @@ public class UnidadeMedida : ModeloBase
     public string? Sigla { get; set; }
     public bool Ativo { get; set; } = true;
 }
+

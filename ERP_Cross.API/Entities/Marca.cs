@@ -1,3 +1,4 @@
+﻿#nullable enable
 namespace ERP_Cross.API.Entities;
 
 public class Marca : ModeloBase
@@ -6,3 +7,4 @@ public class Marca : ModeloBase
     public string? Descricao { get; set; }
     public bool Ativo { get; set; } = true;
 }
+

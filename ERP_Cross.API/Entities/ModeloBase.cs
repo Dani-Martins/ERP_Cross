@@ -1,3 +1,4 @@
+﻿#nullable enable
 namespace ERP_Cross.API.Entities;
 
 public abstract class ModeloBase
@@ -6,3 +7,4 @@ public abstract class ModeloBase
     public DateTime DataCriacao { get; set; }
     public DateTime DataAtualizacao { get; set; }
 }
+

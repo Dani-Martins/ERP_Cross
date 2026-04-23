@@ -1,3 +1,4 @@
+﻿#nullable enable
 using System.ComponentModel.DataAnnotations;
 
 namespace ERP_Cross.API.Models;
@@ -78,3 +79,4 @@ public class ContaPagarView
     public string? NomeFornecedor { get; set; }
     public string? NomeFormaPagamento { get; set; }
 }
+

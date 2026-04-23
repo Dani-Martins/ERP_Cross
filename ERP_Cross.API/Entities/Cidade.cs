@@ -1,3 +1,4 @@
+﻿#nullable enable
 namespace ERP_Cross.API.Entities;
 
 public class Cidade : ModeloBase
@@ -8,3 +9,4 @@ public class Cidade : ModeloBase
     public bool Ativo { get; set; } = true;
     public string? NomeEstado { get; set; }
 }
+

@@ -1,3 +1,4 @@
+﻿#nullable enable
 namespace ERP_Cross.API.Entities;
 
 public class Cargo : ModeloBase
@@ -8,3 +9,4 @@ public class Cargo : ModeloBase
     public bool ExigeCnh { get; set; }
     public bool Ativo { get; set; } = true;
 }
+

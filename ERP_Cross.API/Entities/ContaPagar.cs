@@ -1,3 +1,4 @@
+﻿#nullable enable
 namespace ERP_Cross.API.Entities;
 
 public class ContaPagar
@@ -26,3 +27,4 @@ public class ContaPagar
     public string? NomeFornecedor { get; set; }
     public string? NomeFormaPagamento { get; set; }
 }
+

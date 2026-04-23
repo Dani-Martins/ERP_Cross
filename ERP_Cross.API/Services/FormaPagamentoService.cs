@@ -1,3 +1,4 @@
+﻿#nullable enable
 using ERP_Cross.API.Entities;
 using ERP_Cross.API.Models;
 using ERP_Cross.API.Repositories;
@@ -35,3 +36,4 @@ public class FormaPagamentoService
 
     public async Task<bool> DeleteAsync(int id) => await _repository.DeleteAsync(id);
 }
+

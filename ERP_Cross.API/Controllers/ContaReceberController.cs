@@ -1,3 +1,4 @@
+﻿#nullable enable
 using ERP_Cross.API.Entities;
 using ERP_Cross.API.Models;
 using ERP_Cross.API.Services;
@@ -37,3 +38,4 @@ public class ContaReceberController(ContaReceberService service) : ControllerBas
     public async Task<IActionResult> Delete(long id)
         => await _service.DeleteAsync(id) ? NoContent() : NotFound();
 }
+

@@ -1,3 +1,4 @@
+﻿#nullable enable
 using System.ComponentModel.DataAnnotations;
 
 namespace ERP_Cross.API.Models;
@@ -62,3 +63,4 @@ public class NotaVendaView
     public string? NomeCondicaoPagamento { get; set; }
     public string? NomeTransportadora { get; set; }
 }
+

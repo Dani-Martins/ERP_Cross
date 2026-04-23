@@ -1,3 +1,4 @@
+﻿#nullable enable
 namespace ERP_Cross.API.Entities;
 
 public class Fornecedor : ModeloPessoa
@@ -7,3 +8,4 @@ public class Fornecedor : ModeloPessoa
     public string? NomeCidade { get; set; }
     public string? NomeCondicaoPagamento { get; set; }
 }
+

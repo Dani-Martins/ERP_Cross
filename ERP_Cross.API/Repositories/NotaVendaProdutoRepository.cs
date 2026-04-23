@@ -1,3 +1,4 @@
+﻿#nullable enable
 using System.Data;
 using Dapper;
 using ERP_Cross.API.Entities;
@@ -43,3 +44,4 @@ public class NotaVendaProdutoRepository
             "DELETE FROM NotaVendaProduto WHERE NumeroNota=@NumeroNota AND Modelo=@Modelo AND Serie=@Serie AND ClienteId=@ClienteId AND ProdutoId=@ProdutoId",
             new { NumeroNota = numeroNota, Modelo = modelo, Serie = serie, ClienteId = clienteId, ProdutoId = produtoId }) > 0;
 }
+

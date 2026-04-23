@@ -1,3 +1,4 @@
+﻿#nullable enable
 namespace ERP_Cross.API.Entities;
 
 public class Veiculo : ModeloBase
@@ -9,3 +10,4 @@ public class Veiculo : ModeloBase
     public string? Descricao { get; set; }
     public bool Ativo { get; set; } = true;
 }
+

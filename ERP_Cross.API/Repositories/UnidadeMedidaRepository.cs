@@ -1,3 +1,4 @@
+﻿#nullable enable
 using System.Data;
 using Dapper;
 using ERP_Cross.API.Entities;
@@ -53,3 +54,4 @@ public class UnidadeMedidaRepository
         return rows > 0;
     }
 }
+

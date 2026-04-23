@@ -1,3 +1,4 @@
+﻿#nullable enable
 namespace ERP_Cross.API.Entities;
 
 public class Funcionario : ModeloPessoa
@@ -12,3 +13,4 @@ public class Funcionario : ModeloPessoa
     public string? NomeCidade { get; set; }
     public string? NomeCargo { get; set; }
 }
+

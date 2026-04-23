@@ -1,3 +1,4 @@
+﻿#nullable enable
 namespace ERP_Cross.API.Entities;
 
 public class CondicaoPagamento : ModeloBase
@@ -8,3 +9,4 @@ public class CondicaoPagamento : ModeloBase
     public decimal Desconto { get; set; }
     public bool Ativo { get; set; } = true;
 }
+

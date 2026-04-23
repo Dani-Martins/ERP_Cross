@@ -1,3 +1,4 @@
+﻿#nullable enable
 using System.ComponentModel.DataAnnotations;
 
 namespace ERP_Cross.API.Models;
@@ -33,3 +34,4 @@ public class CondicaoPagamentoView
     public DateTime DataCriacao { get; set; }
     public DateTime DataAtualizacao { get; set; }
 }
+

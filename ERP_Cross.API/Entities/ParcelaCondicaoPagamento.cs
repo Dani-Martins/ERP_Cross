@@ -1,3 +1,4 @@
+﻿#nullable enable
 namespace ERP_Cross.API.Entities;
 
 public class ParcelaCondicaoPagamento : ModeloBase
@@ -11,3 +12,4 @@ public class ParcelaCondicaoPagamento : ModeloBase
     public string? NomeFormaPagamento { get; set; }
     public string? NomeCondicao { get; set; }
 }
+

@@ -1,3 +1,4 @@
+﻿#nullable enable
 using ERP_Cross.API.Entities;
 using ERP_Cross.API.Models;
 using ERP_Cross.API.Services;
@@ -37,3 +38,4 @@ public class NotaVendaController(NotaVendaService service) : ControllerBase
     public async Task<IActionResult> Delete(string numeroNota, string modelo, string serie, int clienteId)
         => await _service.DeleteAsync(numeroNota, modelo, serie, clienteId) ? NoContent() : NotFound();
 }
+

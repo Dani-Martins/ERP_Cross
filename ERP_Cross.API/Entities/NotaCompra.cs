@@ -1,3 +1,4 @@
+﻿#nullable enable
 namespace ERP_Cross.API.Entities;
 
 public class NotaCompra
@@ -27,3 +28,4 @@ public class NotaCompra
     public string? NomeCondicaoPagamento { get; set; }
     public string? NomeTransportadora { get; set; }
 }
+

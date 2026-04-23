@@ -1,3 +1,4 @@
+﻿#nullable enable
 using System.Data;
 using ERP_Cross.API.Connection;
 using ERP_Cross.API.Repositories;
@@ -31,7 +32,7 @@ builder.Services.AddControllers()
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Conexão com o banco (MariaDB via Dapper)
+// Conexao com o banco (MariaDB via Dapper)
 builder.Services.AddSingleton<DbConnectionFactory>();
 builder.Services.AddScoped<IDbConnection>(provider =>
     provider.GetRequiredService<DbConnectionFactory>().CreateConnection());
@@ -99,3 +100,4 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+

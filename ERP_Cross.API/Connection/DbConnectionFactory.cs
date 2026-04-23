@@ -1,3 +1,4 @@
+﻿#nullable enable
 using System.Data;
 using MySqlConnector;
 
@@ -10,7 +11,7 @@ public class DbConnectionFactory
     public DbConnectionFactory(IConfiguration configuration)
     {
         _connectionString = configuration.GetConnectionString("DefaultConnection")
-            ?? throw new InvalidOperationException("ConnectionString 'DefaultConnection' não encontrada.");
+            ?? throw new InvalidOperationException("ConnectionString 'DefaultConnection' nao encontrada.");
     }
 
     public IDbConnection CreateConnection()
@@ -18,3 +19,4 @@ public class DbConnectionFactory
         return new MySqlConnection(_connectionString);
     }
 }
+

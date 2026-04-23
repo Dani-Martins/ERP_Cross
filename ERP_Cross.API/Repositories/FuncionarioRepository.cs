@@ -1,3 +1,4 @@
+﻿#nullable enable
 using System.Data;
 using Dapper;
 using ERP_Cross.API.Entities;
@@ -62,3 +63,4 @@ public class FuncionarioRepository
     public async Task<bool> DeleteAsync(int id)
         => await _connection.ExecuteAsync("DELETE FROM Funcionarios WHERE Id = @Id", new { Id = id }) > 0;
 }
+

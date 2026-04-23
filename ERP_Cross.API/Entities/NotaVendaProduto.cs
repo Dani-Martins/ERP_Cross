@@ -1,3 +1,4 @@
+﻿#nullable enable
 namespace ERP_Cross.API.Entities;
 
 public class NotaVendaProduto
@@ -15,3 +16,4 @@ public class NotaVendaProduto
     public string? NomeProduto { get; set; }
     public string? NomeCliente { get; set; }
 }
+

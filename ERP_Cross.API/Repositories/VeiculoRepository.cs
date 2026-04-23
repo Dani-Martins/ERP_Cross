@@ -1,3 +1,4 @@
+﻿#nullable enable
 using System.Data;
 using Dapper;
 using ERP_Cross.API.Entities;
@@ -59,3 +60,4 @@ public class VeiculoRepository
         return rows > 0;
     }
 }
+
