@@ -18,7 +18,7 @@ public class FornecedorService
         var f = new Fornecedor
         {
             Nome = dto.Nome, NomeFantasia = dto.NomeFantasia, CpfCnpj = dto.CpfCnpj, RgIe = dto.RgIe,
-            Telefone = dto.Telefone, Celular = dto.Celular, Email = dto.Email,
+            Contato2 = dto.Contato2, Celular = dto.Celular, Email = dto.Email,
             Cep = dto.Cep, Endereco = dto.Endereco, Numero = dto.Numero, Complemento = dto.Complemento, Bairro = dto.Bairro,
             IdCidade = dto.IdCidade, IdCondicaoPagamento = dto.IdCondicaoPagamento, Ativo = dto.Ativo
         };
@@ -32,7 +32,7 @@ public class FornecedorService
         if (f == null) return false;
 
         f.Nome = dto.Nome; f.NomeFantasia = dto.NomeFantasia; f.CpfCnpj = dto.CpfCnpj; f.RgIe = dto.RgIe;
-        f.Telefone = dto.Telefone; f.Celular = dto.Celular; f.Email = dto.Email;
+        f.Contato2 = dto.Contato2; f.Celular = dto.Celular; f.Email = dto.Email;
         f.Cep = dto.Cep; f.Endereco = dto.Endereco; f.Numero = dto.Numero; f.Complemento = dto.Complemento; f.Bairro = dto.Bairro;
         f.IdCidade = dto.IdCidade; f.IdCondicaoPagamento = dto.IdCondicaoPagamento; f.Ativo = dto.Ativo;
 

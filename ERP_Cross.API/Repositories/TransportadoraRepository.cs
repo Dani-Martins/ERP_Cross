@@ -11,7 +11,7 @@ public class TransportadoraRepository
     public TransportadoraRepository(IDbConnection connection) { _connection = connection; }
 
     private const string SelectColumns = @"
-        t.Id, t.Nome, t.NomeFantasia, t.CpfCnpj, t.RgIe, t.Telefone, t.Celular, t.Email,
+        t.Id, t.Nome, t.NomeFantasia, t.CpfCnpj, t.RgIe, t.Contato2, t.Celular, t.Email,
         t.Cep, t.Endereco, t.Numero, t.Complemento, t.Bairro, t.IdCidade,
         t.TipoPessoa, t.IdCondicaoPagamento, t.Ativo, t.DataCriacao, t.DataAtualizacao,
         ci.NomeCidade, cp.NomeCondicao AS NomeCondicaoPagamento";
@@ -35,10 +35,10 @@ public class TransportadoraRepository
     public async Task<int> InsertAsync(Transportadora t)
     {
         const string sql = @"
-            INSERT INTO Transportadoras (Nome, NomeFantasia, CpfCnpj, RgIe, Telefone, Celular, Email,
+            INSERT INTO Transportadoras (Nome, NomeFantasia, CpfCnpj, RgIe, Contato2, Celular, Email,
                 Cep, Endereco, Numero, Complemento, Bairro, IdCidade,
                 TipoPessoa, IdCondicaoPagamento, Ativo, DataCriacao, DataAtualizacao)
-            VALUES (@Nome, @NomeFantasia, @CpfCnpj, @RgIe, @Telefone, @Celular, @Email,
+            VALUES (@Nome, @NomeFantasia, @CpfCnpj, @RgIe, @Contato2, @Celular, @Email,
                 @Cep, @Endereco, @Numero, @Complemento, @Bairro, @IdCidade,
                 @TipoPessoa, @IdCondicaoPagamento, @Ativo, NOW(), NOW());
             SELECT LAST_INSERT_ID();";
@@ -50,7 +50,7 @@ public class TransportadoraRepository
         const string sql = @"
             UPDATE Transportadoras SET
                 Nome=@Nome, NomeFantasia=@NomeFantasia, CpfCnpj=@CpfCnpj, RgIe=@RgIe,
-                Telefone=@Telefone, Celular=@Celular, Email=@Email,
+                Contato2=@Contato2, Celular=@Celular, Email=@Email,
                 Cep=@Cep, Endereco=@Endereco, Numero=@Numero, Complemento=@Complemento, Bairro=@Bairro, IdCidade=@IdCidade,
                 TipoPessoa=@TipoPessoa, IdCondicaoPagamento=@IdCondicaoPagamento,
                 Ativo=@Ativo, DataAtualizacao=NOW()

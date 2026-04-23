@@ -11,7 +11,7 @@ public class CreateTransportadoraDto
     [Required]
     public string CpfCnpj { get; set; } = string.Empty;
     public string? RgIe { get; set; }
-    public string? Telefone { get; set; }
+    public string? Contato2 { get; set; }
     public string? Celular { get; set; }
     public string? Email { get; set; }
     public string? Cep { get; set; }
@@ -33,7 +33,7 @@ public class UpdateTransportadoraDto
     [Required]
     public string CpfCnpj { get; set; } = string.Empty;
     public string? RgIe { get; set; }
-    public string? Telefone { get; set; }
+    public string? Contato2 { get; set; }
     public string? Celular { get; set; }
     public string? Email { get; set; }
     public string? Cep { get; set; }
@@ -54,7 +54,7 @@ public class TransportadoraView
     public string? NomeFantasia { get; set; }
     public string CpfCnpj { get; set; } = string.Empty;
     public string? RgIe { get; set; }
-    public string? Telefone { get; set; }
+    public string? Contato2 { get; set; }
     public string? Celular { get; set; }
     public string? Email { get; set; }
     public string? Cep { get; set; }

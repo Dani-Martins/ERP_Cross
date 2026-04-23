@@ -11,7 +11,7 @@ public class FornecedorRepository
     public FornecedorRepository(IDbConnection connection) { _connection = connection; }
 
     private const string SelectColumns = @"
-        f.Id, f.Nome, f.NomeFantasia, f.CpfCnpj, f.RgIe, f.Telefone, f.Celular, f.Email,
+        f.Id, f.Nome, f.NomeFantasia, f.CpfCnpj, f.RgIe, f.Contato2, f.Celular, f.Email,
         f.Cep, f.Endereco, f.Numero, f.Complemento, f.Bairro, f.IdCidade,
         f.IdCondicaoPagamento, f.Ativo, f.DataCriacao, f.DataAtualizacao,
         ci.NomeCidade, cp.NomeCondicao AS NomeCondicaoPagamento";
@@ -35,10 +35,10 @@ public class FornecedorRepository
     public async Task<int> InsertAsync(Fornecedor f)
     {
         const string sql = @"
-            INSERT INTO Fornecedores (Nome, NomeFantasia, CpfCnpj, RgIe, Telefone, Celular, Email,
+            INSERT INTO Fornecedores (Nome, NomeFantasia, CpfCnpj, RgIe, Contato2, Celular, Email,
                 Cep, Endereco, Numero, Complemento, Bairro, IdCidade,
                 IdCondicaoPagamento, Ativo, DataCriacao, DataAtualizacao)
-            VALUES (@Nome, @NomeFantasia, @CpfCnpj, @RgIe, @Telefone, @Celular, @Email,
+            VALUES (@Nome, @NomeFantasia, @CpfCnpj, @RgIe, @Contato2, @Celular, @Email,
                 @Cep, @Endereco, @Numero, @Complemento, @Bairro, @IdCidade,
                 @IdCondicaoPagamento, @Ativo, NOW(), NOW());
             SELECT LAST_INSERT_ID();";
@@ -50,7 +50,7 @@ public class FornecedorRepository
         const string sql = @"
             UPDATE Fornecedores SET
                 Nome=@Nome, NomeFantasia=@NomeFantasia, CpfCnpj=@CpfCnpj, RgIe=@RgIe,
-                Telefone=@Telefone, Celular=@Celular, Email=@Email,
+                Contato2=@Contato2, Celular=@Celular, Email=@Email,
                 Cep=@Cep, Endereco=@Endereco, Numero=@Numero, Complemento=@Complemento, Bairro=@Bairro, IdCidade=@IdCidade,
                 IdCondicaoPagamento=@IdCondicaoPagamento, Ativo=@Ativo, DataAtualizacao=NOW()
             WHERE Id = @Id";

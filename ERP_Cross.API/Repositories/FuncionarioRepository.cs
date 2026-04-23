@@ -11,7 +11,7 @@ public class FuncionarioRepository
     public FuncionarioRepository(IDbConnection connection) { _connection = connection; }
 
     private const string SelectColumns = @"
-        fn.Id, fn.Nome, fn.CpfCnpj, fn.RgIe, fn.Telefone, fn.Celular, fn.Email,
+        fn.Id, fn.Nome, fn.CpfCnpj, fn.RgIe, fn.Contato2, fn.Celular, fn.Email,
         fn.Cep, fn.Endereco, fn.Numero, fn.Complemento, fn.Bairro, fn.IdCidade,
         fn.IdCargo, fn.Pis, fn.Ctps, fn.Salario, fn.DataAdmissao, fn.DataDemissao, fn.Sexo,
         fn.Ativo, fn.DataCriacao, fn.DataAtualizacao,
@@ -36,10 +36,10 @@ public class FuncionarioRepository
     public async Task<int> InsertAsync(Funcionario f)
     {
         const string sql = @"
-            INSERT INTO Funcionarios (Nome, CpfCnpj, RgIe, Telefone, Celular, Email,
+            INSERT INTO Funcionarios (Nome, CpfCnpj, RgIe, Contato2, Celular, Email,
                 Cep, Endereco, Numero, Complemento, Bairro, IdCidade,
                 IdCargo, Pis, Ctps, Salario, DataAdmissao, DataDemissao, Sexo, Ativo, DataCriacao, DataAtualizacao)
-            VALUES (@Nome, @CpfCnpj, @RgIe, @Telefone, @Celular, @Email,
+            VALUES (@Nome, @CpfCnpj, @RgIe, @Contato2, @Celular, @Email,
                 @Cep, @Endereco, @Numero, @Complemento, @Bairro, @IdCidade,
                 @IdCargo, @Pis, @Ctps, @Salario, @DataAdmissao, @DataDemissao, @Sexo, @Ativo, NOW(), NOW());
             SELECT LAST_INSERT_ID();";
@@ -51,7 +51,7 @@ public class FuncionarioRepository
         const string sql = @"
             UPDATE Funcionarios SET
                 Nome=@Nome, CpfCnpj=@CpfCnpj, RgIe=@RgIe,
-                Telefone=@Telefone, Celular=@Celular, Email=@Email,
+                Contato2=@Contato2, Celular=@Celular, Email=@Email,
                 Cep=@Cep, Endereco=@Endereco, Numero=@Numero, Complemento=@Complemento, Bairro=@Bairro, IdCidade=@IdCidade,
                 IdCargo=@IdCargo, Pis=@Pis, Ctps=@Ctps, Salario=@Salario,
                 DataAdmissao=@DataAdmissao, DataDemissao=@DataDemissao, Sexo=@Sexo,

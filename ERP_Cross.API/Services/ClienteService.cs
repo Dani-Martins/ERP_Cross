@@ -18,7 +18,7 @@ public class ClienteService
         var c = new Cliente
         {
             Nome = dto.Nome, NomeFantasia = dto.NomeFantasia, CpfCnpj = dto.CpfCnpj, RgIe = dto.RgIe,
-            Telefone = dto.Telefone, Celular = dto.Celular, Email = dto.Email,
+            Contato2 = dto.Contato2, Celular = dto.Celular, Email = dto.Email,
             Cep = dto.Cep, Endereco = dto.Endereco, Numero = dto.Numero, Complemento = dto.Complemento, Bairro = dto.Bairro,
             IdCidade = dto.IdCidade, Pf = dto.Pf, DataNascimento = dto.DataNascimento, Sexo = dto.Sexo,
             IdCondicaoPagamento = dto.IdCondicaoPagamento, LimiteCredito = dto.LimiteCredito, Ativo = dto.Ativo
@@ -33,7 +33,7 @@ public class ClienteService
         if (c == null) return false;
 
         c.Nome = dto.Nome; c.NomeFantasia = dto.NomeFantasia; c.CpfCnpj = dto.CpfCnpj; c.RgIe = dto.RgIe;
-        c.Telefone = dto.Telefone; c.Celular = dto.Celular; c.Email = dto.Email;
+        c.Contato2 = dto.Contato2; c.Celular = dto.Celular; c.Email = dto.Email;
         c.Cep = dto.Cep; c.Endereco = dto.Endereco; c.Numero = dto.Numero; c.Complemento = dto.Complemento; c.Bairro = dto.Bairro;
         c.IdCidade = dto.IdCidade; c.Pf = dto.Pf; c.DataNascimento = dto.DataNascimento; c.Sexo = dto.Sexo;
         c.IdCondicaoPagamento = dto.IdCondicaoPagamento; c.LimiteCredito = dto.LimiteCredito; c.Ativo = dto.Ativo;

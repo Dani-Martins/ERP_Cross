@@ -11,7 +11,7 @@ public class CreateFornecedorDto
     [Required]
     public string CpfCnpj { get; set; } = string.Empty;
     public string? RgIe { get; set; }
-    public string? Telefone { get; set; }
+    public string? Contato2 { get; set; }
     public string? Celular { get; set; }
     public string? Email { get; set; }
     public string? Cep { get; set; }
@@ -32,7 +32,7 @@ public class UpdateFornecedorDto
     [Required]
     public string CpfCnpj { get; set; } = string.Empty;
     public string? RgIe { get; set; }
-    public string? Telefone { get; set; }
+    public string? Contato2 { get; set; }
     public string? Celular { get; set; }
     public string? Email { get; set; }
     public string? Cep { get; set; }
@@ -52,7 +52,7 @@ public class FornecedorView
     public string? NomeFantasia { get; set; }
     public string CpfCnpj { get; set; } = string.Empty;
     public string? RgIe { get; set; }
-    public string? Telefone { get; set; }
+    public string? Contato2 { get; set; }
     public string? Celular { get; set; }
     public string? Email { get; set; }
     public string? Cep { get; set; }

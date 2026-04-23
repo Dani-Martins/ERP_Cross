@@ -18,7 +18,7 @@ public class TransportadoraService
         var t = new Transportadora
         {
             Nome = dto.Nome, NomeFantasia = dto.NomeFantasia, CpfCnpj = dto.CpfCnpj, RgIe = dto.RgIe,
-            Telefone = dto.Telefone, Celular = dto.Celular, Email = dto.Email,
+            Contato2 = dto.Contato2, Celular = dto.Celular, Email = dto.Email,
             Cep = dto.Cep, Endereco = dto.Endereco, Numero = dto.Numero, Complemento = dto.Complemento, Bairro = dto.Bairro,
             IdCidade = dto.IdCidade, TipoPessoa = dto.TipoPessoa, IdCondicaoPagamento = dto.IdCondicaoPagamento, Ativo = dto.Ativo
         };
@@ -32,7 +32,7 @@ public class TransportadoraService
         if (t == null) return false;
 
         t.Nome = dto.Nome; t.NomeFantasia = dto.NomeFantasia; t.CpfCnpj = dto.CpfCnpj; t.RgIe = dto.RgIe;
-        t.Telefone = dto.Telefone; t.Celular = dto.Celular; t.Email = dto.Email;
+        t.Contato2 = dto.Contato2; t.Celular = dto.Celular; t.Email = dto.Email;
         t.Cep = dto.Cep; t.Endereco = dto.Endereco; t.Numero = dto.Numero; t.Complemento = dto.Complemento; t.Bairro = dto.Bairro;
         t.IdCidade = dto.IdCidade; t.TipoPessoa = dto.TipoPessoa; t.IdCondicaoPagamento = dto.IdCondicaoPagamento; t.Ativo = dto.Ativo;
 

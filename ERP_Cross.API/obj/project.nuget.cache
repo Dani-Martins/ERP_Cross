@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "VjgOP4g5A5Q=",
+  "dgSpecHash": "tkZ4+vvnFWs=",
   "success": true,
-  "projectFilePath": "d:\\DOCUMENTOS\\Documents\\ERP_Cross\\ERP_Cross.API\\ERP_Cross.API.csproj",
+  "projectFilePath": "D:\\DOCUMENTOS\\Documents\\ERP_Cross\\ERP_Cross.API\\ERP_Cross.API.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\DANIEL\\.nuget\\packages\\dapper\\2.1.72\\dapper.2.1.72.nupkg.sha512",
     "C:\\Users\\DANIEL\\.nuget\\packages\\microsoft.extensions.apidescription.server\\10.0.0\\microsoft.extensions.apidescription.server.10.0.0.nupkg.sha512",

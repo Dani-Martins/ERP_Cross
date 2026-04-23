@@ -18,7 +18,7 @@ public class FuncionarioService
         var f = new Funcionario
         {
             Nome = dto.Nome, CpfCnpj = dto.CpfCnpj, RgIe = dto.RgIe,
-            Telefone = dto.Telefone, Celular = dto.Celular, Email = dto.Email,
+            Contato2 = dto.Contato2, Celular = dto.Celular, Email = dto.Email,
             Cep = dto.Cep, Endereco = dto.Endereco, Numero = dto.Numero, Complemento = dto.Complemento, Bairro = dto.Bairro,
             IdCidade = dto.IdCidade, IdCargo = dto.IdCargo, Pis = dto.Pis, Ctps = dto.Ctps,
             Salario = dto.Salario, DataAdmissao = dto.DataAdmissao, DataDemissao = dto.DataDemissao,
@@ -34,7 +34,7 @@ public class FuncionarioService
         if (f == null) return false;
 
         f.Nome = dto.Nome; f.CpfCnpj = dto.CpfCnpj; f.RgIe = dto.RgIe;
-        f.Telefone = dto.Telefone; f.Celular = dto.Celular; f.Email = dto.Email;
+        f.Contato2 = dto.Contato2; f.Celular = dto.Celular; f.Email = dto.Email;
         f.Cep = dto.Cep; f.Endereco = dto.Endereco; f.Numero = dto.Numero; f.Complemento = dto.Complemento; f.Bairro = dto.Bairro;
         f.IdCidade = dto.IdCidade; f.IdCargo = dto.IdCargo; f.Pis = dto.Pis; f.Ctps = dto.Ctps;
         f.Salario = dto.Salario; f.DataAdmissao = dto.DataAdmissao; f.DataDemissao = dto.DataDemissao;
