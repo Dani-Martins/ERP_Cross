@@ -20,6 +20,7 @@ public class CreateContaReceberDto
     public decimal Juros { get; set; }
     public decimal Multa { get; set; }
     public decimal Desconto { get; set; }
+    [StringLength(20, ErrorMessage = "Status deve ter no maximo 20 caracteres.")]
     public string Status { get; set; } = "ABERTO";
     public bool Ativo { get; set; } = true;
     public int? FormaPagamentoId { get; set; }
@@ -44,6 +45,7 @@ public class UpdateContaReceberDto
     public decimal Juros { get; set; }
     public decimal Multa { get; set; }
     public decimal Desconto { get; set; }
+    [StringLength(20, ErrorMessage = "Status deve ter no maximo 20 caracteres.")]
     public string Status { get; set; } = "ABERTO";
     public bool Ativo { get; set; } = true;
     public int? FormaPagamentoId { get; set; }

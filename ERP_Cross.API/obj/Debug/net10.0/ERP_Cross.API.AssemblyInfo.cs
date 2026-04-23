@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ERP_Cross.API")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+71d4c39f8800d2f10ee6a95d29406c03df2902bb")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+373fca4cb0f481e0b4a37d36456f79190a681db1")]
 [assembly: System.Reflection.AssemblyProductAttribute("ERP_Cross.API")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ERP_Cross.API")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

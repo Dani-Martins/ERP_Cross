@@ -1,6 +1,7 @@
 using System.Data;
 using ERP_Cross.API.Connection;
 using ERP_Cross.API.Repositories;
+using ERP_Cross.API.Serialization;
 using ERP_Cross.API.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -22,6 +23,8 @@ builder.Services.AddControllers()
     {
         options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
         options.JsonSerializerOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
+        options.JsonSerializerOptions.Converters.Add(new FlexibleDateTimeConverter());
+        options.JsonSerializerOptions.Converters.Add(new FlexibleNullableDateTimeConverter());
     });
 
 // Swagger
