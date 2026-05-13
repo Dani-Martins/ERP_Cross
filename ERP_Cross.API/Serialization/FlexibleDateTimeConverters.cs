@@ -34,12 +34,17 @@ public class FlexibleDateTimeConverter : JsonConverter<DateTime>
 
     internal static bool TryParseDate(string text, out DateTime value)
     {
-        return DateTime.TryParseExact(
-            text,
-            AcceptedFormats,
-            CultureInfo.GetCultureInfo("pt-BR"),
-            DateTimeStyles.None,
-            out value);
+        // Formato manual: dd/MM/yyyy
+        if (DateTime.TryParseExact(
+                text,
+                AcceptedFormats,
+                CultureInfo.GetCultureInfo("pt-BR"),
+                DateTimeStyles.None,
+                out value))
+            return true;
+
+        // Fallback: ISO 8601 gerado automaticamente pelo Swagger
+        return DateTime.TryParse(text, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out value);
     }
 }
 

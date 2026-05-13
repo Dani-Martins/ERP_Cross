@@ -19,6 +19,8 @@ public class CreateFuncionarioDto
     public string? Complemento { get; set; }
     public string? Bairro { get; set; }
     public int IdCidade { get; set; }
+    [Required]
+    [Range(1, int.MaxValue, ErrorMessage = "IdCargo deve ser maior que zero.")]
     public int? IdCargo { get; set; }
     public string? Pis { get; set; }
     public string? Ctps { get; set; }
@@ -45,6 +47,8 @@ public class UpdateFuncionarioDto
     public string? Complemento { get; set; }
     public string? Bairro { get; set; }
     public int IdCidade { get; set; }
+    [Required]
+    [Range(1, int.MaxValue, ErrorMessage = "IdCargo deve ser maior que zero.")]
     public int? IdCargo { get; set; }
     public string? Pis { get; set; }
     public string? Ctps { get; set; }

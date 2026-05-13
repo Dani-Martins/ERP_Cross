@@ -20,7 +20,8 @@ public class NotaCompraService
             FornecedorId = dto.FornecedorId, Modelo = dto.Modelo, Serie = dto.Serie, NumeroNota = dto.NumeroNota,
             DataEmissao = dto.DataEmissao, ChaveAcesso = dto.ChaveAcesso, TipoFrete = dto.TipoFrete,
             ValorFrete = dto.ValorFrete, ValorSeguro = dto.ValorSeguro, OutrasDespesas = dto.OutrasDespesas,
-            TotalProdutos = dto.TotalProdutos, TotalPagar = dto.TotalPagar,
+            TotalProdutos = dto.TotalProdutos,
+            TotalPagar = dto.TotalProdutos + dto.ValorFrete + dto.ValorSeguro + dto.OutrasDespesas,
             CondicaoPagamentoId = dto.CondicaoPagamentoId, TransportadoraId = dto.TransportadoraId,
             PlacaVeiculo = dto.PlacaVeiculo, Observacao = dto.Observacao, Status = dto.Status,
             Ativo = dto.Ativo
@@ -37,7 +38,8 @@ public class NotaCompraService
         n.FornecedorId = dto.FornecedorId; n.Modelo = dto.Modelo; n.Serie = dto.Serie; n.NumeroNota = dto.NumeroNota;
         n.DataEmissao = dto.DataEmissao; n.ChaveAcesso = dto.ChaveAcesso; n.TipoFrete = dto.TipoFrete;
         n.ValorFrete = dto.ValorFrete; n.ValorSeguro = dto.ValorSeguro; n.OutrasDespesas = dto.OutrasDespesas;
-        n.TotalProdutos = dto.TotalProdutos; n.TotalPagar = dto.TotalPagar;
+        n.TotalProdutos = dto.TotalProdutos;
+        n.TotalPagar = dto.TotalProdutos + dto.ValorFrete + dto.ValorSeguro + dto.OutrasDespesas;
         n.CondicaoPagamentoId = dto.CondicaoPagamentoId; n.TransportadoraId = dto.TransportadoraId;
         n.PlacaVeiculo = dto.PlacaVeiculo; n.Observacao = dto.Observacao; n.Status = dto.Status;
         n.Ativo = dto.Ativo;

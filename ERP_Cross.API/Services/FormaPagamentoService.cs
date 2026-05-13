@@ -19,7 +19,7 @@ public class FormaPagamentoService
 
     public async Task<FormaPagamento> CreateAsync(CreateFormaPagamentoDto dto)
     {
-        var forma = new FormaPagamento { NomeFormaPagamento = dto.NomeFormaPagamento, Ativo = dto.Ativo };
+        var forma = new FormaPagamento { NomeFormaPagamento = dto.NomeFormaPagamento, AceitaParcela = dto.AceitaParcela, Ativo = dto.Ativo };
         forma.Id = await _repository.InsertAsync(forma);
         return forma;
     }
@@ -30,6 +30,7 @@ public class FormaPagamentoService
         if (forma == null) return false;
 
         forma.NomeFormaPagamento = dto.NomeFormaPagamento;
+        forma.AceitaParcela = dto.AceitaParcela;
         forma.Ativo = dto.Ativo;
         return await _repository.UpdateAsync(forma);
     }

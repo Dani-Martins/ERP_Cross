@@ -17,8 +17,8 @@ public class CreateNotaVendaDto
     public string? PlacaVeiculo { get; set; }
     public string TipoFrete { get; set; } = "CIF";
     public decimal ValorFrete { get; set; }
+    public decimal Desconto { get; set; }
     public decimal TotalProdutos { get; set; }
-    public decimal TotalPagar { get; set; }
     public int? CondicaoPagamentoId { get; set; }
     public string? Observacao { get; set; }
     public string? Status { get; set; }
@@ -32,8 +32,8 @@ public class UpdateNotaVendaDto
     public string? PlacaVeiculo { get; set; }
     public string TipoFrete { get; set; } = "CIF";
     public decimal ValorFrete { get; set; }
+    public decimal Desconto { get; set; }
     public decimal TotalProdutos { get; set; }
-    public decimal TotalPagar { get; set; }
     public int? CondicaoPagamentoId { get; set; }
     public string? Observacao { get; set; }
     public string? Status { get; set; }
@@ -51,6 +51,7 @@ public class NotaVendaView
     public string? PlacaVeiculo { get; set; }
     public string TipoFrete { get; set; } = string.Empty;
     public decimal ValorFrete { get; set; }
+    public decimal Desconto { get; set; }
     public decimal TotalProdutos { get; set; }
     public decimal TotalPagar { get; set; }
     public int? CondicaoPagamentoId { get; set; }

@@ -1,9 +1,12 @@
 ﻿#nullable enable
 using System.Data;
 using ERP_Cross.API.Connection;
+using ERP_Cross.API.Errors;
+using ERP_Cross.API.Middleware;
 using ERP_Cross.API.Repositories;
 using ERP_Cross.API.Serialization;
 using ERP_Cross.API.Services;
+using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,6 +30,18 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.Converters.Add(new FlexibleDateTimeConverter());
         options.JsonSerializerOptions.Converters.Add(new FlexibleNullableDateTimeConverter());
     });
+
+// Padronizacao de erros de validacao de model
+builder.Services.Configure<ApiBehaviorOptions>(options =>
+{
+    options.InvalidModelStateResponseFactory = context =>
+    {
+        var message = string.Join(" | ", context.ModelState.Values
+            .SelectMany(v => v.Errors)
+            .Select(e => e.ErrorMessage));
+        return new BadRequestObjectResult(new ApiErrorResponse("VALIDATION_ERROR", message));
+    };
+});
 
 // Swagger
 builder.Services.AddEndpointsApiExplorer();
@@ -94,6 +109,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseMiddleware<ExceptionMiddleware>();
 app.UseCors("AllowAll");
 app.UseHttpsRedirection();
 app.UseAuthorization();

@@ -13,7 +13,6 @@ public class CreateProdutoDto
     public string? Descricao { get; set; }
     public string? CodigoBarras { get; set; }
     public decimal CustoCompra { get; set; }
-    public decimal PrecoVenda { get; set; }
     public decimal LucroPercentual { get; set; }
     public decimal Estoque { get; set; }
     public decimal EstoqueMinimo { get; set; }
@@ -30,7 +29,6 @@ public class UpdateProdutoDto
     public string? Descricao { get; set; }
     public string? CodigoBarras { get; set; }
     public decimal CustoCompra { get; set; }
-    public decimal PrecoVenda { get; set; }
     public decimal LucroPercentual { get; set; }
     public decimal Estoque { get; set; }
     public decimal EstoqueMinimo { get; set; }

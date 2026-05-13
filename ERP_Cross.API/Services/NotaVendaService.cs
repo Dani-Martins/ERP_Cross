@@ -21,8 +21,10 @@ public class NotaVendaService
         {
             NumeroNota = dto.NumeroNota, Modelo = dto.Modelo, Serie = dto.Serie, ClienteId = dto.ClienteId,
             DataEmissao = dto.DataEmissao, TransportadoraId = dto.TransportadoraId, PlacaVeiculo = dto.PlacaVeiculo,
-            TipoFrete = dto.TipoFrete, ValorFrete = dto.ValorFrete, TotalProdutos = dto.TotalProdutos,
-            TotalPagar = dto.TotalPagar, CondicaoPagamentoId = dto.CondicaoPagamentoId,
+            TipoFrete = dto.TipoFrete, ValorFrete = dto.ValorFrete, Desconto = dto.Desconto,
+            TotalProdutos = dto.TotalProdutos,
+            TotalPagar = dto.TotalProdutos + dto.ValorFrete - dto.Desconto,
+            CondicaoPagamentoId = dto.CondicaoPagamentoId,
             Observacao = dto.Observacao, Status = dto.Status,
             Ativo = dto.Ativo
         };
@@ -37,7 +39,8 @@ public class NotaVendaService
 
         n.DataEmissao = dto.DataEmissao; n.TransportadoraId = dto.TransportadoraId;
         n.PlacaVeiculo = dto.PlacaVeiculo; n.TipoFrete = dto.TipoFrete; n.ValorFrete = dto.ValorFrete;
-        n.TotalProdutos = dto.TotalProdutos; n.TotalPagar = dto.TotalPagar;
+        n.Desconto = dto.Desconto; n.TotalProdutos = dto.TotalProdutos;
+        n.TotalPagar = dto.TotalProdutos + dto.ValorFrete - dto.Desconto;
         n.CondicaoPagamentoId = dto.CondicaoPagamentoId; n.Observacao = dto.Observacao; n.Status = dto.Status;
         n.Ativo = dto.Ativo;
 

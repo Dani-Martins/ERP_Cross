@@ -19,7 +19,6 @@ public class CreateNotaCompraDto
     public decimal ValorSeguro { get; set; }
     public decimal OutrasDespesas { get; set; }
     public decimal TotalProdutos { get; set; }
-    public decimal TotalPagar { get; set; }
     public int? CondicaoPagamentoId { get; set; }
     public int? TransportadoraId { get; set; }
     public string? PlacaVeiculo { get; set; }
@@ -44,7 +43,6 @@ public class UpdateNotaCompraDto
     public decimal ValorSeguro { get; set; }
     public decimal OutrasDespesas { get; set; }
     public decimal TotalProdutos { get; set; }
-    public decimal TotalPagar { get; set; }
     public int? CondicaoPagamentoId { get; set; }
     public int? TransportadoraId { get; set; }
     public string? PlacaVeiculo { get; set; }
