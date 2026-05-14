@@ -50,7 +50,7 @@
 .section-title {
   font-size: 1rem;
   font-weight: 700;
-  color: #333;
+  color: var(--text-section-title);
   text-transform: uppercase;
   letter-spacing: 0.06em;
   margin: 0 0 1rem;
@@ -60,7 +60,7 @@
 
 /* Loading */
 .dashboard-loading {
-  color: #888;
+  color: var(--dashboard-loading-color);
   font-size: 0.95rem;
   padding: 1rem 0.5rem;
 }
@@ -99,27 +99,27 @@
 .stat-card--gold .stat-card-icon { color: #D4A017; }
 
 .stat-card--dark {
-  background: #fff;
-  color: #111;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-  border: 1px solid #e8e8e8;
+  background: var(--stat-dark-bg);
+  color: var(--stat-dark-color);
+  box-shadow: var(--shadow-card);
+  border: 1px solid var(--stat-dark-border);
 }
 
-.stat-card--dark .stat-card-icon { color: #555; }
+.stat-card--dark .stat-card-icon { color: var(--stat-dark-icon); }
 
 .stat-card--green {
-  background: #e8f5e9;
-  color: #1b5e20;
+  background: var(--stat-green-bg);
+  color: var(--stat-green-color);
 }
 
-.stat-card--green .stat-card-icon { color: #2e7d32; }
+.stat-card--green .stat-card-icon { color: var(--stat-green-icon); }
 
 .stat-card--red {
-  background: #fce4e4;
-  color: #7f1d1d;
+  background: var(--stat-red-bg);
+  color: var(--stat-red-color);
 }
 
-.stat-card--red .stat-card-icon { color: #b91c1c; }
+.stat-card--red .stat-card-icon { color: var(--stat-red-icon); }
 
 .stat-card-icon {
   flex-shrink: 0;
@@ -152,9 +152,9 @@
 }
 
 .quick-btn {
-  background: #fff;
+  background: var(--quick-btn-bg);
   border: 1.5px solid #D4A017;
-  color: #111;
+  color: var(--quick-btn-color);
   padding: 0.6rem 1.25rem;
   border-radius: 8px;
   font-size: 0.9rem;

@@ -1,3 +1,5 @@
+@import './styles/theme.css';
+
 *, *::before, *::after {
   box-sizing: border-box;
 }
@@ -6,8 +8,8 @@ body {
   margin: 0;
   font-family: system-ui, 'Segoe UI', Roboto, Arial, sans-serif;
   font-size: 14px;
-  background: #f4f6fb;
-  color: #1a1a2e;
+  background: var(--bg-body);
+  color: var(--text-primary);
 }
 
 a {

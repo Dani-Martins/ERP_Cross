@@ -1,0 +1,173 @@
+/* ═══════════════════════════════════════════════════════════════════════════════
+   VITAL TRAINER ERP — Design tokens
+   Adicionar novo tema: criar bloco [data-theme="nome"] com as mesmas variáveis
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+/* ── Tema Claro (padrão) ─────────────────────────────────────────────────────── */
+:root {
+  /* Backgrounds */
+  --bg-body:              #f4f6fb;
+  --bg-main:              #f0f0f0;
+  --bg-card:              #ffffff;
+  --bg-card-hover:        #fafafa;
+  --bg-input:             #ffffff;
+  --bg-hover:             #f9fafb;
+  --bg-tag:               #f3f4f6;
+  --bg-table-head:        #f9fafb;
+  --bg-header:            #ffffff;
+  --bg-modal:             #ffffff;
+  --bg-btn-delete-hover:  #fef2f2;
+
+  /* Text */
+  --text-primary:         #111111;
+  --text-secondary:       #374151;
+  --text-muted:           #6b7280;
+  --text-faint:           #9ca3af;
+  --text-tag:             #374151;
+  --text-section-title:   #333333;
+  --text-page-title:      #111111;
+
+  /* Borders */
+  --border-color:         #d0d5dd;
+  --border-card:          #e5e7eb;
+  --border-table-head:    #e5e7eb;
+  --border-table-row:     #f3f4f6;
+
+  /* Shadows */
+  --shadow-card:          0 1px 4px rgba(0,0,0,0.08);
+  --shadow-header:        0 1px 4px rgba(0,0,0,0.06);
+  --shadow-modal:         0 20px 60px rgba(0,0,0,0.25);
+
+  /* Stat cards */
+  --stat-dark-bg:         #ffffff;
+  --stat-dark-color:      #111111;
+  --stat-dark-border:     #e8e8e8;
+  --stat-dark-icon:       #555555;
+  --stat-green-bg:        #e8f5e9;
+  --stat-green-color:     #1b5e20;
+  --stat-green-icon:      #2e7d32;
+  --stat-red-bg:          #fce4e4;
+  --stat-red-color:       #7f1d1d;
+  --stat-red-icon:        #b91c1c;
+
+  /* Status badges */
+  --status-active-bg:     #dcfce7;
+  --status-active-color:  #16a34a;
+  --status-inactive-bg:   #fee2e2;
+  --status-inactive-color:#dc2626;
+
+  /* Buttons */
+  --btn-secondary-bg:       #ffffff;
+  --btn-secondary-color:    #374151;
+  --btn-secondary-border:   #d0d5dd;
+  --btn-secondary-hover-bg: #f9fafb;
+  --btn-edit-hover-bg:      #f3f4f6;
+
+  /* Forms */
+  --form-error-bg:        #fef2f2;
+  --form-check-color:     #374151;
+
+  /* Modal */
+  --modal-overlay-bg:       rgba(0,0,0,0.45);
+  --modal-close-color:      #9ca3af;
+  --modal-close-hover-bg:   #f3f4f6;
+  --modal-close-hover-color:#374151;
+  --modal-body-color:       #374151;
+  --modal-title-color:      #111111;
+  --modal-label-color:      #374151;
+
+  /* Dashboard */
+  --dashboard-loading-color:#888888;
+  --quick-btn-bg:           #ffffff;
+  --quick-btn-color:        #111111;
+
+  /* Select arrow (SVG inline) */
+  --select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+}
+
+/* ── Overrides específicos no tema escuro ────────────────────────────────────── */
+[data-theme="dark"] .page-title {
+  color: #ffffff;
+}
+
+/* ── Tema Escuro ─────────────────────────────────────────────────────────────── */
+[data-theme="dark"] {
+  /* Backgrounds */
+  --bg-body:              #0f0f0f;
+  --bg-main:              #161616;
+  --bg-card:              #1e1e1e;
+  --bg-card-hover:        #252525;
+  --bg-input:             #252525;
+  --bg-hover:             #252525;
+  --bg-tag:               #2a2a2a;
+  --bg-table-head:        #252525;
+  --bg-header:            #1a1a1a;
+  --bg-modal:             #1e1e1e;
+  --bg-btn-delete-hover:  #2d0707;
+
+  /* Text */
+  --text-primary:         #f1f1f1;
+  --text-secondary:       #d1d5db;
+  --text-muted:           #9ca3af;
+  --text-faint:           #6b7280;
+  --text-tag:             #d1d5db;
+  --text-section-title:   #d1d5db;
+  --text-page-title:      #ffffff;
+
+  /* Borders */
+  --border-color:         #374151;
+  --border-card:          #2a2a2a;
+  --border-table-head:    #2a2a2a;
+  --border-table-row:     #252525;
+
+  /* Shadows */
+  --shadow-card:          0 1px 4px rgba(0,0,0,0.35);
+  --shadow-header:        0 1px 4px rgba(0,0,0,0.35);
+  --shadow-modal:         0 20px 60px rgba(0,0,0,0.65);
+
+  /* Stat cards */
+  --stat-dark-bg:         #252525;
+  --stat-dark-color:      #f1f1f1;
+  --stat-dark-border:     #2a2a2a;
+  --stat-dark-icon:       #9ca3af;
+  --stat-green-bg:        #052e16;
+  --stat-green-color:     #bbf7d0;
+  --stat-green-icon:      #4ade80;
+  --stat-red-bg:          #2d0707;
+  --stat-red-color:       #fecaca;
+  --stat-red-icon:        #f87171;
+
+  /* Status badges */
+  --status-active-bg:     #052e16;
+  --status-active-color:  #4ade80;
+  --status-inactive-bg:   #2d0707;
+  --status-inactive-color:#f87171;
+
+  /* Buttons */
+  --btn-secondary-bg:       #252525;
+  --btn-secondary-color:    #d1d5db;
+  --btn-secondary-border:   #374151;
+  --btn-secondary-hover-bg: #2a2a2a;
+  --btn-edit-hover-bg:      #2a2a2a;
+
+  /* Forms */
+  --form-error-bg:        #2d0707;
+  --form-check-color:     #d1d5db;
+
+  /* Modal */
+  --modal-overlay-bg:       rgba(0,0,0,0.65);
+  --modal-close-color:      #6b7280;
+  --modal-close-hover-bg:   #2a2a2a;
+  --modal-close-hover-color:#d1d5db;
+  --modal-body-color:       #d1d5db;
+  --modal-title-color:      #f1f1f1;
+  --modal-label-color:      #d1d5db;
+
+  /* Dashboard */
+  --dashboard-loading-color:#6b7280;
+  --quick-btn-bg:           #252525;
+  --quick-btn-color:        #f1f1f1;
+
+  /* Select arrow — cor clara para fundo escuro */
+  --select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+}

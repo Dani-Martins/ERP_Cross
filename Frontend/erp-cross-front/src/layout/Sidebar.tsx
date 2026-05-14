@@ -24,8 +24,11 @@ import {
   TrendingDown,
   ShoppingCart,
   PackageOpen,
+  Sun,
+  Moon,
   type LucideIcon,
 } from 'lucide-react';
+import { useTheme } from '../context/ThemeContext';
 import './Sidebar.css';
 
 interface NavItem {
@@ -97,6 +100,7 @@ const navGroups: NavGroup[] = [
 
 export default function Sidebar() {
   const [openGroups, setOpenGroups] = useState<string[]>([]);
+  const { theme, toggleTheme } = useTheme();
 
   function toggleGroup(label: string) {
     setOpenGroups((prev) =>
@@ -157,6 +161,13 @@ export default function Sidebar() {
           );
         })}
       </ul>
+
+      <div className="sidebar-footer">
+        <button className="theme-toggle-sidebar" onClick={toggleTheme}>
+          {theme === 'light' ? <Moon size={16} /> : <Sun size={16} />}
+          <span>{theme === 'light' ? 'Modo Escuro' : 'Modo Claro'}</span>
+        </button>
+      </div>
     </nav>
   );
 }
