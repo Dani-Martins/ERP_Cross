@@ -1,0 +1,339 @@
+// ── País ──────────────────────────────────────────────────────────────────────
+export interface PaisView {
+  id: number;
+  nomePais: string;
+  sigla: string;
+  ddi: string;
+  ativo: boolean;
+  dataCriacao: string;
+  dataAtualizacao: string;
+}
+export interface PaisCreate {
+  nomePais: string;
+  sigla: string;
+  ddi: string;
+  ativo: boolean;
+}
+export type PaisUpdate = PaisCreate;
+
+// ── Cidade ────────────────────────────────────────────────────────────────────
+export interface CidadeView {
+  id: number;
+  nome: string;
+  uf: string;
+}
+export interface CidadeCreate {
+  nome: string;
+  uf: string;
+}
+export type CidadeUpdate = CidadeCreate;
+
+// ── Cargo ─────────────────────────────────────────────────────────────────────
+export interface CargoView {
+  id: number;
+  nome: string;
+  salarioBase: number;
+}
+export interface CargoCreate {
+  nome: string;
+  salarioBase: number;
+}
+export type CargoUpdate = CargoCreate;
+
+// ── Fornecedor ────────────────────────────────────────────────────────────────
+export interface FornecedorView {
+  id: number;
+  nome: string;
+  cnpj: string;
+  contato1: string;
+  contato2?: string;
+  email?: string;
+  idCidade: number;
+  nomeCidade?: string;
+}
+export interface FornecedorCreate {
+  nome: string;
+  cnpj: string;
+  contato1: string;
+  contato2?: string;
+  email?: string;
+  idCidade: number;
+}
+export type FornecedorUpdate = FornecedorCreate;
+
+// ── Funcionário ───────────────────────────────────────────────────────────────
+export interface FuncionarioView {
+  id: number;
+  nome: string;
+  cpf: string;
+  contato1: string;
+  contato2?: string;
+  email?: string;
+  salario: number;
+  dataAdmissao: string;
+  idCargo: number;
+  nomeCargo?: string;
+  idCidade: number;
+  nomeCidade?: string;
+}
+export interface FuncionarioCreate {
+  nome: string;
+  cpf: string;
+  contato1: string;
+  contato2?: string;
+  email?: string;
+  salario?: number;
+  dataAdmissao: string;
+  idCargo: number;
+  idCidade: number;
+}
+export type FuncionarioUpdate = FuncionarioCreate;
+
+// ── Cliente ───────────────────────────────────────────────────────────────────
+export interface ClienteView {
+  id: number;
+  nome: string;
+  cpf?: string;
+  contato1: string;
+  contato2?: string;
+  email?: string;
+  dataNascimento?: string;
+  idCidade: number;
+  nomeCidade?: string;
+}
+export interface ClienteCreate {
+  nome: string;
+  cpf?: string;
+  contato1: string;
+  contato2?: string;
+  email?: string;
+  dataNascimento?: string;
+  idCidade: number;
+}
+export type ClienteUpdate = ClienteCreate;
+
+// ── Produto ───────────────────────────────────────────────────────────────────
+export interface ProdutoView {
+  id: number;
+  nome: string;
+  descricao?: string;
+  custoCompra: number;
+  lucroPercentual: number;
+  precoVenda: number;
+  estoque: number;
+}
+export interface ProdutoCreate {
+  nome: string;
+  descricao?: string;
+  custoCompra: number;
+  lucroPercentual: number;
+  estoque: number;
+}
+export type ProdutoUpdate = ProdutoCreate;
+
+// ── Plano ─────────────────────────────────────────────────────────────────────
+export interface PlanoView {
+  id: number;
+  nome: string;
+  descricao?: string;
+  valor: number;
+  duracaoDias: number;
+}
+export interface PlanoCreate {
+  nome: string;
+  descricao?: string;
+  valor: number;
+  duracaoDias: number;
+}
+export type PlanoUpdate = PlanoCreate;
+
+// ── Matrícula ─────────────────────────────────────────────────────────────────
+export interface MatriculaView {
+  id: number;
+  dataInicio: string;
+  dataFim: string;
+  idCliente: number;
+  nomeCliente?: string;
+  idPlano: number;
+  nomePlano?: string;
+}
+export interface MatriculaCreate {
+  dataInicio: string;
+  idCliente: number;
+  idPlano: number;
+}
+export type MatriculaUpdate = MatriculaCreate;
+
+// ── Forma de Pagamento ────────────────────────────────────────────────────────
+export interface FormaPagamentoView {
+  id: number;
+  nome: string;
+  aceitaParcela: boolean;
+}
+export interface FormaPagamentoCreate {
+  nome: string;
+  aceitaParcela: boolean;
+}
+export type FormaPagamentoUpdate = FormaPagamentoCreate;
+
+// ── Condição de Pagamento ─────────────────────────────────────────────────────
+export interface CondicaoPagamentoView {
+  id: number;
+  nome: string;
+}
+export interface CondicaoPagamentoCreate {
+  nome: string;
+}
+export type CondicaoPagamentoUpdate = CondicaoPagamentoCreate;
+
+// ── Parcela Condição de Pagamento ─────────────────────────────────────────────
+export interface ParcelaCondicaoPagamentoView {
+  id: number;
+  numero: number;
+  dias: number;
+  percentual: number;
+  idCondicaoPagamento: number;
+  nomeCondicaoPagamento?: string;
+  idFormaPagamento: number;
+  nomeFormaPagamento?: string;
+}
+export interface ParcelaCondicaoPagamentoCreate {
+  numero: number;
+  dias?: number;
+  percentual: number;
+  idCondicaoPagamento: number;
+  idFormaPagamento: number;
+}
+export type ParcelaCondicaoPagamentoUpdate = ParcelaCondicaoPagamentoCreate;
+
+// ── Conta a Receber ───────────────────────────────────────────────────────────
+export interface ContaReceberView {
+  id: number;
+  descricao: string;
+  valor: number;
+  dataVencimento: string;
+  dataPagamento?: string;
+  status: string;
+  idCliente: number;
+  nomeCliente?: string;
+}
+export interface ContaReceberCreate {
+  descricao: string;
+  valor: number;
+  dataVencimento: string;
+  dataPagamento?: string;
+  status: string;
+  idCliente: number;
+}
+export type ContaReceberUpdate = ContaReceberCreate;
+
+// ── Conta a Pagar ─────────────────────────────────────────────────────────────
+export interface ContaPagarView {
+  id: number;
+  descricao: string;
+  valor: number;
+  dataVencimento: string;
+  dataPagamento?: string;
+  status: string;
+  idFornecedor: number;
+  nomeFornecedor?: string;
+}
+export interface ContaPagarCreate {
+  descricao: string;
+  valor: number;
+  dataVencimento: string;
+  dataPagamento?: string;
+  status: string;
+  idFornecedor: number;
+}
+export type ContaPagarUpdate = ContaPagarCreate;
+
+// ── Nota de Venda ─────────────────────────────────────────────────────────────
+export interface NotaVendaView {
+  id: number;
+  dataNota: string;
+  totalProdutos: number;
+  valorFrete: number;
+  desconto: number;
+  totalPagar: number;
+  idCliente: number;
+  nomeCliente?: string;
+  idCondicaoPagamento: number;
+  nomeCondicaoPagamento?: string;
+}
+export interface NotaVendaCreate {
+  dataNota: string;
+  totalProdutos: number;
+  valorFrete: number;
+  desconto: number;
+  idCliente: number;
+  idCondicaoPagamento: number;
+}
+export type NotaVendaUpdate = NotaVendaCreate;
+
+// ── Item de Nota de Venda ─────────────────────────────────────────────────────
+export interface NotaVendaItemView {
+  id: number;
+  quantidade: number;
+  precoUnit: number;
+  total: number;
+  idNotaVenda: number;
+  idProduto: number;
+  nomeProduto?: string;
+}
+export interface NotaVendaItemCreate {
+  quantidade: number;
+  precoUnit: number;
+  idNotaVenda: number;
+  idProduto: number;
+}
+export type NotaVendaItemUpdate = NotaVendaItemCreate;
+
+// ── Nota de Compra ────────────────────────────────────────────────────────────
+export interface NotaCompraView {
+  id: number;
+  dataNota: string;
+  totalProdutos: number;
+  valorFrete: number;
+  valorSeguro: number;
+  outrasDespesas: number;
+  totalPagar: number;
+  idFornecedor: number;
+  nomeFornecedor?: string;
+  idCondicaoPagamento: number;
+  nomeCondicaoPagamento?: string;
+}
+export interface NotaCompraCreate {
+  dataNota: string;
+  totalProdutos: number;
+  valorFrete: number;
+  valorSeguro: number;
+  outrasDespesas: number;
+  idFornecedor: number;
+  idCondicaoPagamento: number;
+}
+export type NotaCompraUpdate = NotaCompraCreate;
+
+// ── Item de Nota de Compra ────────────────────────────────────────────────────
+export interface NotaCompraItemView {
+  id: number;
+  quantidade: number;
+  precoUnit: number;
+  descontoUnit: number;
+  liquidoUnit: number;
+  total: number;
+  rateio: number;
+  custoFinalUnit: number;
+  custoFinal: number;
+  idNotaCompra: number;
+  idProduto: number;
+  nomeProduto?: string;
+}
+export interface NotaCompraItemCreate {
+  quantidade: number;
+  precoUnit: number;
+  descontoUnit: number;
+  idNotaCompra: number;
+  idProduto: number;
+}
+export type NotaCompraItemUpdate = NotaCompraItemCreate;
