@@ -59,6 +59,6 @@ public class TransportadoraRepository
     }
 
     public async Task<bool> DeleteAsync(int id)
-        => await _connection.ExecuteAsync("DELETE FROM Transportadoras WHERE Id = @Id", new { Id = id }) > 0;
+        => await _connection.ExecuteAsync("UPDATE Transportadoras SET Ativo = 0, DataAtualizacao = NOW() WHERE Id = @Id", new { Id = id }) > 0;
 }
 

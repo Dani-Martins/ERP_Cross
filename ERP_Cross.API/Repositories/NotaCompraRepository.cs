@@ -48,6 +48,6 @@ public class NotaCompraRepository
               WHERE Id=@Id", n) > 0;
 
     public async Task<bool> DeleteAsync(long id)
-        => await _db.ExecuteAsync("DELETE FROM NotaCompra WHERE Id = @Id", new { Id = id }) > 0;
+        => await _db.ExecuteAsync("UPDATE NotaCompra SET Ativo = 0, AtualizadoEm = NOW() WHERE Id = @Id", new { Id = id }) > 0;
 }
 

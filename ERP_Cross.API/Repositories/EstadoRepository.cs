@@ -56,7 +56,7 @@ public class EstadoRepository
 
     public async Task<bool> DeleteAsync(int id)
     {
-        const string sql = "DELETE FROM Estados WHERE Id = @Id";
+        const string sql = "UPDATE Estados SET Ativo = 0, DataAtualizacao = NOW() WHERE Id = @Id";
         var rows = await _connection.ExecuteAsync(sql, new { Id = id });
         return rows > 0;
     }

@@ -49,7 +49,7 @@ public class UnidadeMedidaRepository
 
     public async Task<bool> DeleteAsync(int id)
     {
-        const string sql = "DELETE FROM UnidadesMedida WHERE Id = @Id";
+        const string sql = "UPDATE UnidadesMedida SET Ativo = 0, DataAtualizacao = NOW() WHERE Id = @Id";
         var rows = await _connection.ExecuteAsync(sql, new { Id = id });
         return rows > 0;
     }

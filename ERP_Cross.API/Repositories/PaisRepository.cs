@@ -49,7 +49,7 @@ public class PaisRepository
 
     public async Task<bool> DeleteAsync(int id)
     {
-        const string sql = "DELETE FROM Paises WHERE Id = @Id";
+        const string sql = "UPDATE Paises SET Ativo = 0, DataAtualizacao = NOW() WHERE Id = @Id";
         var rows = await _connection.ExecuteAsync(sql, new { Id = id });
         return rows > 0;
     }

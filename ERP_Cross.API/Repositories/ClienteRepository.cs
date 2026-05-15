@@ -61,6 +61,6 @@ public class ClienteRepository
     }
 
     public async Task<bool> DeleteAsync(int id)
-        => await _connection.ExecuteAsync("DELETE FROM Clientes WHERE Id = @Id", new { Id = id }) > 0;
+        => await _connection.ExecuteAsync("UPDATE Clientes SET Ativo = 0, DataAtualizacao = NOW() WHERE Id = @Id", new { Id = id }) > 0;
 }
 

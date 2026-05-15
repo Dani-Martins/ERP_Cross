@@ -55,7 +55,7 @@ public class VeiculoRepository
 
     public async Task<bool> DeleteAsync(int id)
     {
-        const string sql = "DELETE FROM Veiculos WHERE Id = @Id";
+        const string sql = "UPDATE Veiculos SET Ativo = 0, DataAtualizacao = NOW() WHERE Id = @Id";
         var rows = await _connection.ExecuteAsync(sql, new { Id = id });
         return rows > 0;
     }

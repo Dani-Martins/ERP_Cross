@@ -49,6 +49,6 @@ public class ProdutoRepository
               WHERE Id=@Id", p) > 0;
 
     public async Task<bool> DeleteAsync(int id)
-        => await _db.ExecuteAsync("DELETE FROM Produto WHERE Id = @Id", new { Id = id }) > 0;
+        => await _db.ExecuteAsync("UPDATE Produto SET Ativo = 0, DataAtualizacao = NOW() WHERE Id = @Id", new { Id = id }) > 0;
 }
 

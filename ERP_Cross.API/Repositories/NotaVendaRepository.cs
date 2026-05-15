@@ -46,7 +46,7 @@ public class NotaVendaRepository
 
     public async Task<bool> DeleteAsync(string numeroNota, string modelo, string serie, int clienteId)
         => await _db.ExecuteAsync(
-            "DELETE FROM NotaVenda WHERE NumeroNota=@NumeroNota AND Modelo=@Modelo AND Serie=@Serie AND ClienteId=@ClienteId",
+            "UPDATE NotaVenda SET Ativo = 0, AtualizadoEm = NOW() WHERE NumeroNota=@NumeroNota AND Modelo=@Modelo AND Serie=@Serie AND ClienteId=@ClienteId",
             new { NumeroNota = numeroNota, Modelo = modelo, Serie = serie, ClienteId = clienteId }) > 0;
 }
 

@@ -2,8 +2,9 @@ import { createBrowserRouter } from 'react-router-dom';
 import MainLayout from '../layout/MainLayout';
 import Dashboard from '../pages/Dashboard';
 import PaisesPage from '../pages/PaisesPage';
+import PaisFormPage from '../pages/PaisFormPage';
+import PaisViewPage from '../pages/PaisViewPage';
 
-// Páginas serão adicionadas progressivamente aqui
 const router = createBrowserRouter([
   {
     path: '/',
@@ -11,9 +12,9 @@ const router = createBrowserRouter([
     children: [
       { index: true, element: <Dashboard /> },
       { path: 'paises', element: <PaisesPage /> },
-      // { path: 'cidades', element: <CidadesPage /> },
-      // { path: 'cargos', element: <CargosPage /> },
-      // ... demais módulos
+      { path: 'paises/novo', element: <PaisFormPage /> },
+      { path: 'paises/editar/:id', element: <PaisFormPage /> },
+      { path: 'paises/visualizar/:id', element: <PaisViewPage /> },
     ],
   },
 ]);

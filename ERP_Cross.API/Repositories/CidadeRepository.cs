@@ -56,7 +56,7 @@ public class CidadeRepository
 
     public async Task<bool> DeleteAsync(int id)
     {
-        const string sql = "DELETE FROM Cidades WHERE Id = @Id";
+        const string sql = "UPDATE Cidades SET Ativo = 0, DataAtualizacao = NOW() WHERE Id = @Id";
         var rows = await _connection.ExecuteAsync(sql, new { Id = id });
         return rows > 0;
     }
