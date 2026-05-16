@@ -16,15 +16,41 @@ export interface PaisCreate {
 }
 export type PaisUpdate = PaisCreate;
 
+// ── Estado ───────────────────────────────────────────────────────────────────
+export interface EstadoView {
+  id: number;
+  nomeEstado: string;
+  uf: string;
+  idPais: number;
+  nomePais?: string;
+  ativo: boolean;
+  dataCriacao: string;
+  dataAtualizacao: string;
+}
+export interface EstadoCreate {
+  nomeEstado: string;
+  uf: string;
+  idPais: number;
+  ativo: boolean;
+}
+export type EstadoUpdate = EstadoCreate;
+
 // ── Cidade ────────────────────────────────────────────────────────────────────
 export interface CidadeView {
   id: number;
-  nome: string;
-  uf: string;
+  nomeCidade: string;
+  ddd: string;
+  idEstado: number;
+  nomeEstado?: string;
+  ativo: boolean;
+  dataCriacao: string;
+  dataAtualizacao: string;
 }
 export interface CidadeCreate {
-  nome: string;
-  uf: string;
+  nomeCidade: string;
+  ddd: string;
+  idEstado: number;
+  ativo: boolean;
 }
 export type CidadeUpdate = CidadeCreate;
 

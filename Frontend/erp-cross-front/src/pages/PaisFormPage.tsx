@@ -92,7 +92,7 @@ export default function PaisFormPage() {
                   id="sigla"
                   type="text"
                   placeholder="Ex: BR"
-                  maxLength={5}
+                  maxLength={2}
                   value={form.sigla}
                   onChange={(e) => setForm({ ...form, sigla: e.target.value.toUpperCase() })}
                 />
@@ -103,7 +103,7 @@ export default function PaisFormPage() {
                   id="ddi"
                   type="text"
                   placeholder="Ex: 55"
-                  maxLength={5}
+                  maxLength={3}
                   value={form.ddi}
                   onChange={(e) => setForm({ ...form, ddi: e.target.value.replace(/\D/g, '') })}
                 />

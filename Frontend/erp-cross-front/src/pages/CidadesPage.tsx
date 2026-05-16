@@ -1,28 +1,27 @@
-﻿import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Pencil, Trash2, Search, X, Globe, Eye } from 'lucide-react';
-import { PaisService } from '../services/paisService';
-import type { PaisView } from '../types/entities';
+import { Plus, Pencil, Trash2, Search, X, MapPin, Eye } from 'lucide-react';
+import { CidadeService } from '../services/cidadeService';
+import type { CidadeView } from '../types/entities';
 import './PaisesPage.css';
 
-export default function PaisesPage() {
+export default function CidadesPage() {
   const navigate = useNavigate();
-  const [paises, setPaises] = useState<PaisView[]>([]);
+  const [cidades, setCidades] = useState<CidadeView[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<'ativos' | 'inativos' | 'todos'>('ativos');
 
-  // Confirmação de exclusão inline
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [deleting, setDeleting] = useState(false);
 
   async function load() {
     setLoading(true);
     try {
-      const res = await PaisService.getAll();
-      setPaises(res.data);
+      const res = await CidadeService.getAll();
+      setCidades(res.data);
     } catch {
-      setPaises([]);
+      setCidades([]);
     } finally {
       setLoading(false);
     }
@@ -30,13 +29,14 @@ export default function PaisesPage() {
 
   useEffect(() => { load(); }, []);
 
-  const filtered = paises.filter((p) => {
+  const filtered = cidades.filter((c) => {
     const matchSearch =
-      p.nomePais.toLowerCase().includes(search.toLowerCase()) ||
-      p.sigla.toLowerCase().includes(search.toLowerCase());
+      c.nomeCidade.toLowerCase().includes(search.toLowerCase()) ||
+      c.ddd.includes(search) ||
+      (c.nomeEstado ?? '').toLowerCase().includes(search.toLowerCase());
     const matchStatus =
       statusFilter === 'todos' ||
-      (statusFilter === 'ativos' ? p.ativo : !p.ativo);
+      (statusFilter === 'ativos' ? c.ativo : !c.ativo);
     return matchSearch && matchStatus;
   });
 
@@ -44,7 +44,7 @@ export default function PaisesPage() {
     if (deleteId === null) return;
     setDeleting(true);
     try {
-      await PaisService.remove(deleteId);
+      await CidadeService.remove(deleteId);
       setDeleteId(null);
       load();
     } catch {
@@ -56,11 +56,10 @@ export default function PaisesPage() {
 
   return (
     <div className="page-container">
-      {/* Cabeçalho da página */}
       <div className="page-header">
         <div className="page-title-area">
-          <Globe size={24} className="page-title-icon" />
-          <h1 className="page-title">Países</h1>
+          <MapPin size={24} className="page-title-icon" />
+          <h1 className="page-title">Cidades</h1>
           <span className="page-badge">{filtered.length}</span>
         </div>
         <div className="page-actions">
@@ -80,7 +79,7 @@ export default function PaisesPage() {
             <Search size={16} className="search-icon" />
             <input
               type="text"
-              placeholder="Buscar por nome ou sigla..."
+              placeholder="Buscar por nome, DDD ou estado..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
@@ -90,19 +89,18 @@ export default function PaisesPage() {
               </button>
             )}
           </div>
-          <button className="btn-primary" onClick={() => navigate('/paises/novo')}>
-            <Plus size={16} /> Novo País
+          <button className="btn-primary" onClick={() => navigate('/cidades/nova')}>
+            <Plus size={16} /> Nova Cidade
           </button>
         </div>
       </div>
 
-      {/* Tabela */}
       <div className="table-card">
         {loading ? (
           <div className="table-loading">Carregando...</div>
         ) : filtered.length === 0 ? (
           <div className="table-empty">
-            {search ? 'Nenhum país encontrado para a busca.' : 'Nenhum país cadastrado.'}
+            {search ? 'Nenhuma cidade encontrada para a busca.' : 'Nenhuma cidade cadastrada.'}
           </div>
         ) : (
           <table className="data-table">
@@ -110,43 +108,43 @@ export default function PaisesPage() {
               <tr>
                 <th>#</th>
                 <th>Nome</th>
-                <th>Sigla</th>
-                <th>DDI</th>
+                <th>DDD</th>
+                <th>Estado</th>
                 <th>Status</th>
                 <th className="col-actions">Ações</th>
               </tr>
             </thead>
             <tbody>
-              {filtered.map((p) => (
-                <tr key={p.id}>
-                  <td className="col-id">{p.id}</td>
-                  <td className="col-name">{p.nomePais}</td>
-                  <td><span className="tag">{p.sigla}</span></td>
-                  <td>+{p.ddi}</td>
+              {filtered.map((c) => (
+                <tr key={c.id}>
+                  <td className="col-id">{c.id}</td>
+                  <td className="col-name">{c.nomeCidade}</td>
+                  <td><span className="tag">{c.ddd}</span></td>
+                  <td>{c.nomeEstado ?? '—'}</td>
                   <td>
-                    <span className={`status-badge ${p.ativo ? 'status-active' : 'status-inactive'}`}>
-                      {p.ativo ? 'Ativo' : 'Inativo'}
+                    <span className={`status-badge ${c.ativo ? 'status-active' : 'status-inactive'}`}>
+                      {c.ativo ? 'Ativo' : 'Inativo'}
                     </span>
                   </td>
                   <td className="col-actions">
                     <button
                       className="btn-icon btn-view"
                       title="Visualizar"
-                      onClick={() => navigate(`/paises/visualizar/${p.id}`)}
+                      onClick={() => navigate(`/cidades/visualizar/${c.id}`)}
                     >
                       <Eye size={15} />
                     </button>
                     <button
                       className="btn-icon btn-edit"
                       title="Editar"
-                      onClick={() => navigate(`/paises/editar/${p.id}`)}
+                      onClick={() => navigate(`/cidades/editar/${c.id}`)}
                     >
                       <Pencil size={15} />
                     </button>
                     <button
                       className="btn-icon btn-delete"
                       title="Excluir"
-                      onClick={() => setDeleteId(p.id)}
+                      onClick={() => setDeleteId(c.id)}
                     >
                       <Trash2 size={15} />
                     </button>
@@ -158,16 +156,15 @@ export default function PaisesPage() {
         )}
       </div>
 
-      {/* Confirmação de exclusão */}
       {deleteId !== null && (
         <div className="modal-overlay" onClick={() => setDeleteId(null)}>
-          <div className="modal modal-sm" onClick={(e) => e.stopPropagation()}>
+          <div className="modal modal-sm" onClick={(ev) => ev.stopPropagation()}>
             <div className="modal-header">
               <h2>Confirmar Exclusão</h2>
               <button className="modal-close" onClick={() => setDeleteId(null)}><X size={20} /></button>
             </div>
             <div className="modal-body">
-              <p>Tem certeza que deseja excluir este país? Esta ação não pode ser desfeita.</p>
+              <p>Tem certeza que deseja excluir esta cidade? Esta ação não pode ser desfeita.</p>
             </div>
             <div className="modal-footer">
               <button className="btn-danger" onClick={handleDelete} disabled={deleting}>
