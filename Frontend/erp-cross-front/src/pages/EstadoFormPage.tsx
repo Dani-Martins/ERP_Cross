@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Map } from 'lucide-react';
+import { Map, Search } from 'lucide-react';
 import { EstadoService } from '../services/estadoService';
-import { PaisService } from '../services/paisService';
-import type { EstadoCreate, PaisView } from '../types/entities';
+import type { EstadoCreate } from '../types/entities';
+import PaisLookupModal from '../components/PaisLookupModal';
 import './PaisesPage.css';
 
 const EMPTY_FORM: EstadoCreate = { nomeEstado: '', uf: '', idPais: 0, ativo: true };
@@ -14,25 +14,24 @@ export default function EstadoFormPage() {
   const isEdit = Boolean(id);
 
   const [form, setForm] = useState<EstadoCreate>(EMPTY_FORM);
-  const [paises, setPaises] = useState<PaisView[]>([]);
+  const [nomePais, setNomePais] = useState('');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const [showPaisModal, setShowPaisModal] = useState(false);
 
   useEffect(() => {
-    const loadPaises = PaisService.getAll().then((res) =>
-      setPaises(res.data.filter((p) => p.ativo))
-    );
     if (isEdit) {
-      Promise.all([
-        loadPaises,
-        EstadoService.getById(Number(id)).then((res) => {
+      EstadoService.getById(Number(id))
+        .then(res => {
           const e = res.data;
           setForm({ nomeEstado: e.nomeEstado, uf: e.uf, idPais: e.idPais, ativo: e.ativo });
-        }).catch(() => navigate('/estados')),
-      ]).finally(() => setLoading(false));
+          setNomePais(e.nomePais ?? '');
+        })
+        .catch(() => navigate('/estados'))
+        .finally(() => setLoading(false));
     } else {
-      loadPaises.finally(() => setLoading(false));
+      setLoading(false);
     }
   }, [id, isEdit, navigate]);
 
@@ -66,6 +65,7 @@ export default function EstadoFormPage() {
   }
 
   return (
+    <>
     <div className="page-container">
       <div className="page-header">
         <div className="page-title-area">
@@ -105,16 +105,24 @@ export default function EstadoFormPage() {
               </div>
               <div className="form-group">
                 <label htmlFor="idPais">País *</label>
-                <select
-                  id="idPais"
-                  value={form.idPais}
-                  onChange={(e) => setForm({ ...form, idPais: Number(e.target.value) })}
-                >
-                  <option value={0}>Selecione um país...</option>
-                  {paises.map((p) => (
-                    <option key={p.id} value={p.id}>{p.nomePais}</option>
-                  ))}
-                </select>
+                <div className="lookup-field">
+                  <input
+                    id="idPais"
+                    type="text"
+                    readOnly
+                    placeholder="Selecione um país..."
+                    value={nomePais}
+                    className="lookup-input"
+                  />
+                  <button
+                    type="button"
+                    className="btn-lookup"
+                    onClick={() => setShowPaisModal(true)}
+                    title="Pesquisar país"
+                  >
+                    <Search size={16} />
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -143,5 +151,16 @@ export default function EstadoFormPage() {
         </form>
       </div>
     </div>
+    {showPaisModal && (
+      <PaisLookupModal
+        onSelect={(paisId, paisNome) => {
+          setForm(prev => ({ ...prev, idPais: paisId }));
+          setNomePais(paisNome);
+          setShowPaisModal(false);
+        }}
+        onClose={() => setShowPaisModal(false)}
+      />
+    )}
+    </>
   );
 }

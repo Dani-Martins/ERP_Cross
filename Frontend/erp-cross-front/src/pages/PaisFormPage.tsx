@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Globe } from 'lucide-react';
 import { PaisService } from '../services/paisService';
 import type { PaisCreate } from '../types/entities';
+import type { AxiosError } from 'axios';
 import './PaisesPage.css';
 
 const EMPTY_FORM: PaisCreate = { nomePais: '', sigla: '', ddi: '', ativo: true };
@@ -43,8 +44,13 @@ export default function PaisFormPage() {
         await PaisService.create(form);
       }
       navigate('/paises');
-    } catch {
-      setError('Erro ao salvar. Verifique os dados e tente novamente.');
+    } catch (err) {
+      const axiosErr = err as AxiosError<{ message: string }>;
+      if (axiosErr.response?.status === 409) {
+        setError(axiosErr.response.data?.message ?? 'Sigla já cadastrada para outro país.');
+      } else {
+        setError('Erro ao salvar. Verifique os dados e tente novamente.');
+      }
       setSaving(false);
     }
   }

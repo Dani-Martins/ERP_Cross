@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { MapPin } from 'lucide-react';
+import { MapPin, Search } from 'lucide-react';
 import { CidadeService } from '../services/cidadeService';
-import { EstadoService } from '../services/estadoService';
-import type { CidadeCreate, EstadoView } from '../types/entities';
+import type { CidadeCreate } from '../types/entities';
+import EstadoLookupModal from '../components/EstadoLookupModal';
 import './PaisesPage.css';
 
 const EMPTY_FORM: CidadeCreate = { nomeCidade: '', ddd: '', idEstado: 0, ativo: true };
@@ -14,25 +14,24 @@ export default function CidadeFormPage() {
   const isEdit = Boolean(id);
 
   const [form, setForm] = useState<CidadeCreate>(EMPTY_FORM);
-  const [estados, setEstados] = useState<EstadoView[]>([]);
+  const [nomeEstado, setNomeEstado] = useState('');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const [showEstadoModal, setShowEstadoModal] = useState(false);
 
   useEffect(() => {
-    const loadEstados = EstadoService.getAll().then((res) =>
-      setEstados(res.data.filter((e) => e.ativo))
-    );
     if (isEdit) {
-      Promise.all([
-        loadEstados,
-        CidadeService.getById(Number(id)).then((res) => {
+      CidadeService.getById(Number(id))
+        .then(res => {
           const c = res.data;
           setForm({ nomeCidade: c.nomeCidade, ddd: c.ddd, idEstado: c.idEstado, ativo: c.ativo });
-        }).catch(() => navigate('/cidades')),
-      ]).finally(() => setLoading(false));
+          setNomeEstado(c.nomeEstado ?? '');
+        })
+        .catch(() => navigate('/cidades'))
+        .finally(() => setLoading(false));
     } else {
-      loadEstados.finally(() => setLoading(false));
+      setLoading(false);
     }
   }, [id, isEdit, navigate]);
 
@@ -66,6 +65,7 @@ export default function CidadeFormPage() {
   }
 
   return (
+    <>
     <div className="page-container">
       <div className="page-header">
         <div className="page-title-area">
@@ -105,16 +105,24 @@ export default function CidadeFormPage() {
               </div>
               <div className="form-group">
                 <label htmlFor="idEstado">Estado *</label>
-                <select
-                  id="idEstado"
-                  value={form.idEstado}
-                  onChange={(e) => setForm({ ...form, idEstado: Number(e.target.value) })}
-                >
-                  <option value={0}>Selecione um estado...</option>
-                  {estados.map((e) => (
-                    <option key={e.id} value={e.id}>{e.nomeEstado} ({e.uf})</option>
-                  ))}
-                </select>
+                <div className="lookup-field">
+                  <input
+                    id="idEstado"
+                    type="text"
+                    readOnly
+                    placeholder="Selecione um estado..."
+                    value={nomeEstado}
+                    className="lookup-input"
+                  />
+                  <button
+                    type="button"
+                    className="btn-lookup"
+                    onClick={() => setShowEstadoModal(true)}
+                    title="Pesquisar estado"
+                  >
+                    <Search size={16} />
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -143,5 +151,16 @@ export default function CidadeFormPage() {
         </form>
       </div>
     </div>
+    {showEstadoModal && (
+      <EstadoLookupModal
+        onSelect={(estadoId, estadoNome) => {
+          setForm(prev => ({ ...prev, idEstado: estadoId }));
+          setNomeEstado(estadoNome);
+          setShowEstadoModal(false);
+        }}
+        onClose={() => setShowEstadoModal(false)}
+      />
+    )}
+    </>
   );
 }

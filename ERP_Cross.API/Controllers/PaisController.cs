@@ -26,13 +26,29 @@ public class PaisController(PaisService service) : ControllerBase
     [HttpPost]
     public async Task<ActionResult<PaisView>> Create([FromBody] CreatePaisDto dto)
     {
-        var pais = await _service.CreateAsync(dto);
-        return CreatedAtAction(nameof(GetById), new { id = pais.Id }, pais);
+        try
+        {
+            var pais = await _service.CreateAsync(dto);
+            return CreatedAtAction(nameof(GetById), new { id = pais.Id }, pais);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Conflict(new { message = ex.Message });
+        }
     }
 
     [HttpPut("{id:int}")]
     public async Task<IActionResult> Update(int id, [FromBody] UpdatePaisDto dto)
-        => await _service.UpdateAsync(id, dto) ? NoContent() : NotFound();
+    {
+        try
+        {
+            return await _service.UpdateAsync(id, dto) ? NoContent() : NotFound();
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Conflict(new { message = ex.Message });
+        }
+    }
 
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id)
