@@ -26,13 +26,29 @@ public class EstadoController(EstadoService service) : ControllerBase
     [HttpPost]
     public async Task<ActionResult<EstadoView>> Create([FromBody] CreateEstadoDto dto)
     {
-        var estado = await _service.CreateAsync(dto);
-        return CreatedAtAction(nameof(GetById), new { id = estado.Id }, estado);
+        try
+        {
+            var estado = await _service.CreateAsync(dto);
+            return CreatedAtAction(nameof(GetById), new { id = estado.Id }, estado);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Conflict(new { message = ex.Message });
+        }
     }
 
     [HttpPut("{id:int}")]
     public async Task<IActionResult> Update(int id, [FromBody] UpdateEstadoDto dto)
-        => await _service.UpdateAsync(id, dto) ? NoContent() : NotFound();
+    {
+        try
+        {
+            return await _service.UpdateAsync(id, dto) ? NoContent() : NotFound();
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Conflict(new { message = ex.Message });
+        }
+    }
 
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id)

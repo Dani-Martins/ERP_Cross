@@ -62,7 +62,7 @@ export default function EstadoViewPage() {
 
             <div className="form-row">
               <div className="view-group">
-                <span className="view-label">UF</span>
+                <span className="view-label">Sigla do Estado</span>
                 <span className="view-value">{estado.uf}</span>
               </div>
               <div className="view-group">

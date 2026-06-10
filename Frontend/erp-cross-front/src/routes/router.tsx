@@ -10,6 +10,9 @@ import EstadoViewPage from '../pages/EstadoViewPage';
 import CidadesPage from '../pages/CidadesPage';
 import CidadeFormPage from '../pages/CidadeFormPage';
 import CidadeViewPage from '../pages/CidadeViewPage';
+import ClientesPage from '../pages/ClientesPage';
+import ClienteFormPage from '../pages/ClienteFormPage';
+import ClienteViewPage from '../pages/ClienteViewPage';
 
 const router = createBrowserRouter([
   {
@@ -29,6 +32,10 @@ const router = createBrowserRouter([
       { path: 'cidades/nova', element: <CidadeFormPage /> },
       { path: 'cidades/editar/:id', element: <CidadeFormPage /> },
       { path: 'cidades/visualizar/:id', element: <CidadeViewPage /> },
+      { path: 'clientes', element: <ClientesPage /> },
+      { path: 'clientes/novo', element: <ClienteFormPage /> },
+      { path: 'clientes/editar/:id', element: <ClienteFormPage /> },
+      { path: 'clientes/visualizar/:id', element: <ClienteViewPage /> },
     ],
   },
 ]);

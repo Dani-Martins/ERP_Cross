@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Map, Search } from 'lucide-react';
 import { EstadoService } from '../services/estadoService';
 import type { EstadoCreate } from '../types/entities';
+import type { AxiosError } from 'axios';
 import PaisLookupModal from '../components/PaisLookupModal';
 import './PaisesPage.css';
 
@@ -38,7 +39,7 @@ export default function EstadoFormPage() {
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
     if (!form.nomeEstado.trim()) { setError('Nome do estado é obrigatório.'); return; }
-    if (!form.uf.trim()) { setError('UF é obrigatória.'); return; }
+    if (!form.uf.trim()) { setError('Sigla do Estado é obrigatória.'); return; }
     if (!form.idPais) { setError('País é obrigatório.'); return; }
 
     setSaving(true);
@@ -50,8 +51,13 @@ export default function EstadoFormPage() {
         await EstadoService.create(form);
       }
       navigate('/estados');
-    } catch {
-      setError('Erro ao salvar. Verifique os dados e tente novamente.');
+    } catch (err) {
+      const axiosErr = err as AxiosError<{ message: string }>;
+      if (axiosErr.response?.status === 409) {
+        setError(axiosErr.response.data?.message ?? 'Sigla já cadastrada para este país.');
+      } else {
+        setError('Erro ao salvar. Verifique os dados e tente novamente.');
+      }
       setSaving(false);
     }
   }
@@ -93,7 +99,7 @@ export default function EstadoFormPage() {
 
             <div className="form-row">
               <div className="form-group">
-                <label htmlFor="uf">UF *</label>
+                <label htmlFor="uf">Sigla do Estado *</label>
                 <input
                   id="uf"
                   type="text"

@@ -119,22 +119,49 @@ export type FuncionarioUpdate = FuncionarioCreate;
 export interface ClienteView {
   id: number;
   nome: string;
-  cpf?: string;
-  contato1: string;
+  nomeFantasia?: string;
+  cpfCnpj: string;
+  rgIe?: string;
   contato2?: string;
+  celular?: string;
   email?: string;
-  dataNascimento?: string;
+  cep?: string;
+  endereco?: string;
+  numero?: string;
+  complemento?: string;
+  bairro?: string;
   idCidade: number;
   nomeCidade?: string;
+  pf: boolean;
+  dataNascimento?: string;
+  sexo?: string;
+  idCondicaoPagamento?: number;
+  nomeCondicaoPagamento?: string;
+  limiteCredito: number;
+  ativo: boolean;
+  dataCriacao: string;
+  dataAtualizacao: string;
 }
 export interface ClienteCreate {
   nome: string;
-  cpf?: string;
-  contato1: string;
+  nomeFantasia?: string;
+  cpfCnpj: string;
+  rgIe?: string;
   contato2?: string;
+  celular?: string;
   email?: string;
-  dataNascimento?: string;
+  cep?: string;
+  endereco?: string;
+  numero?: string;
+  complemento?: string;
+  bairro?: string;
   idCidade: number;
+  pf: boolean;
+  dataNascimento?: string;
+  sexo?: string;
+  idCondicaoPagamento?: number;
+  limiteCredito: number;
+  ativo: boolean;
 }
 export type ClienteUpdate = ClienteCreate;
 
@@ -205,12 +232,12 @@ export type FormaPagamentoUpdate = FormaPagamentoCreate;
 // ── Condição de Pagamento ─────────────────────────────────────────────────────
 export interface CondicaoPagamentoView {
   id: number;
-  nome: string;
+  nomeCondicao: string;
+  taxaJuros: number;
+  multa: number;
+  desconto: number;
+  ativo: boolean;
 }
-export interface CondicaoPagamentoCreate {
-  nome: string;
-}
-export type CondicaoPagamentoUpdate = CondicaoPagamentoCreate;
 
 // ── Parcela Condição de Pagamento ─────────────────────────────────────────────
 export interface ParcelaCondicaoPagamentoView {

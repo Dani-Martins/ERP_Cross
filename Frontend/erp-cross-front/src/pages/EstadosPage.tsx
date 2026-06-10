@@ -79,7 +79,7 @@ export default function EstadosPage() {
             <Search size={16} className="search-icon" />
             <input
               type="text"
-              placeholder="Buscar por nome, UF ou país..."
+              placeholder="Buscar por nome, sigla ou país..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
@@ -107,8 +107,8 @@ export default function EstadosPage() {
             <thead>
               <tr>
                 <th>#</th>
-                <th>Nome</th>
-                <th>UF</th>
+                <th>Estado</th>
+                <th>Sigla</th>
                 <th>País</th>
                 <th>Status</th>
                 <th className="col-actions">Ações</th>
@@ -164,7 +164,7 @@ export default function EstadosPage() {
               <button className="modal-close" onClick={() => setDeleteId(null)}><X size={20} /></button>
             </div>
             <div className="modal-body">
-              <p>Tem certeza que deseja excluir este estado? Esta ação não pode ser desfeita.</p>
+              <p>Tem certeza que deseja excluir este estado? Esta ação só pode ser desfeita por um Administrador.</p>
             </div>
             <div className="modal-footer">
               <button className="btn-danger" onClick={handleDelete} disabled={deleting}>

@@ -109,7 +109,7 @@ export default function PaisesPage() {
             <thead>
               <tr>
                 <th>#</th>
-                <th>Nome</th>
+                <th>País</th>
                 <th>Sigla</th>
                 <th>DDI</th>
                 <th>Status</th>
@@ -167,7 +167,7 @@ export default function PaisesPage() {
               <button className="modal-close" onClick={() => setDeleteId(null)}><X size={20} /></button>
             </div>
             <div className="modal-body">
-              <p>Tem certeza que deseja excluir este país? Esta ação não pode ser desfeita.</p>
+              <p>Tem certeza que deseja excluir este país? Esta ação só pode ser desfeita por um Administrador.</p>
             </div>
             <div className="modal-footer">
               <button className="btn-danger" onClick={handleDelete} disabled={deleting}>

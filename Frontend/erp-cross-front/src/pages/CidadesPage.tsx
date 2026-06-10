@@ -107,7 +107,7 @@ export default function CidadesPage() {
             <thead>
               <tr>
                 <th>#</th>
-                <th>Nome</th>
+                <th>Cidade</th>
                 <th>DDD</th>
                 <th>Estado</th>
                 <th>Status</th>
@@ -164,7 +164,7 @@ export default function CidadesPage() {
               <button className="modal-close" onClick={() => setDeleteId(null)}><X size={20} /></button>
             </div>
             <div className="modal-body">
-              <p>Tem certeza que deseja excluir esta cidade? Esta ação não pode ser desfeita.</p>
+              <p>Tem certeza que deseja excluir esta cidade? Esta ação só pode ser desfeita por um Administrador.</p>
             </div>
             <div className="modal-footer">
               <button className="btn-danger" onClick={handleDelete} disabled={deleting}>

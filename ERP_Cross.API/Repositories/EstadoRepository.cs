@@ -35,6 +35,13 @@ public class EstadoRepository
         return await _connection.QueryFirstOrDefaultAsync<Estado>(sql, new { Id = id });
     }
 
+    public async Task<bool> UfExistsAsync(string uf, int idPais, int? excludeId = null)
+    {
+        const string sql = "SELECT COUNT(1) FROM Estados WHERE Uf = @Uf AND IdPais = @IdPais AND (@ExcludeId IS NULL OR Id != @ExcludeId)";
+        var count = await _connection.ExecuteScalarAsync<int>(sql, new { Uf = uf, IdPais = idPais, ExcludeId = excludeId });
+        return count > 0;
+    }
+
     public async Task<int> InsertAsync(Estado estado)
     {
         const string sql = @"

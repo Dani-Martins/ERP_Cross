@@ -286,9 +286,10 @@
   max-width: 480px;
   box-shadow: var(--shadow-modal);
   animation: modalIn 0.18s ease;
+  overflow: hidden;
 }
 
-.modal-sm { max-width: 460px; }
+.modal-sm { max-width: 500px; }
 
 @keyframes modalIn {
   from { opacity: 0; transform: scale(0.96) translateY(-10px); }
