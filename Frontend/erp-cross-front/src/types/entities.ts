@@ -220,12 +220,16 @@ export type MatriculaUpdate = MatriculaCreate;
 // ── Forma de Pagamento ────────────────────────────────────────────────────────
 export interface FormaPagamentoView {
   id: number;
-  nome: string;
+  nomeFormaPagamento: string;
   aceitaParcela: boolean;
+  ativo: boolean;
+  dataCriacao: string;
+  dataAtualizacao: string;
 }
 export interface FormaPagamentoCreate {
-  nome: string;
+  nomeFormaPagamento: string;
   aceitaParcela: boolean;
+  ativo: boolean;
 }
 export type FormaPagamentoUpdate = FormaPagamentoCreate;
 
@@ -237,7 +241,17 @@ export interface CondicaoPagamentoView {
   multa: number;
   desconto: number;
   ativo: boolean;
+  dataCriacao: string;
+  dataAtualizacao: string;
 }
+export interface CondicaoPagamentoCreate {
+  nomeCondicao: string;
+  taxaJuros: number;
+  multa: number;
+  desconto: number;
+  ativo: boolean;
+}
+export type CondicaoPagamentoUpdate = CondicaoPagamentoCreate;
 
 // ── Parcela Condição de Pagamento ─────────────────────────────────────────────
 export interface ParcelaCondicaoPagamentoView {

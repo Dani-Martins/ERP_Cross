@@ -1,26 +1,17 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { UserCircle, Plus, Search, X, Eye, Pencil, Trash2 } from 'lucide-react';
-import { ClienteService } from '../services/clienteService';
-import type { ClienteView } from '../types/entities';
+import { CalendarClock, Plus, Search, X, Eye, Pencil, Trash2 } from 'lucide-react';
+import { CondicaoPagamentoService } from '../services/condicaoPagamentoService';
+import type { CondicaoPagamentoView } from '../types/entities';
 import './PaisesPage.css';
 
-/** Mascara CPF → ***.456.789-** | CNPJ → 12.345.678/****-** */
-function maskDoc(doc: string, pf: boolean): string {
-  const d = doc.replace(/\D/g, '');
-  if (pf && d.length === 11) {
-    return `***.${d.slice(3, 6)}.${d.slice(6, 9)}-**`;
-  }
-  if (!pf && d.length === 14) {
-    return `${d.slice(0, 2)}.${d.slice(2, 5)}.${d.slice(5, 8)}/****-**`;
-  }
-  // fallback: apenas oculta o meio
-  return doc.slice(0, 3) + '***' + doc.slice(-2);
+function fmtPercent(n: number) {
+  return n > 0 ? `${n.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}%` : '—';
 }
 
-export default function ClientesPage() {
+export default function CondicoesPagamentoPage() {
   const navigate = useNavigate();
-  const [all, setAll] = useState<ClienteView[]>([]);
+  const [all, setAll] = useState<CondicaoPagamentoView[]>([]);
   const [search, setSearch] = useState('');
   const [filterStatus, setFilterStatus] = useState<'todos' | 'ativos' | 'inativos'>('ativos');
   const [loading, setLoading] = useState(true);
@@ -31,7 +22,7 @@ export default function ClientesPage() {
 
   function load() {
     setLoading(true);
-    ClienteService.getAll()
+    CondicaoPagamentoService.getAll()
       .then(res => setAll(res.data))
       .finally(() => setLoading(false));
   }
@@ -39,21 +30,16 @@ export default function ClientesPage() {
   const filtered = all.filter(c => {
     const matchStatus =
       filterStatus === 'todos' ? true :
-      filterStatus === 'ativos' ? c.ativo :
-      !c.ativo;
-    const s = search.toLowerCase();
-    const matchSearch = !s ||
-      c.nome.toLowerCase().includes(s) ||
-      (c.nomeFantasia?.toLowerCase().includes(s) ?? false) ||
-      c.cpfCnpj.includes(s) ||
-      (c.nomeCidade?.toLowerCase().includes(s) ?? false);
+      filterStatus === 'ativos' ? c.ativo : !c.ativo;
+    const matchSearch = !search ||
+      c.nomeCondicao.toLowerCase().includes(search.toLowerCase());
     return matchStatus && matchSearch;
   });
 
   async function handleDelete() {
     if (deleteId == null) return;
     setDeleting(true);
-    await ClienteService.remove(deleteId);
+    await CondicaoPagamentoService.remove(deleteId);
     setDeleteId(null);
     setDeleting(false);
     load();
@@ -63,8 +49,8 @@ export default function ClientesPage() {
     <div className="page-container">
       <div className="page-header">
         <div className="page-title-area">
-          <UserCircle size={24} className="page-title-icon" />
-          <h1 className="page-title">Clientes</h1>
+          <CalendarClock size={24} className="page-title-icon" />
+          <h1 className="page-title">Condições de Pagamento</h1>
           <span className="page-badge">{filtered.length}</span>
         </div>
         <div className="page-actions">
@@ -80,7 +66,7 @@ export default function ClientesPage() {
             <Search size={15} className="search-icon" />
             <input
               type="text"
-              placeholder="Buscar por nome, CPF/CNPJ ou cidade..."
+              placeholder="Buscar por nome..."
               value={search}
               onChange={e => setSearch(e.target.value)}
             />
@@ -88,8 +74,8 @@ export default function ClientesPage() {
               <button className="search-clear" onClick={() => setSearch('')}><X size={14} /></button>
             )}
           </div>
-          <button className="btn-primary" onClick={() => navigate('/clientes/novo')}>
-            <Plus size={16} /> Novo Cliente
+          <button className="btn-primary" onClick={() => navigate('/condicoes-pagamento/nova')}>
+            <Plus size={16} /> Nova Condição
           </button>
         </div>
       </div>
@@ -98,16 +84,16 @@ export default function ClientesPage() {
         {loading ? (
           <div className="table-loading">Carregando...</div>
         ) : filtered.length === 0 ? (
-          <div className="table-empty">Nenhum cliente encontrado.</div>
+          <div className="table-empty">Nenhuma condição de pagamento encontrada.</div>
         ) : (
           <table className="data-table">
             <thead>
               <tr>
                 <th className="col-id">#</th>
-                <th>Cliente</th>
-                <th>CPF / CNPJ</th>
-                <th>Tipo</th>
-                <th>Cidade</th>
+                <th>Condição de Pagamento</th>
+                <th>Juros</th>
+                <th>Multa</th>
+                <th>Desconto</th>
                 <th>Status</th>
                 <th className="col-actions">Ações</th>
               </tr>
@@ -116,27 +102,20 @@ export default function ClientesPage() {
               {filtered.map(c => (
                 <tr key={c.id}>
                   <td className="col-id">{c.id}</td>
-                  <td className="col-name">
-                    {c.nome}
-                    {c.nomeFantasia && (
-                      <span className="view-muted" style={{ display: 'block', fontSize: '0.78rem' }}>
-                        {c.nomeFantasia}
-                      </span>
-                    )}
-                  </td>
-                  <td><span className="tag">{maskDoc(c.cpfCnpj, c.pf)}</span></td>
-                  <td>{c.pf ? 'Pessoa Física' : 'Pessoa Jurídica'}</td>
-                  <td>{c.nomeCidade ?? '—'}</td>
+                  <td className="col-name">{c.nomeCondicao}</td>
+                  <td>{fmtPercent(c.taxaJuros)}</td>
+                  <td>{fmtPercent(c.multa)}</td>
+                  <td>{fmtPercent(c.desconto)}</td>
                   <td>
                     <span className={`status-badge ${c.ativo ? 'status-active' : 'status-inactive'}`}>
                       {c.ativo ? 'Ativo' : 'Inativo'}
                     </span>
                   </td>
                   <td className="col-actions">
-                    <button className="btn-icon btn-view" title="Visualizar" onClick={() => navigate(`/clientes/visualizar/${c.id}`)}>
+                    <button className="btn-icon btn-view" title="Visualizar" onClick={() => navigate(`/condicoes-pagamento/visualizar/${c.id}`)}>
                       <Eye size={16} />
                     </button>
-                    <button className="btn-icon btn-edit" title="Editar" onClick={() => navigate(`/clientes/editar/${c.id}`)}>
+                    <button className="btn-icon btn-edit" title="Editar" onClick={() => navigate(`/condicoes-pagamento/editar/${c.id}`)}>
                       <Pencil size={16} />
                     </button>
                     <button className="btn-icon btn-delete" title="Excluir" onClick={() => setDeleteId(c.id)}>
@@ -158,7 +137,7 @@ export default function ClientesPage() {
               <button className="modal-close" onClick={() => setDeleteId(null)}><X size={18} /></button>
             </div>
             <div className="modal-body">
-              <p>Tem certeza que deseja excluir este cliente? Esta ação só pode ser desfeita por um Administrador.</p>
+              <p>Tem certeza que deseja excluir esta condição de pagamento? Esta ação só pode ser desfeita por um Administrador.</p>
             </div>
             <div className="modal-footer">
               <button className="btn-danger" onClick={handleDelete} disabled={deleting}>

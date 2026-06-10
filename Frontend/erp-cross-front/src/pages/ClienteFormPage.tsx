@@ -6,6 +6,7 @@ import type { ClienteCreate } from '../types/entities';
 import type { AxiosError } from 'axios';
 import CidadeLookupModal from '../components/CidadeLookupModal';
 import CondicaoPagamentoLookupModal from '../components/CondicaoPagamentoLookupModal';
+import CurrencyInput from '../components/CurrencyInput';
 import './PaisesPage.css';
 
 const EMPTY: ClienteCreate = {
@@ -60,7 +61,15 @@ export default function ClienteFormPage() {
     e.preventDefault();
     if (!form.nome.trim()) { setError('Nome é obrigatório.'); return; }
     if (!form.cpfCnpj.trim()) { setError('CPF/CNPJ é obrigatório.'); return; }
+    if (!form.celular?.trim()) { setError('Celular é obrigatório.'); return; }
+    if (!form.email?.trim()) { setError('E-mail é obrigatório.'); return; }
+    if (!form.cep?.trim()) { setError('CEP é obrigatório.'); return; }
+    if (!form.endereco?.trim()) { setError('Logradouro é obrigatório.'); return; }
+    if (!form.numero?.trim()) { setError('Número é obrigatório.'); return; }
+    if (!form.bairro?.trim()) { setError('Bairro é obrigatório.'); return; }
     if (!form.idCidade) { setError('Cidade é obrigatória.'); return; }
+    if (!form.idCondicaoPagamento) { setError('Condição de Pagamento é obrigatória.'); return; }
+    if (!form.limiteCredito || form.limiteCredito <= 0) { setError('Limite de Crédito é obrigatório.'); return; }
 
     setSaving(true);
     setError('');
@@ -233,7 +242,7 @@ export default function ClienteFormPage() {
             <h2 className="form-section-title">Contato</h2>
             <div className="form-row">
               <div className="form-group">
-                <label htmlFor="celular">Celular</label>
+                <label htmlFor="celular">Celular *</label>
                 <input
                   id="celular"
                   type="text"
@@ -256,7 +265,7 @@ export default function ClienteFormPage() {
               </div>
             </div>
             <div className="form-group">
-              <label htmlFor="email">E-mail</label>
+                <label htmlFor="email">E-mail *</label>
               <input
                 id="email"
                 type="text"
@@ -272,7 +281,7 @@ export default function ClienteFormPage() {
             <h2 className="form-section-title">Endereço</h2>
             <div className="form-row">
               <div className="form-group">
-                <label htmlFor="cep">CEP</label>
+                <label htmlFor="cep">CEP *</label>
                 <input
                   id="cep"
                   type="text"
@@ -283,7 +292,7 @@ export default function ClienteFormPage() {
                 />
               </div>
               <div className="form-group">
-                <label htmlFor="bairro">Bairro</label>
+                <label htmlFor="bairro">Bairro *</label>
                 <input
                   id="bairro"
                   type="text"
@@ -295,7 +304,7 @@ export default function ClienteFormPage() {
             </div>
             <div className="form-row">
               <div className="form-group" style={{ gridColumn: 'span 2' }}>
-                <label htmlFor="endereco">Logradouro</label>
+                <label htmlFor="endereco">Logradouro *</label>
                 <input
                   id="endereco"
                   type="text"
@@ -307,7 +316,7 @@ export default function ClienteFormPage() {
             </div>
             <div className="form-row">
               <div className="form-group">
-                <label htmlFor="numero">Número</label>
+                <label htmlFor="numero">Número *</label>
                 <input
                   id="numero"
                   type="text"
@@ -356,7 +365,7 @@ export default function ClienteFormPage() {
             <h2 className="form-section-title">Dados Comerciais</h2>
             <div className="form-row">
               <div className="form-group">
-                <label>Condição de Pagamento</label>
+                <label>Condição de Pagamento *</label>
                 <div className="lookup-field">
                   <input
                     type="text"
@@ -385,15 +394,11 @@ export default function ClienteFormPage() {
                 )}
               </div>
               <div className="form-group">
-                <label htmlFor="limiteCredito">Limite de Crédito (R$)</label>
-                <input
+                <label htmlFor="limiteCredito">Limite de Crédito *</label>
+                <CurrencyInput
                   id="limiteCredito"
-                  type="number"
-                  min={0}
-                  step={0.01}
-                  placeholder="0,00"
                   value={form.limiteCredito}
-                  onChange={e => setForm({ ...form, limiteCredito: Number(e.target.value) })}
+                  onChange={v => setForm({ ...form, limiteCredito: v })}
                 />
               </div>
             </div>

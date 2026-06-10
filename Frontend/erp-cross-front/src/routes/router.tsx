@@ -13,6 +13,12 @@ import CidadeViewPage from '../pages/CidadeViewPage';
 import ClientesPage from '../pages/ClientesPage';
 import ClienteFormPage from '../pages/ClienteFormPage';
 import ClienteViewPage from '../pages/ClienteViewPage';
+import FormasPagamentoPage from '../pages/FormasPagamentoPage';
+import FormaPagamentoFormPage from '../pages/FormaPagamentoFormPage';
+import FormaPagamentoViewPage from '../pages/FormaPagamentoViewPage';
+import CondicoesPagamentoPage from '../pages/CondicoesPagamentoPage';
+import CondicaoPagamentoFormPage from '../pages/CondicaoPagamentoFormPage';
+import CondicaoPagamentoViewPage from '../pages/CondicaoPagamentoViewPage';
 
 const router = createBrowserRouter([
   {
@@ -36,6 +42,14 @@ const router = createBrowserRouter([
       { path: 'clientes/novo', element: <ClienteFormPage /> },
       { path: 'clientes/editar/:id', element: <ClienteFormPage /> },
       { path: 'clientes/visualizar/:id', element: <ClienteViewPage /> },
+      { path: 'formas-pagamento', element: <FormasPagamentoPage /> },
+      { path: 'formas-pagamento/nova', element: <FormaPagamentoFormPage /> },
+      { path: 'formas-pagamento/editar/:id', element: <FormaPagamentoFormPage /> },
+      { path: 'formas-pagamento/visualizar/:id', element: <FormaPagamentoViewPage /> },
+      { path: 'condicoes-pagamento', element: <CondicoesPagamentoPage /> },
+      { path: 'condicoes-pagamento/nova', element: <CondicaoPagamentoFormPage /> },
+      { path: 'condicoes-pagamento/editar/:id', element: <CondicaoPagamentoFormPage /> },
+      { path: 'condicoes-pagamento/visualizar/:id', element: <CondicaoPagamentoViewPage /> },
     ],
   },
 ]);
