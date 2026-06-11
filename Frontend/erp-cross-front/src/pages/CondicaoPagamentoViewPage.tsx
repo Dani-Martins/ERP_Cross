@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { CalendarClock, Pencil } from 'lucide-react';
 import { CondicaoPagamentoService } from '../services/condicaoPagamentoService';
-import type { CondicaoPagamentoView } from '../types/entities';
+import { ParcelaCondicaoPagamentoService } from '../services/parcelaCondicaoPagamentoService';
+import type { CondicaoPagamentoView, ParcelaCondicaoPagamentoView } from '../types/entities';
 import './PaisesPage.css';
 
 function formatDate(value: string | null | undefined): string {
@@ -25,11 +26,14 @@ export default function CondicaoPagamentoViewPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [condicao, setCondicao] = useState<CondicaoPagamentoView | null>(null);
+  const [parcelas, setParcelas] = useState<ParcelaCondicaoPagamentoView[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    CondicaoPagamentoService.getById(Number(id))
-      .then(res => setCondicao(res.data))
+    Promise.all([
+      CondicaoPagamentoService.getById(Number(id)).then(res => setCondicao(res.data)),
+      ParcelaCondicaoPagamentoService.getByCondicaoId(Number(id)).then(res => setParcelas(res.data)),
+    ])
       .catch(() => navigate('/condicoes-pagamento'))
       .finally(() => setLoading(false));
   }, [id, navigate]);
@@ -56,17 +60,22 @@ export default function CondicaoPagamentoViewPage() {
               <span className="view-value">{condicao.nomeCondicao}</span>
             </div>
 
+            <div className="view-group">
+              <span className="view-label">Forma de Pagamento</span>
+              <span className="view-value">{parcelas[0]?.nomeFormaPagamento ?? '—'}</span>
+            </div>
+
             <div className="form-row">
               <div className="view-group">
-                <span className="view-label">Taxa de Juros</span>
+                <span className="view-label">Juros por atraso</span>
                 <span className="view-value">{fmtPercent(condicao.taxaJuros)}</span>
               </div>
               <div className="view-group">
-                <span className="view-label">Multa</span>
+                <span className="view-label">Multa por atraso</span>
                 <span className="view-value">{fmtPercent(condicao.multa)}</span>
               </div>
               <div className="view-group">
-                <span className="view-label">Desconto</span>
+                <span className="view-label">Desconto pontualidade</span>
                 <span className="view-value">{fmtPercent(condicao.desconto)}</span>
               </div>
             </div>
@@ -77,6 +86,35 @@ export default function CondicaoPagamentoViewPage() {
                 {condicao.ativo ? 'Ativo' : 'Inativo'}
               </span>
             </div>
+          </div>
+
+          {/* Parcelas */}
+          <div className="form-section">
+            <h2 className="form-section-title">Parcelas</h2>
+            {parcelas.length === 0 ? (
+              <div className="table-empty" style={{ padding: '16px' }}>Nenhuma parcela cadastrada.</div>
+            ) : (
+              <div className="lookup-table-wrap" style={{ maxHeight: 'none' }}>
+                <table className="data-table">
+                  <thead>
+                    <tr>
+                      <th style={{ width: 56 }}>Nº</th>
+                      <th>Dias até vencimento</th>
+                      <th>Percentual</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {parcelas.map(p => (
+                      <tr key={p.id}>
+                        <td className="col-id">{p.numero}</td>
+                        <td>{p.dias} dia{p.dias !== 1 ? 's' : ''}</td>
+                        <td><span className="tag">{Number(p.percentual).toFixed(2)}%</span></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
 
           <div className="form-section view-dates">

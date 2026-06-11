@@ -570,3 +570,93 @@
 }
 
 .btn-select:hover { background: #c49010; }
+
+/* ── Parcelas toolbar ─────────────────────────────────────────────────────── */
+.parcelas-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.parcelas-gerar-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.parcelas-num-input {
+  width: 130px;
+  padding: 9px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 0.875rem;
+  background: var(--bg-input);
+  color: var(--text-secondary);
+  outline: none;
+}
+
+.parcelas-num-input:focus {
+  border-color: #D4A017;
+  box-shadow: 0 0 0 3px rgba(212, 160, 23, 0.15);
+}
+
+.parcelas-soma {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-left: auto;
+}
+
+.soma-ok { color: var(--text-secondary); }
+.soma-err { color: #dc2626; }
+
+.soma-badge {
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.soma-badge-ok {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.parcela-cell-input {
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  font-size: 0.875rem;
+  background: var(--bg-input);
+  color: var(--text-secondary);
+  outline: none;
+}
+
+.parcela-cell-input:focus {
+  border-color: #D4A017;
+  box-shadow: 0 0 0 2px rgba(212, 160, 23, 0.15);
+}
+
+.parcela-cell-select {
+  width: 100%;
+  padding: 6px 28px 6px 8px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  font-size: 0.875rem;
+  background: var(--bg-input) var(--select-arrow) no-repeat right 8px center;
+  color: var(--text-secondary);
+  appearance: none;
+  outline: none;
+}
+
+.parcela-cell-select:focus {
+  border-color: #D4A017;
+  box-shadow: 0 0 0 2px rgba(212, 160, 23, 0.15);
+}

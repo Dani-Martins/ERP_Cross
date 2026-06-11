@@ -22,7 +22,7 @@ public class ParcelaCondicaoPagamentoService
 
     public async Task<ParcelaCondicaoPagamento> CreateAsync(CreateParcelaCondicaoPagamentoDto dto)
     {
-        await ValidarFormaPagamentoAsync(dto.FormaPagamentoId);
+        await ValidarFormaPagamentoAsync(dto.FormaPagamentoId, dto.Numero);
 
         var p = new ParcelaCondicaoPagamento
         {
@@ -39,7 +39,7 @@ public class ParcelaCondicaoPagamentoService
         var p = await _repository.GetByIdAsync(id);
         if (p == null) return false;
 
-        await ValidarFormaPagamentoAsync(dto.FormaPagamentoId);
+        await ValidarFormaPagamentoAsync(dto.FormaPagamentoId, dto.Numero);
         p.Numero = dto.Numero; p.Dias = dto.Dias ?? dto.Numero * 30; p.Percentual = dto.Percentual;
         p.FormaPagamentoId = dto.FormaPagamentoId; p.CondicaoPagamentoId = dto.CondicaoPagamentoId;
         p.Ativo = dto.Ativo;
@@ -49,13 +49,13 @@ public class ParcelaCondicaoPagamentoService
 
     public async Task<bool> DeleteAsync(int id) => await _repository.DeleteAsync(id);
 
-    private async Task ValidarFormaPagamentoAsync(int formaPagamentoId)
+    private async Task ValidarFormaPagamentoAsync(int formaPagamentoId, int numero)
     {
         var forma = await _formaPagamentoRepository.GetByIdAsync(formaPagamentoId);
         if (forma == null)
             throw new ArgumentException("Forma de pagamento informada nao foi encontrada.");
-        if (!forma.AceitaParcela)
-            throw new ArgumentException($"A forma de pagamento '{forma.NomeFormaPagamento}' nao aceita parcelamento.");
+        if (!forma.AceitaParcela && numero > 1)
+            throw new ArgumentException($"A forma de pagamento '{forma.NomeFormaPagamento}' nao aceita parcelamento em mais de 1x.");
     }
 }
 

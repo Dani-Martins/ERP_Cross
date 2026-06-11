@@ -259,59 +259,113 @@ export interface ParcelaCondicaoPagamentoView {
   numero: number;
   dias: number;
   percentual: number;
-  idCondicaoPagamento: number;
-  nomeCondicaoPagamento?: string;
-  idFormaPagamento: number;
+  condicaoPagamentoId: number;
+  nomeCondicao?: string;
+  formaPagamentoId: number;
   nomeFormaPagamento?: string;
+  ativo: boolean;
 }
 export interface ParcelaCondicaoPagamentoCreate {
   numero: number;
-  dias?: number;
+  dias: number;
   percentual: number;
-  idCondicaoPagamento: number;
-  idFormaPagamento: number;
+  condicaoPagamentoId: number;
+  formaPagamentoId: number;
+  ativo: boolean;
 }
 export type ParcelaCondicaoPagamentoUpdate = ParcelaCondicaoPagamentoCreate;
 
 // ── Conta a Receber ───────────────────────────────────────────────────────────
 export interface ContaReceberView {
   id: number;
-  descricao: string;
-  valor: number;
-  dataVencimento: string;
-  dataPagamento?: string;
-  status: string;
-  idCliente: number;
+  numeroNota: string;
+  modelo: string;
+  serie: string;
+  clienteId: number;
   nomeCliente?: string;
+  numParcela: number;
+  valorParcela: number;
+  dataEmissao: string;
+  dataVencimento: string;
+  dataRecebimento?: string;
+  valorRecebido?: number;
+  juros: number;
+  multa: number;
+  desconto: number;
+  status: string;
+  ativo: boolean;
+  formaPagamentoId?: number;
+  nomeFormaPagamento?: string;
+  observacao?: string;
+  criadoEm: string;
+  atualizadoEm?: string;
 }
 export interface ContaReceberCreate {
-  descricao: string;
-  valor: number;
+  numeroNota: string;
+  modelo: string;
+  serie: string;
+  clienteId: number;
+  numParcela: number;
+  valorParcela: number;
+  dataEmissao: string;
   dataVencimento: string;
-  dataPagamento?: string;
+  dataRecebimento?: string;
+  valorRecebido?: number;
+  juros: number;
+  multa: number;
+  desconto: number;
   status: string;
-  idCliente: number;
+  ativo: boolean;
+  formaPagamentoId?: number;
+  observacao?: string;
 }
 export type ContaReceberUpdate = ContaReceberCreate;
 
 // ── Conta a Pagar ─────────────────────────────────────────────────────────────
 export interface ContaPagarView {
   id: number;
-  descricao: string;
-  valor: number;
+  notaCompraId?: number;
+  fornecedorId: number;
+  nomeFornecedor?: string;
+  modelo: string;
+  serie: string;
+  numeroNota: string;
+  numParcela: number;
+  valorParcela: number;
+  dataEmissao: string;
   dataVencimento: string;
   dataPagamento?: string;
+  valorPago?: number;
+  juros: number;
+  multa: number;
+  desconto: number;
   status: string;
-  idFornecedor: number;
-  nomeFornecedor?: string;
+  ativo: boolean;
+  formaPagamentoId?: number;
+  nomeFormaPagamento?: string;
+  observacao?: string;
+  criadoEm: string;
+  atualizadoEm?: string;
 }
 export interface ContaPagarCreate {
-  descricao: string;
-  valor: number;
+  notaCompraId?: number;
+  fornecedorId: number;
+  modelo: string;
+  serie: string;
+  numeroNota: string;
+  numParcela: number;
+  valorParcela: number;
+  dataEmissao: string;
   dataVencimento: string;
   dataPagamento?: string;
+  valorPago?: number;
+  juros: number;
+  multa: number;
+  desconto: number;
   status: string;
-  idFornecedor: number;
+  ativo: boolean;
+  formaPagamentoId?: number;
+  observacao?: string;
 }
 export type ContaPagarUpdate = ContaPagarCreate;
 

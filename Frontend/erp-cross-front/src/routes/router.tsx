@@ -19,6 +19,12 @@ import FormaPagamentoViewPage from '../pages/FormaPagamentoViewPage';
 import CondicoesPagamentoPage from '../pages/CondicoesPagamentoPage';
 import CondicaoPagamentoFormPage from '../pages/CondicaoPagamentoFormPage';
 import CondicaoPagamentoViewPage from '../pages/CondicaoPagamentoViewPage';
+import ContasReceberPage from '../pages/ContasReceberPage';
+import ContaReceberFormPage from '../pages/ContaReceberFormPage';
+import ContaReceberViewPage from '../pages/ContaReceberViewPage';
+import ContasPagarPage from '../pages/ContasPagarPage';
+import ContaPagarFormPage from '../pages/ContaPagarFormPage';
+import ContaPagarViewPage from '../pages/ContaPagarViewPage';
 
 const router = createBrowserRouter([
   {
@@ -50,6 +56,14 @@ const router = createBrowserRouter([
       { path: 'condicoes-pagamento/nova', element: <CondicaoPagamentoFormPage /> },
       { path: 'condicoes-pagamento/editar/:id', element: <CondicaoPagamentoFormPage /> },
       { path: 'condicoes-pagamento/visualizar/:id', element: <CondicaoPagamentoViewPage /> },
+      { path: 'contas-receber', element: <ContasReceberPage /> },
+      { path: 'contas-receber/nova', element: <ContaReceberFormPage /> },
+      { path: 'contas-receber/editar/:id', element: <ContaReceberFormPage /> },
+      { path: 'contas-receber/visualizar/:id', element: <ContaReceberViewPage /> },
+      { path: 'contas-pagar', element: <ContasPagarPage /> },
+      { path: 'contas-pagar/nova', element: <ContaPagarFormPage /> },
+      { path: 'contas-pagar/editar/:id', element: <ContaPagarFormPage /> },
+      { path: 'contas-pagar/visualizar/:id', element: <ContaPagarViewPage /> },
     ],
   },
 ]);
