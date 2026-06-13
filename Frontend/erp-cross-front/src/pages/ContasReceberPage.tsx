@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { TrendingUp, Eye, Pencil, Trash2, Plus } from 'lucide-react';
+import { TrendingUp, Eye, Pencil, Trash2, Plus, Search, X } from 'lucide-react';
 import { ContaReceberService } from '../services/contasService';
 import type { ContaReceberView } from '../types/entities';
 import './PaisesPage.css';
@@ -8,6 +8,7 @@ import './PaisesPage.css';
 const STATUS_LABEL: Record<string, string> = {
   ABERTO: 'Aberto',
   PAGO: 'Pago',
+  RECEBIDO: 'Recebido',
   CANCELADO: 'Cancelado',
   VENCIDO: 'Vencido',
 };
@@ -24,7 +25,7 @@ function fmtData(s: string) {
 }
 
 function statusClass(s: string) {
-  if (s === 'PAGO') return 'status-badge status-active';
+  if (s === 'PAGO' || s === 'RECEBIDO') return 'status-badge status-active';
   if (s === 'CANCELADO') return 'status-badge status-inactive';
   if (s === 'VENCIDO') return 'status-badge status-inactive';
   return 'status-badge';
@@ -34,6 +35,7 @@ export default function ContasReceberPage() {
   const navigate = useNavigate();
   const [contas, setContas] = useState<ContaReceberView[]>([]);
   const [busca, setBusca] = useState('');
+  const [filterStatus, setFilterStatus] = useState<'todos' | 'abertos' | 'pagos'>('todos');
   const [loading, setLoading] = useState(true);
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [deleting, setDeleting] = useState(false);
@@ -44,11 +46,16 @@ export default function ContasReceberPage() {
       .finally(() => setLoading(false));
   }, []);
 
-  const filtradas = contas.filter(c =>
-    c.nomeCliente?.toLowerCase().includes(busca.toLowerCase()) ||
-    c.numeroNota.toLowerCase().includes(busca.toLowerCase()) ||
-    c.status.toLowerCase().includes(busca.toLowerCase())
-  );
+  const filtradas = contas.filter(c => {
+    const matchStatus =
+      filterStatus === 'todos' ? true :
+      filterStatus === 'pagos' ? (c.status === 'PAGO' || c.status === 'RECEBIDO') :
+      c.status !== 'PAGO' && c.status !== 'RECEBIDO' && c.status !== 'CANCELADO';
+    const matchBusca = !busca ||
+      (c.nomeCliente ?? '').toLowerCase().includes(busca.toLowerCase()) ||
+      c.numeroNota.toLowerCase().includes(busca.toLowerCase());
+    return matchStatus && matchBusca;
+  });
 
   async function handleDelete() {
     if (!deleteId) return;
@@ -66,19 +73,33 @@ export default function ContasReceberPage() {
           <div className="page-title-area">
             <TrendingUp size={24} className="page-title-icon" />
             <h1 className="page-title">Contas a Receber</h1>
+            <span className="page-badge">{filtradas.length}</span>
           </div>
-          <button className="btn-primary" onClick={() => navigate('/contas-receber/nova')}>
-            <Plus size={16} /> Nova Conta
-          </button>
-        </div>
-
-        <div className="search-bar">
-          <input
-            type="text"
-            placeholder="Buscar por cliente, nº nota ou status..."
-            value={busca}
-            onChange={e => setBusca(e.target.value)}
-          />
+          <div className="page-actions">
+            <div className="filter-select-group">
+              <label>Status:</label>
+              <select value={filterStatus} onChange={e => setFilterStatus(e.target.value as typeof filterStatus)}>
+                <option value="todos">Todos</option>
+                <option value="abertos">Em Aberto</option>
+                <option value="pagos">Pagos</option>
+              </select>
+            </div>
+            <div className="search-box">
+              <Search size={15} className="search-icon" />
+              <input
+                type="text"
+                placeholder="Buscar por cliente ou nº nota..."
+                value={busca}
+                onChange={e => setBusca(e.target.value)}
+              />
+              {busca && (
+                <button className="search-clear" onClick={() => setBusca('')}><X size={14} /></button>
+              )}
+            </div>
+            <button className="btn-primary" onClick={() => navigate('/contas-receber/nova')}>
+              <Plus size={16} /> Nova Conta
+            </button>
+          </div>
         </div>
 
         <div className="table-card">

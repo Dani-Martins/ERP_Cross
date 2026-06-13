@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
-import { X, Search } from 'lucide-react';
+import { X, Search, Plus } from 'lucide-react';
 import { CondicaoPagamentoService } from '../services/condicaoPagamentoService';
 import type { CondicaoPagamentoView } from '../types/entities';
+import CondicaoPagamentoCreateModal from './CondicaoPagamentoCreateModal';
 import '../pages/PaisesPage.css';
 
 interface Props {
@@ -14,19 +15,30 @@ export default function CondicaoPagamentoLookupModal({ onSelect, onClose, zBase 
   const [all, setAll] = useState<CondicaoPagamentoView[]>([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
+  const [showCreate, setShowCreate] = useState(false);
 
-  useEffect(() => {
+  function load() {
+    setLoading(true);
     CondicaoPagamentoService.getAll()
       .then(res => setAll(res.data.filter(c => c.ativo)))
       .finally(() => setLoading(false));
-  }, []);
+  }
+
+  useEffect(() => { load(); }, []);
 
   const filtered = search
     ? all.filter(c => c.nomeCondicao.toLowerCase().includes(search.toLowerCase()))
     : all;
 
+  function handleCreated(id: number, nome: string) {
+    setShowCreate(false);
+    load();
+    onSelect(id, nome);
+  }
+
   return (
-    <div className="modal-overlay" style={{ zIndex: zBase }} onClick={onClose}>
+    <>
+      <div className="modal-overlay" style={{ zIndex: zBase }} onClick={onClose}>
       <div className="modal modal-lookup" onClick={e => e.stopPropagation()}>
         <div className="modal-header">
           <h2>Selecionar Condição de Pagamento</h2>
@@ -77,9 +89,20 @@ export default function CondicaoPagamentoLookupModal({ onSelect, onClose, zBase 
           )}
         </div>
         <div className="modal-footer">
-          <button className="btn-secondary" type="button" onClick={onClose}>Fechar</button>
+            <button className="btn-primary" type="button" onClick={() => setShowCreate(true)}>
+              <Plus size={15} /> Nova Condição
+            </button>
+            <button className="btn-secondary" type="button" onClick={onClose}>Fechar</button>
+          </div>
         </div>
       </div>
-    </div>
+      {showCreate && (
+        <CondicaoPagamentoCreateModal
+          onCreated={handleCreated}
+          onClose={() => setShowCreate(false)}
+          zBase={zBase + 100}
+        />
+      )}
+    </>
   );
 }

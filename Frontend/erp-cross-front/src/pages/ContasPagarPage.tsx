@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { TrendingDown, Eye, Pencil, Trash2, Plus } from 'lucide-react';
+import { TrendingDown, Eye, Pencil, Trash2, Plus, Search, X } from 'lucide-react';
 import { ContaPagarService } from '../services/contasService';
 import type { ContaPagarView } from '../types/entities';
 import './PaisesPage.css';
@@ -34,6 +34,7 @@ export default function ContasPagarPage() {
   const navigate = useNavigate();
   const [contas, setContas] = useState<ContaPagarView[]>([]);
   const [busca, setBusca] = useState('');
+  const [filterStatus, setFilterStatus] = useState<'todos' | 'abertos' | 'pagos'>('todos');
   const [loading, setLoading] = useState(true);
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [deleting, setDeleting] = useState(false);
@@ -44,11 +45,16 @@ export default function ContasPagarPage() {
       .finally(() => setLoading(false));
   }, []);
 
-  const filtradas = contas.filter(c =>
-    c.nomeFornecedor?.toLowerCase().includes(busca.toLowerCase()) ||
-    c.numeroNota.toLowerCase().includes(busca.toLowerCase()) ||
-    c.status.toLowerCase().includes(busca.toLowerCase())
-  );
+  const filtradas = contas.filter(c => {
+    const matchStatus =
+      filterStatus === 'todos' ? true :
+      filterStatus === 'pagos' ? c.status === 'PAGO' :
+      c.status !== 'PAGO' && c.status !== 'CANCELADO';
+    const matchBusca = !busca ||
+      (c.nomeFornecedor ?? '').toLowerCase().includes(busca.toLowerCase()) ||
+      c.numeroNota.toLowerCase().includes(busca.toLowerCase());
+    return matchStatus && matchBusca;
+  });
 
   async function handleDelete() {
     if (!deleteId) return;
@@ -66,19 +72,33 @@ export default function ContasPagarPage() {
           <div className="page-title-area">
             <TrendingDown size={24} className="page-title-icon" />
             <h1 className="page-title">Contas a Pagar</h1>
+            <span className="page-badge">{filtradas.length}</span>
           </div>
-          <button className="btn-primary" onClick={() => navigate('/contas-pagar/nova')}>
-            <Plus size={16} /> Nova Conta
-          </button>
-        </div>
-
-        <div className="search-bar">
-          <input
-            type="text"
-            placeholder="Buscar por fornecedor, nº nota ou status..."
-            value={busca}
-            onChange={e => setBusca(e.target.value)}
-          />
+          <div className="page-actions">
+            <div className="filter-select-group">
+              <label>Status:</label>
+              <select value={filterStatus} onChange={e => setFilterStatus(e.target.value as typeof filterStatus)}>
+                <option value="todos">Todos</option>
+                <option value="abertos">Em Aberto</option>
+                <option value="pagos">Pagos</option>
+              </select>
+            </div>
+            <div className="search-box">
+              <Search size={15} className="search-icon" />
+              <input
+                type="text"
+                placeholder="Buscar por fornecedor ou nº nota..."
+                value={busca}
+                onChange={e => setBusca(e.target.value)}
+              />
+              {busca && (
+                <button className="search-clear" onClick={() => setBusca('')}><X size={14} /></button>
+              )}
+            </div>
+            <button className="btn-primary" onClick={() => navigate('/contas-pagar/nova')}>
+              <Plus size={16} /> Nova Conta
+            </button>
+          </div>
         </div>
 
         <div className="table-card">
