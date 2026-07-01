@@ -6,15 +6,46 @@ import type { ClienteCreate } from '../types/entities';
 import type { AxiosError } from 'axios';
 import CidadeLookupModal from '../components/CidadeLookupModal';
 import CondicaoPagamentoLookupModal from '../components/CondicaoPagamentoLookupModal';
-import CurrencyInput from '../components/CurrencyInput';
+import { formatCPF, validateCPF, formatCNPJ, validateCNPJ, formatRG, validateRG, formatIE, validateIE, formatPhone, formatCEP } from '../utils/formatting';
+import { CidadeService } from '../services/cidadeService';
 import './PaisesPage.css';
+
+function calcularIdade(dataNascimento: string): number {
+  const hoje = new Date();
+  const nasc = new Date(dataNascimento + 'T00:00:00');
+  let idade = hoje.getFullYear() - nasc.getFullYear();
+  const m = hoje.getMonth() - nasc.getMonth();
+  if (m < 0 || (m === 0 && hoje.getDate() < nasc.getDate())) idade--;
+  return idade;
+}
+
+/** Converte qualquer formato de data do backend para YYYY-MM-DD (exigido pelo input[type=date]) */
+function toInputDate(value: string | null | undefined): string {
+  if (!value) return '';
+  // Já está no formato correto
+  if (/^\d{4}-\d{2}-\d{2}$/.test(value)) return value;
+  // ISO com hora: 2010-05-15T00:00:00
+  if (value.includes('T')) return value.split('T')[0];
+  // DD/MM/YYYY
+  const parts = value.split('/');
+  if (parts.length === 3) {
+    const [day, month, year] = parts;
+    return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+  }
+  return '';
+}
+
+const IDADE_MINIMA = 6;
+const IDADE_KIDS_MAX = 14;
+const IDADE_MENOR = 18;
 
 const EMPTY: ClienteCreate = {
   nome: '', nomeFantasia: '', cpfCnpj: '', rgIe: '',
   contato2: '', celular: '', email: '',
   cep: '', endereco: '', numero: '', complemento: '', bairro: '',
   idCidade: 0, pf: true, dataNascimento: '', sexo: '',
-  idCondicaoPagamento: undefined, limiteCredito: 0, ativo: true,
+  idCondicaoPagamento: undefined, funcionalKids: false,
+  nomeResponsavel: '', cpfResponsavel: '', parentescoResponsavel: '', observacao: '', ativo: true,
 };
 
 export default function ClienteFormPage() {
@@ -28,6 +59,7 @@ export default function ClienteFormPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const [buscandoCEP, setBuscandoCEP] = useState(false);
   const [showCidadeModal, setShowCidadeModal] = useState(false);
   const [showCondicaoModal, setShowCondicaoModal] = useState(false);
 
@@ -43,9 +75,11 @@ export default function ClienteFormPage() {
             cep: c.cep ?? '', endereco: c.endereco ?? '', numero: c.numero ?? '',
             complemento: c.complemento ?? '', bairro: c.bairro ?? '',
             idCidade: c.idCidade, pf: c.pf,
-            dataNascimento: c.dataNascimento ?? '', sexo: c.sexo ?? '',
+            dataNascimento: toInputDate(c.dataNascimento), sexo: c.sexo ?? '',
             idCondicaoPagamento: c.idCondicaoPagamento ?? undefined,
-            limiteCredito: c.limiteCredito, ativo: c.ativo,
+            funcionalKids: c.funcionalKids, ativo: c.ativo,
+            nomeResponsavel: c.nomeResponsavel ?? '', cpfResponsavel: c.cpfResponsavel ?? '',
+            parentescoResponsavel: c.parentescoResponsavel ?? '', observacao: c.observacao ?? '',
           });
           setNomeCidade(c.nomeCidade ?? '');
           setNomeCondicao(c.nomeCondicaoPagamento ?? '');
@@ -57,10 +91,76 @@ export default function ClienteFormPage() {
     }
   }, [id, isEdit, navigate]);
 
+  async function buscarEnderecoPorCEP(cep: string) {
+    const clean = cep.replace(/\D/g, '');
+    if (clean.length !== 8) return;
+    setBuscandoCEP(true);
+    try {
+      const res = await fetch(`https://viacep.com.br/ws/${clean}/json/`);
+      if (!res.ok) return;
+      const data = await res.json();
+      if (data.erro) return;
+
+      // Preencher logradouro e bairro apenas se estiverem vazios
+      setForm(prev => ({
+        ...prev,
+        endereco: prev.endereco?.trim() ? prev.endereco : (data.logradouro?.toUpperCase() ?? ''),
+        bairro: prev.bairro?.trim() ? prev.bairro : (data.bairro?.toUpperCase() ?? ''),
+      }));
+
+      // Buscar cidade pelo nome + DDD (somente se não tiver cidade selecionada)
+      if (data.localidade && data.ddd) {
+        const cidades = await CidadeService.getAll(data.localidade);
+        const match = cidades.data.find(
+          c => c.nomeCidade.toUpperCase() === data.localidade.toUpperCase() && c.ddd === data.ddd
+        );
+        if (match) {
+          setForm(prev => prev.idCidade ? prev : { ...prev, idCidade: match.id });
+          setNomeCidade(prev => prev || match.nomeCidade);
+        }
+      }
+    } catch {
+      // Ignora erros silenciosamente — recurso opcional
+    } finally {
+      setBuscandoCEP(false);
+    }
+  }
+
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
     if (!form.nome.trim()) { setError('Nome é obrigatório.'); return; }
+    
+    // Validar CPF/CNPJ
     if (!form.cpfCnpj.trim()) { setError('CPF/CNPJ é obrigatório.'); return; }
+    const isValidDoc = form.pf ? validateCPF(form.cpfCnpj) : validateCNPJ(form.cpfCnpj);
+    if (!isValidDoc) { setError(form.pf ? 'CPF inválido.' : 'CNPJ inválido.'); return; }
+    
+    // Validar RG/IE se preenchido
+    if (form.rgIe?.trim()) {
+      const isValidRG = form.pf ? validateRG(form.rgIe) : validateIE(form.rgIe);
+      if (!isValidRG) { setError(form.pf ? 'RG inválido.' : 'Inscrição Estadual inválida.'); return; }
+    }
+    
+    // Validar idade se Pessoa Física
+    if (form.pf && form.dataNascimento) {
+      const idade = calcularIdade(form.dataNascimento);
+      if (idade < IDADE_MINIMA) {
+        setError(`Idade mínima para cadastro é ${IDADE_MINIMA} anos.`);
+        return;
+      }
+      if (idade < IDADE_KIDS_MAX && !form.funcionalKids) {
+        setError('Clientes menores de 14 anos só podem ser cadastrados para Funcional Kids. Marque a opção correspondente.');
+        return;
+      }
+      // Validar dados do responsável se menor de 18 anos
+      if (idade < IDADE_MENOR) {
+        if (!form.nomeResponsavel?.trim()) { setError('Nome do responsável é obrigatório para menores de 18 anos.'); return; }
+        if (!form.parentescoResponsavel?.trim()) { setError('Parentesco do responsável é obrigatório para menores de 18 anos.'); return; }
+        if (!form.cpfResponsavel?.trim()) { setError('CPF do responsável é obrigatório para menores de 18 anos.'); return; }
+        if (!validateCPF(form.cpfResponsavel ?? '')) { setError('CPF do responsável inválido.'); return; }
+      }
+    }
+
     if (!form.celular?.trim()) { setError('Celular é obrigatório.'); return; }
     if (!form.email?.trim()) { setError('E-mail é obrigatório.'); return; }
     if (!form.cep?.trim()) { setError('CEP é obrigatório.'); return; }
@@ -69,7 +169,6 @@ export default function ClienteFormPage() {
     if (!form.bairro?.trim()) { setError('Bairro é obrigatório.'); return; }
     if (!form.idCidade) { setError('Cidade é obrigatória.'); return; }
     if (!form.idCondicaoPagamento) { setError('Condição de Pagamento é obrigatória.'); return; }
-    if (!form.limiteCredito || form.limiteCredito <= 0) { setError('Limite de Crédito é obrigatório.'); return; }
 
     setSaving(true);
     setError('');
@@ -89,6 +188,9 @@ export default function ClienteFormPage() {
         dataNascimento: form.dataNascimento || undefined,
         sexo: form.sexo || undefined,
         idCondicaoPagamento: form.idCondicaoPagamento || undefined,
+        nomeResponsavel: form.nomeResponsavel || undefined,
+        cpfResponsavel: form.cpfResponsavel || undefined,
+        parentescoResponsavel: form.parentescoResponsavel || undefined,
       };
       if (isEdit) {
         await ClienteService.update(Number(id), payload);
@@ -106,6 +208,11 @@ export default function ClienteFormPage() {
       setSaving(false);
     }
   }
+
+  const idadeAtual = form.pf && form.dataNascimento ? calcularIdade(form.dataNascimento) : null;
+  const ehMenorProibido = idadeAtual !== null && idadeAtual < IDADE_MINIMA;
+  const ehKids = idadeAtual !== null && idadeAtual >= IDADE_MINIMA && idadeAtual < IDADE_KIDS_MAX;
+  const ehMenor = idadeAtual !== null && idadeAtual < IDADE_MENOR;
 
   if (loading) {
     return (
@@ -194,7 +301,10 @@ export default function ClienteFormPage() {
                   placeholder={form.pf ? 'Ex: 000.000.000-00' : 'Ex: 00.000.000/0000-00'}
                   maxLength={form.pf ? 14 : 18}
                   value={form.cpfCnpj}
-                  onChange={e => setForm({ ...form, cpfCnpj: e.target.value })}
+                  onChange={e => {
+                    const val = form.pf ? formatCPF(e.target.value) : formatCNPJ(e.target.value);
+                    setForm({ ...form, cpfCnpj: val });
+                  }}
                 />
               </div>
               <div className="form-group">
@@ -203,53 +313,158 @@ export default function ClienteFormPage() {
                   id="rgIe"
                   type="text"
                   placeholder={form.pf ? 'Ex: 00.000.000-0' : 'Ex: 000.000.000.000'}
+                  maxLength={form.pf ? 12 : 14}
                   value={form.rgIe}
-                  onChange={e => setForm({ ...form, rgIe: e.target.value })}
+                  onChange={e => {
+                    const val = form.pf ? formatRG(e.target.value) : formatIE(e.target.value);
+                    setForm({ ...form, rgIe: val });
+                  }}
                 />
               </div>
             </div>
 
-            {form.pf && (
-              <div className="form-row">
-                <div className="form-group">
-                  <label htmlFor="dataNascimento">Data de Nascimento</label>
-                  <input
-                    id="dataNascimento"
-                    type="date"
-                    value={form.dataNascimento}
-                    onChange={e => setForm({ ...form, dataNascimento: e.target.value })}
-                  />
-                </div>
-                <div className="form-group">
-                  <label htmlFor="sexo">Sexo</label>
-                  <select
-                    id="sexo"
-                    value={form.sexo}
-                    onChange={e => setForm({ ...form, sexo: e.target.value })}
-                  >
-                    <option value="">Não informado</option>
-                    <option value="M">Masculino</option>
-                    <option value="F">Feminino</option>
-                    <option value="O">Outro</option>
-                  </select>
-                </div>
-              </div>
-            )}
+            {form.pf && (() => {
+              const hoje = new Date().toISOString().split('T')[0];
+              return (
+                <>
+                  <div className="form-row">
+                    <div className="form-group">
+                      <label htmlFor="dataNascimento">Data de Nascimento</label>
+                      <input
+                        id="dataNascimento"
+                        type="date"
+                        max={hoje}
+                        value={form.dataNascimento}
+                        onChange={e => {
+                          const novaData = e.target.value;
+                          const idadeCalc = novaData ? calcularIdade(novaData) : null;
+                          const forcarKids = idadeCalc !== null && idadeCalc >= IDADE_MINIMA && idadeCalc < IDADE_KIDS_MAX;
+                          setForm({ ...form, dataNascimento: novaData, funcionalKids: forcarKids ? true : (idadeCalc !== null && idadeCalc >= IDADE_KIDS_MAX ? form.funcionalKids : false) });
+                        }}
+                      />
+                      {idadeAtual !== null && ehMenorProibido && (
+                        <span style={{ fontSize: '0.78rem', color: 'var(--danger, #dc3545)', marginTop: 4, display: 'block' }}>
+                          ⚠ Idade mínima para cadastro é {IDADE_MINIMA} anos.
+                        </span>
+                      )}
+                      {idadeAtual !== null && ehKids && (
+                        <span style={{ fontSize: '0.78rem', color: '#D4A017', marginTop: 4, display: 'block', fontWeight: 600 }}>
+                          ⭐ Criança ({idadeAtual} anos) — apenas Funcional Kids permitido.
+                        </span>
+                      )}
+                      {idadeAtual !== null && !ehMenorProibido && !ehKids && (
+                        <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: 4, display: 'block' }}>
+                          Idade: {idadeAtual} anos
+                        </span>
+                      )}
+                    </div>
+                    <div className="form-group">
+                      <label htmlFor="sexo">Sexo</label>
+                      <select
+                        id="sexo"
+                        value={form.sexo}
+                        onChange={e => setForm({ ...form, sexo: e.target.value })}
+                      >
+                        <option value="">Não informado</option>
+                        <option value="M">Masculino</option>
+                        <option value="F">Feminino</option>
+                        <option value="O">Outro</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Funcional Kids — só aparece para idades entre 6 e 14 anos */}
+                  {idadeAtual !== null && idadeAtual >= IDADE_MINIMA && idadeAtual <= IDADE_KIDS_MAX && (
+                  <div className="form-group form-check" style={{ marginTop: 4 }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: ehKids ? 'default' : 'pointer', opacity: ehMenorProibido ? 0.5 : 1 }}>
+                      <input
+                        type="checkbox"
+                        checked={form.funcionalKids}
+                        disabled={ehKids}
+                        onChange={e => setForm({ ...form, funcionalKids: e.target.checked })}
+                        style={{ accentColor: '#D4A017', width: 16, height: 16 }}
+                      />
+                      <span>
+                        Aluno de Funcional Kids
+                        {ehKids && (
+                          <span style={{ color: '#D4A017', fontSize: '0.78rem', marginLeft: 6 }}>
+                            (obrigatório para menores de {IDADE_KIDS_MAX} anos)
+                          </span>
+                        )}
+                      </span>
+                    </label>
+                  </div>
+                  )}
+                </>
+              );
+            })()}
           </div>
 
-          {/* Seção 2: Contato */}
+          {/* Seção 2: Dados do Responsável — para menores de 18 anos */}
+          {ehMenor && (
+            <div className="form-section">
+              <h2 className="form-section-title">Dados do Responsável</h2>
+              <div className="form-row">
+                <div className="form-group" style={{ gridColumn: 'span 2' }}>
+                  <label htmlFor="nomeResponsavel">Nome do Responsável *</label>
+                  <input
+                    id="nomeResponsavel"
+                    type="text"
+                    placeholder="Ex: JOÃO DA SILVA"
+                    value={form.nomeResponsavel ?? ''}
+                    onChange={e => setForm({ ...form, nomeResponsavel: e.target.value.toUpperCase() })}
+                  />
+                </div>
+              </div>
+              <div className="form-row">
+                <div className="form-group">
+                  <label htmlFor="parentescoResponsavel">Parentesco *</label>
+                  <select
+                    id="parentescoResponsavel"
+                    value={form.parentescoResponsavel ?? ''}
+                    onChange={e => setForm({ ...form, parentescoResponsavel: e.target.value })}
+                  >
+                    <option value="">Selecione...</option>
+                    <option value="PAI">Pai</option>
+                    <option value="MAE">Mãe</option>
+                    <option value="AVO">Avô</option>
+                    <option value="AVO_F">Avó</option>
+                    <option value="TIO">Tio</option>
+                    <option value="TIA">Tia</option>
+                    <option value="IRMAO">Irmão</option>
+                    <option value="IRMA">Irmã</option>
+                    <option value="RESPONSAVEL_LEGAL">Responsável Legal</option>
+                    <option value="OUTRO">Outro</option>
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label htmlFor="cpfResponsavel">CPF do Responsável *</label>
+                  <input
+                    id="cpfResponsavel"
+                    type="text"
+                    placeholder="Ex: 000.000.000-00"
+                    maxLength={14}
+                    value={form.cpfResponsavel ?? ''}
+                    onChange={e => setForm({ ...form, cpfResponsavel: formatCPF(e.target.value) })}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Seção 3: Contato */}
           <div className="form-section">
-            <h2 className="form-section-title">Contato</h2>
+            <h2 className="form-section-title">{ehMenor ? 'Contato do Responsável' : 'Contato'}</h2>
             <div className="form-row">
               <div className="form-group">
-                <label htmlFor="celular">Celular *</label>
+                <label htmlFor="celular">{ehMenor ? 'Celular do Responsável *' : 'Celular *'}</label>
                 <input
                   id="celular"
                   type="text"
                   placeholder="Ex: (11) 99999-9999"
                   maxLength={15}
                   value={form.celular}
-                  onChange={e => setForm({ ...form, celular: e.target.value })}
+                  onChange={e => setForm({ ...form, celular: formatPhone(e.target.value) })}
                 />
               </div>
               <div className="form-group">
@@ -260,12 +475,12 @@ export default function ClienteFormPage() {
                   placeholder="Ex: (11) 3333-3333"
                   maxLength={15}
                   value={form.contato2}
-                  onChange={e => setForm({ ...form, contato2: e.target.value })}
+                  onChange={e => setForm({ ...form, contato2: formatPhone(e.target.value) })}
                 />
               </div>
             </div>
             <div className="form-group">
-                <label htmlFor="email">E-mail *</label>
+                <label htmlFor="email">{ehMenor ? 'E-mail do Responsável *' : 'E-mail *'}</label>
               <input
                 id="email"
                 type="text"
@@ -288,8 +503,17 @@ export default function ClienteFormPage() {
                   placeholder="Ex: 00000-000"
                   maxLength={9}
                   value={form.cep}
-                  onChange={e => setForm({ ...form, cep: e.target.value })}
+                  onChange={e => {
+                    const formatted = formatCEP(e.target.value);
+                    setForm({ ...form, cep: formatted });
+                    if (formatted.replace(/\D/g, '').length === 8) buscarEnderecoPorCEP(formatted);
+                  }}
                 />
+                {buscandoCEP && (
+                  <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: 3, display: 'block' }}>
+                    Buscando endereço...
+                  </span>
+                )}
               </div>
               <div className="form-group">
                 <label htmlFor="bairro">Bairro *</label>
@@ -363,7 +587,6 @@ export default function ClienteFormPage() {
           {/* Seção 4: Dados Comerciais */}
           <div className="form-section">
             <h2 className="form-section-title">Dados Comerciais</h2>
-            <div className="form-row">
               <div className="form-group">
                 <label>Condição de Pagamento *</label>
                 <div className="lookup-field">
@@ -394,14 +617,16 @@ export default function ClienteFormPage() {
                 )}
               </div>
               <div className="form-group">
-                <label htmlFor="limiteCredito">Limite de Crédito *</label>
-                <CurrencyInput
-                  id="limiteCredito"
-                  value={form.limiteCredito}
-                  onChange={v => setForm({ ...form, limiteCredito: v })}
+                <label htmlFor="observacao">Observação</label>
+                <textarea
+                  id="observacao"
+                  placeholder="Ex: Prefere aulas pela manhã, possui lesão no joelho..."
+                  rows={3}
+                  value={form.observacao ?? ''}
+                  onChange={e => setForm({ ...form, observacao: e.target.value })}
+                  style={{ resize: 'vertical', fontFamily: 'inherit', fontSize: 'inherit', width: '100%' }}
                 />
               </div>
-            </div>
             <div className="form-group form-check">
               <label>
                 <input

@@ -138,6 +138,11 @@ export interface ClienteView {
   idCondicaoPagamento?: number;
   nomeCondicaoPagamento?: string;
   limiteCredito: number;
+  funcionalKids: boolean;
+  nomeResponsavel?: string;
+  cpfResponsavel?: string;
+  parentescoResponsavel?: string;
+  observacao?: string;
   ativo: boolean;
   dataCriacao: string;
   dataAtualizacao: string;
@@ -161,6 +166,11 @@ export interface ClienteCreate {
   sexo?: string;
   idCondicaoPagamento?: number;
   limiteCredito: number;
+  funcionalKids: boolean;
+  nomeResponsavel?: string;
+  cpfResponsavel?: string;
+  parentescoResponsavel?: string;
+  observacao?: string;
   ativo: boolean;
 }
 export type ClienteUpdate = ClienteCreate;

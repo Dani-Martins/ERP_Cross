@@ -26,13 +26,16 @@ public class ClienteController(ClienteService service) : ControllerBase
     [HttpPost]
     public async Task<ActionResult<ClienteView>> Create(CreateClienteDto dto)
     {
-        var item = await _service.CreateAsync(dto);
-        return CreatedAtAction(nameof(GetById), new { id = item.Id }, item);
+        try { var item = await _service.CreateAsync(dto); return CreatedAtAction(nameof(GetById), new { id = item.Id }, item); }
+        catch (InvalidOperationException ex) { return Conflict(new { message = ex.Message }); }
     }
 
     [HttpPut("{id:int}")]
     public async Task<IActionResult> Update(int id, UpdateClienteDto dto)
-        => await _service.UpdateAsync(id, dto) ? NoContent() : NotFound();
+    {
+        try { return await _service.UpdateAsync(id, dto) ? NoContent() : NotFound(); }
+        catch (InvalidOperationException ex) { return Conflict(new { message = ex.Message }); }
+    }
 
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id)

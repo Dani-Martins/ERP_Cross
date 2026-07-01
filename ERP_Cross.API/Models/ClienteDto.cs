@@ -24,7 +24,11 @@ public class CreateClienteDto
     public DateTime? DataNascimento { get; set; }
     public string? Sexo { get; set; }
     public int? IdCondicaoPagamento { get; set; }
-    public decimal LimiteCredito { get; set; }
+    public bool FuncionalKids { get; set; } = false;
+    public string? NomeResponsavel { get; set; }
+    public string? CpfResponsavel { get; set; }
+    public string? ParentescoResponsavel { get; set; }
+    public string? Observacao { get; set; }
     public bool Ativo { get; set; } = true;
 }
 
@@ -49,7 +53,11 @@ public class UpdateClienteDto
     public DateTime? DataNascimento { get; set; }
     public string? Sexo { get; set; }
     public int? IdCondicaoPagamento { get; set; }
-    public decimal LimiteCredito { get; set; }
+    public bool FuncionalKids { get; set; } = false;
+    public string? NomeResponsavel { get; set; }
+    public string? CpfResponsavel { get; set; }
+    public string? ParentescoResponsavel { get; set; }
+    public string? Observacao { get; set; }
     public bool Ativo { get; set; } = true;
 }
 
@@ -79,5 +87,10 @@ public class ClienteView
     public DateTime DataAtualizacao { get; set; }
     public string? NomeCidade { get; set; }
     public string? NomeCondicaoPagamento { get; set; }
+    public bool FuncionalKids { get; set; }
+    public string? NomeResponsavel { get; set; }
+    public string? CpfResponsavel { get; set; }
+    public string? ParentescoResponsavel { get; set; }
+    public string? Observacao { get; set; }
 }
 

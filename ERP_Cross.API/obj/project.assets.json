@@ -542,11 +542,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "d:\\DOCUMENTOS\\Documents\\ERP_Cross\\ERP_Cross.API\\ERP_Cross.API.csproj",
+      "projectUniqueName": "D:\\DOCUMENTOS\\Documents\\ERP_Cross\\ERP_Cross.API\\ERP_Cross.API.csproj",
       "projectName": "ERP_Cross.API",
-      "projectPath": "d:\\DOCUMENTOS\\Documents\\ERP_Cross\\ERP_Cross.API\\ERP_Cross.API.csproj",
+      "projectPath": "D:\\DOCUMENTOS\\Documents\\ERP_Cross\\ERP_Cross.API\\ERP_Cross.API.csproj",
       "packagesPath": "C:\\Users\\DANIEL\\.nuget\\packages\\",
-      "outputPath": "d:\\DOCUMENTOS\\Documents\\ERP_Cross\\ERP_Cross.API\\obj\\",
+      "outputPath": "D:\\DOCUMENTOS\\Documents\\ERP_Cross\\ERP_Cross.API\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\DANIEL\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -1029,5 +1029,17 @@
         }
       }
     }
-  }
+  },
+  "logs": [
+    {
+      "code": "NU1903",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "O pacote 'Microsoft.OpenApi' 2.4.1 tem uma alta vulnerabilidade de gravidade conhecida, https://github.com/advisories/GHSA-v5pm-xwqc-g5wc",
+      "libraryId": "Microsoft.OpenApi",
+      "targetGraphs": [
+        "net10.0"
+      ]
+    }
+  ]
 }

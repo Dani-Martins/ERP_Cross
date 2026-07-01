@@ -18,6 +18,11 @@ function formatDate(value: string | null | undefined): string {
 }
 
 const SEXO: Record<string, string> = { M: 'Masculino', F: 'Feminino', O: 'Outro' };
+const PARENTESCO: Record<string, string> = {
+  PAI: 'Pai', MAE: 'Mãe', AVO: 'Avô', AVO_F: 'Avó',
+  TIO: 'Tio', TIA: 'Tia', IRMAO: 'Irmão', IRMA: 'Irmã',
+  RESPONSAVEL_LEGAL: 'Responsável Legal', OUTRO: 'Outro',
+};
 
 export default function ClienteViewPage() {
   const { id } = useParams<{ id: string }>();
@@ -87,14 +92,47 @@ export default function ClienteViewPage() {
                 </div>
               </div>
             )}
+            {cliente.pf && cliente.funcionalKids && (
+              <div className="form-group" style={{ marginTop: 4 }}>
+                <span style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 6,
+                  background: '#FFF8E1', color: '#D4A017',
+                  border: '1px solid #D4A017', borderRadius: 6,
+                  padding: '4px 12px', fontSize: '0.82rem', fontWeight: 700
+                }}>
+                  ⭐ Aluno de Funcional Kids
+                </span>
+              </div>
+            )}
           </div>
+
+          {/* Dados do Responsável */}
+          {cliente.pf && (cliente.nomeResponsavel || cliente.cpfResponsavel) && (
+            <div className="form-section">
+              <h2 className="form-section-title">Dados do Responsável</h2>
+              <div className="view-group">
+                <span className="view-label">Nome do Responsável</span>
+                <span className="view-value">{cliente.nomeResponsavel || '—'}</span>
+              </div>
+              <div className="form-row">
+                <div className="view-group">
+                  <span className="view-label">Parentesco</span>
+                  <span className="view-value">{PARENTESCO[cliente.parentescoResponsavel ?? ''] ?? cliente.parentescoResponsavel ?? '—'}</span>
+                </div>
+                <div className="view-group">
+                  <span className="view-label">CPF do Responsável</span>
+                  <span className="view-value">{cliente.cpfResponsavel || '—'}</span>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Contato */}
           <div className="form-section">
-            <h2 className="form-section-title">Contato</h2>
+            <h2 className="form-section-title">{cliente.nomeResponsavel ? 'Contato do Responsável' : 'Contato'}</h2>
             <div className="form-row">
               <div className="view-group">
-                <span className="view-label">Celular</span>
+                <span className="view-label">{cliente.nomeResponsavel ? 'Celular do Responsável' : 'Celular'}</span>
                 <span className="view-value">{cliente.celular || '—'}</span>
               </div>
               <div className="view-group">
@@ -103,7 +141,7 @@ export default function ClienteViewPage() {
               </div>
             </div>
             <div className="view-group">
-              <span className="view-label">E-mail</span>
+              <span className="view-label">{cliente.nomeResponsavel ? 'E-mail do Responsável' : 'E-mail'}</span>
               <span className="view-value">{cliente.email || '—'}</span>
             </div>
           </div>
@@ -146,18 +184,16 @@ export default function ClienteViewPage() {
           {/* Dados Comerciais */}
           <div className="form-section">
             <h2 className="form-section-title">Dados Comerciais</h2>
-            <div className="form-row">
-              <div className="view-group">
-                <span className="view-label">Condição de Pagamento</span>
-                <span className="view-value">{cliente.nomeCondicaoPagamento || '—'}</span>
-              </div>
-              <div className="view-group">
-                <span className="view-label">Limite de Crédito</span>
-                <span className="view-value">
-                  {cliente.limiteCredito.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
-                </span>
-              </div>
+            <div className="view-group">
+              <span className="view-label">Condição de Pagamento</span>
+              <span className="view-value">{cliente.nomeCondicaoPagamento || '—'}</span>
             </div>
+            {cliente.observacao && (
+              <div className="view-group">
+                <span className="view-label">Observação</span>
+                <span className="view-value" style={{ whiteSpace: 'pre-wrap' }}>{cliente.observacao}</span>
+              </div>
+            )}
             <div className="view-group">
               <span className="view-label">Status</span>
               <span className={`status-badge ${cliente.ativo ? 'status-active' : 'status-inactive'}`}>

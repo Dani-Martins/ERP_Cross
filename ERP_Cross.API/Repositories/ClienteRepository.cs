@@ -13,7 +13,8 @@ public class ClienteRepository
     private const string SelectColumns = @"
         c.Id, c.Nome, c.NomeFantasia, c.CpfCnpj, c.RgIe, c.Contato2, c.Celular, c.Email,
         c.Cep, c.Endereco, c.Numero, c.Complemento, c.Bairro, c.IdCidade,
-        c.Pf, c.DataNascimento, c.Sexo, c.IdCondicaoPagamento, c.LimiteCredito,
+        c.Pf, c.DataNascimento, c.Sexo, c.IdCondicaoPagamento,
+        c.FuncionalKids, c.NomeResponsavel, c.CpfResponsavel, c.ParentescoResponsavel, c.Observacao,
         c.Ativo, c.DataCriacao, c.DataAtualizacao,
         ci.NomeCidade, cp.NomeCondicao AS NomeCondicaoPagamento";
 
@@ -38,10 +39,12 @@ public class ClienteRepository
         const string sql = @"
             INSERT INTO Clientes (Nome, NomeFantasia, CpfCnpj, RgIe, Contato2, Celular, Email,
                 Cep, Endereco, Numero, Complemento, Bairro, IdCidade,
-                Pf, DataNascimento, Sexo, IdCondicaoPagamento, LimiteCredito, Ativo, DataCriacao, DataAtualizacao)
+                Pf, DataNascimento, Sexo, IdCondicaoPagamento,
+                FuncionalKids, NomeResponsavel, CpfResponsavel, ParentescoResponsavel, Observacao, Ativo, DataCriacao, DataAtualizacao)
             VALUES (@Nome, @NomeFantasia, @CpfCnpj, @RgIe, @Contato2, @Celular, @Email,
                 @Cep, @Endereco, @Numero, @Complemento, @Bairro, @IdCidade,
-                @Pf, @DataNascimento, @Sexo, @IdCondicaoPagamento, @LimiteCredito, @Ativo, NOW(), NOW());
+                @Pf, @DataNascimento, @Sexo, @IdCondicaoPagamento,
+                @FuncionalKids, @NomeResponsavel, @CpfResponsavel, @ParentescoResponsavel, @Observacao, @Ativo, NOW(), NOW());
             SELECT LAST_INSERT_ID();";
         return await _connection.ExecuteScalarAsync<int>(sql, c);
     }
@@ -54,13 +57,22 @@ public class ClienteRepository
                 Contato2=@Contato2, Celular=@Celular, Email=@Email,
                 Cep=@Cep, Endereco=@Endereco, Numero=@Numero, Complemento=@Complemento, Bairro=@Bairro, IdCidade=@IdCidade,
                 Pf=@Pf, DataNascimento=@DataNascimento, Sexo=@Sexo,
-                IdCondicaoPagamento=@IdCondicaoPagamento, LimiteCredito=@LimiteCredito,
-                Ativo=@Ativo, DataAtualizacao=NOW()
+                IdCondicaoPagamento=@IdCondicaoPagamento,
+                FuncionalKids=@FuncionalKids,
+                NomeResponsavel=@NomeResponsavel, CpfResponsavel=@CpfResponsavel, ParentescoResponsavel=@ParentescoResponsavel,
+                Observacao=@Observacao, Ativo=@Ativo, DataAtualizacao=NOW()
             WHERE Id = @Id";
         return await _connection.ExecuteAsync(sql, c) > 0;
     }
 
     public async Task<bool> DeleteAsync(int id)
         => await _connection.ExecuteAsync("UPDATE Clientes SET Ativo = 0, DataAtualizacao = NOW() WHERE Id = @Id", new { Id = id }) > 0;
+
+    public async Task<bool> CpfCnpjExistsAsync(string cpfCnpj, int? excludeId = null)
+    {
+        const string sql = "SELECT COUNT(1) FROM Clientes WHERE CpfCnpj = @CpfCnpj AND (@ExcludeId IS NULL OR Id != @ExcludeId)";
+        var count = await _connection.ExecuteScalarAsync<int>(sql, new { CpfCnpj = cpfCnpj, ExcludeId = excludeId });
+        return count > 0;
+    }
 }
 
