@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "d:\\DOCUMENTOS\\Documents\\ERP_Cross\\ERP_Cross.API\\ERP_Cross.API.csproj": {}
+    "D:\\DOCUMENTOS\\Documents\\ERP_Cross\\ERP_Cross.API\\ERP_Cross.API.csproj": {}
   },
   "projects": {
-    "d:\\DOCUMENTOS\\Documents\\ERP_Cross\\ERP_Cross.API\\ERP_Cross.API.csproj": {
+    "D:\\DOCUMENTOS\\Documents\\ERP_Cross\\ERP_Cross.API\\ERP_Cross.API.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "d:\\DOCUMENTOS\\Documents\\ERP_Cross\\ERP_Cross.API\\ERP_Cross.API.csproj",
+        "projectUniqueName": "D:\\DOCUMENTOS\\Documents\\ERP_Cross\\ERP_Cross.API\\ERP_Cross.API.csproj",
         "projectName": "ERP_Cross.API",
-        "projectPath": "d:\\DOCUMENTOS\\Documents\\ERP_Cross\\ERP_Cross.API\\ERP_Cross.API.csproj",
+        "projectPath": "D:\\DOCUMENTOS\\Documents\\ERP_Cross\\ERP_Cross.API\\ERP_Cross.API.csproj",
         "packagesPath": "C:\\Users\\DANIEL\\.nuget\\packages\\",
-        "outputPath": "d:\\DOCUMENTOS\\Documents\\ERP_Cross\\ERP_Cross.API\\obj\\",
+        "outputPath": "D:\\DOCUMENTOS\\Documents\\ERP_Cross\\ERP_Cross.API\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\DANIEL\\AppData\\Roaming\\NuGet\\NuGet.Config"

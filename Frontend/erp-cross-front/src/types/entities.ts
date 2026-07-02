@@ -57,63 +57,116 @@ export type CidadeUpdate = CidadeCreate;
 // ── Cargo ─────────────────────────────────────────────────────────────────────
 export interface CargoView {
   id: number;
-  nome: string;
+  nomeCargo: string;
+  descricao?: string;
   salarioBase: number;
+  exigeCnh: boolean;
+  ativo: boolean;
+  dataCriacao: string;
+  dataAtualizacao: string;
 }
 export interface CargoCreate {
-  nome: string;
+  nomeCargo: string;
+  descricao?: string;
   salarioBase: number;
+  exigeCnh: boolean;
+  ativo: boolean;
 }
 export type CargoUpdate = CargoCreate;
-
-// ── Fornecedor ────────────────────────────────────────────────────────────────
-export interface FornecedorView {
-  id: number;
-  nome: string;
-  cnpj: string;
-  contato1: string;
-  contato2?: string;
-  email?: string;
-  idCidade: number;
-  nomeCidade?: string;
-}
-export interface FornecedorCreate {
-  nome: string;
-  cnpj: string;
-  contato1: string;
-  contato2?: string;
-  email?: string;
-  idCidade: number;
-}
-export type FornecedorUpdate = FornecedorCreate;
 
 // ── Funcionário ───────────────────────────────────────────────────────────────
 export interface FuncionarioView {
   id: number;
   nome: string;
-  cpf: string;
-  contato1: string;
+  cpfCnpj: string;
+  rgIe?: string;
   contato2?: string;
+  celular?: string;
   email?: string;
-  salario: number;
-  dataAdmissao: string;
-  idCargo: number;
-  nomeCargo?: string;
+  cep?: string;
+  endereco?: string;
+  numero?: string;
+  complemento?: string;
+  bairro?: string;
   idCidade: number;
   nomeCidade?: string;
+  idCargo?: number;
+  nomeCargo?: string;
+  pis?: string;
+  ctps?: string;
+  salario?: number;
+  dataAdmissao?: string;
+  dataDemissao?: string;
+  sexo?: string;
+  ativo: boolean;
+  dataCriacao: string;
+  dataAtualizacao: string;
 }
 export interface FuncionarioCreate {
   nome: string;
-  cpf: string;
-  contato1: string;
+  cpfCnpj: string;
+  rgIe?: string;
   contato2?: string;
+  celular?: string;
   email?: string;
-  salario?: number;
-  dataAdmissao: string;
-  idCargo: number;
+  cep?: string;
+  endereco?: string;
+  numero?: string;
+  complemento?: string;
+  bairro?: string;
   idCidade: number;
+  idCargo?: number;
+  pis?: string;
+  ctps?: string;
+  salario?: number;
+  dataAdmissao?: string;
+  dataDemissao?: string;
+  sexo?: string;
+  ativo: boolean;
 }
 export type FuncionarioUpdate = FuncionarioCreate;
+
+// ── Fornecedor ────────────────────────────────────────────────────────────────
+export interface FornecedorView {
+  id: number;
+  nome: string;
+  nomeFantasia?: string;
+  cpfCnpj: string;
+  rgIe?: string;
+  contato2?: string;
+  celular?: string;
+  email?: string;
+  cep?: string;
+  endereco?: string;
+  numero?: string;
+  complemento?: string;
+  bairro?: string;
+  idCidade: number;
+  nomeCidade?: string;
+  idCondicaoPagamento: number;
+  nomeCondicaoPagamento?: string;
+  ativo: boolean;
+  dataCriacao: string;
+  dataAtualizacao: string;
+}
+export interface FornecedorCreate {
+  nome: string;
+  nomeFantasia?: string;
+  cpfCnpj: string;
+  rgIe?: string;
+  contato2?: string;
+  celular?: string;
+  email?: string;
+  cep?: string;
+  endereco?: string;
+  numero?: string;
+  complemento?: string;
+  bairro?: string;
+  idCidade: number;
+  idCondicaoPagamento: number;
+  ativo: boolean;
+}
+export type FornecedorUpdate = FornecedorCreate;
 
 // ── Cliente ───────────────────────────────────────────────────────────────────
 export interface ClienteView {
