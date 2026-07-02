@@ -16,6 +16,10 @@ public class ContaReceberController(ContaReceberService service) : ControllerBas
     public async Task<ActionResult<IEnumerable<ContaReceberView>>> GetAll()
         => Ok(await _service.GetAllAsync());
 
+    [HttpGet("proximo-numero")]
+    public async Task<ActionResult<long>> GetProximoNumero()
+        => Ok(await _service.GetProximoNumeroNotaAsync());
+
     [HttpGet("{id:long}")]
     public async Task<ActionResult<ContaReceberView>> GetById(long id)
     {
@@ -28,6 +32,27 @@ public class ContaReceberController(ContaReceberService service) : ControllerBas
     {
         var item = await _service.CreateAsync(dto);
         return CreatedAtAction(nameof(GetById), new { id = item.Id }, item);
+    }
+
+    [HttpPost("lote")]
+    public async Task<ActionResult<IEnumerable<ContaReceberView>>> CreateLote(CreateContaReceberLoteDto dto)
+    {
+        try
+        {
+            var items = await _service.CreateLoteAsync(dto);
+            return Ok(items);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Conflict(new { message = ex.Message });
+        }
+    }
+
+    [HttpPost("baixa-lote")]
+    public async Task<IActionResult> BaixaLote(BaixaContaReceberLoteDto dto)
+    {
+        var count = await _service.BaixaLoteAsync(dto);
+        return Ok(new { atualizadas = count });
     }
 
     [HttpPut("{id:long}")]

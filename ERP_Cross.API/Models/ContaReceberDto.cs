@@ -53,6 +53,23 @@ public class UpdateContaReceberDto
     public string? Observacao { get; set; }
 }
 
+public class CreateContaReceberLoteDto
+{
+    public int ClienteId { get; set; }
+    public decimal ValorTotal { get; set; }
+    public DateTime DataEmissao { get; set; }
+    public string? Observacao { get; set; }
+    [StringLength(20)]
+    public string Status { get; set; } = "ABERTO";
+    public bool Ativo { get; set; } = true;
+}
+
+public class BaixaContaReceberLoteDto
+{
+    public IEnumerable<long> Ids { get; set; } = [];
+    public DateTime DataRecebimento { get; set; }
+}
+
 public class ContaReceberView
 {
     public long Id { get; set; }

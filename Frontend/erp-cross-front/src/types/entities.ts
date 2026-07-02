@@ -331,6 +331,20 @@ export interface ContaReceberCreate {
 }
 export type ContaReceberUpdate = ContaReceberCreate;
 
+export interface ContaReceberLoteCreate {
+  clienteId: number;
+  valorTotal: number;
+  dataEmissao: string;
+  observacao?: string;
+  status: string;
+  ativo: boolean;
+}
+
+export interface ContaReceberBaixaLote {
+  ids: number[];
+  dataRecebimento: string;
+}
+
 // ── Conta a Pagar ─────────────────────────────────────────────────────────────
 export interface ContaPagarView {
   id: number;

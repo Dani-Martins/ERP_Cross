@@ -48,5 +48,21 @@ public class ContaReceberRepository
 
     public async Task<bool> DeleteAsync(long id)
         => await _db.ExecuteAsync("UPDATE ContaReceber SET Ativo = 0, AtualizadoEm = NOW() WHERE Id = @Id", new { Id = id }) > 0;
+
+    public async Task<long> GetProximoNumeroNotaAsync()
+    {
+        const string sql = "SELECT COALESCE(MAX(CAST(NumeroNota AS UNSIGNED)), 0) + 1 FROM ContaReceber";
+        return await _db.ExecuteScalarAsync<long>(sql);
+    }
+
+    public async Task<int> BaixaLoteAsync(IEnumerable<long> ids, DateTime dataRecebimento)
+    {
+        const string sql = @"
+            UPDATE ContaReceber
+            SET Status = 'PAGO', DataRecebimento = @DataRecebimento,
+                ValorRecebido = ValorParcela, AtualizadoEm = NOW()
+            WHERE Id IN @Ids AND Status NOT IN ('PAGO','CANCELADO')";
+        return await _db.ExecuteAsync(sql, new { Ids = ids, DataRecebimento = dataRecebimento });
+    }
 }
 

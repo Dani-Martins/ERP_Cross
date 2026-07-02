@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { TrendingUp, Eye, Pencil, Trash2, Plus, Search, X } from 'lucide-react';
+import { TrendingUp, Eye, Pencil, Trash2, Plus, Search, X, CheckSquare } from 'lucide-react';
 import { ContaReceberService } from '../services/contasService';
 import type { ContaReceberView } from '../types/entities';
 import './PaisesPage.css';
@@ -39,6 +39,10 @@ export default function ContasReceberPage() {
   const [loading, setLoading] = useState(true);
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [selecionados, setSelecionados] = useState<Set<number>>(new Set());
+  const [showBaixaModal, setShowBaixaModal] = useState(false);
+  const [dataBaixa, setDataBaixa] = useState(new Date().toISOString().substring(0, 10));
+  const [baixando, setBaixando] = useState(false);
 
   useEffect(() => {
     ContaReceberService.getAll()
@@ -56,6 +60,43 @@ export default function ContasReceberPage() {
       c.numeroNota.toLowerCase().includes(busca.toLowerCase());
     return matchStatus && matchBusca;
   });
+
+  const selecionaveis = filtradas.filter(c => c.status !== 'PAGO' && c.status !== 'RECEBIDO' && c.status !== 'CANCELADO');
+  const todosSelecionados = selecionaveis.length > 0 && selecionaveis.every(c => selecionados.has(c.id));
+
+  function toggleSelecionado(id: number) {
+    setSelecionados(prev => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  }
+
+  function toggleTodos() {
+    if (todosSelecionados) {
+      setSelecionados(prev => {
+        const next = new Set(prev);
+        selecionaveis.forEach(c => next.delete(c.id));
+        return next;
+      });
+    } else {
+      setSelecionados(prev => {
+        const next = new Set(prev);
+        selecionaveis.forEach(c => next.add(c.id));
+        return next;
+      });
+    }
+  }
+
+  async function handleBaixaLote() {
+    setBaixando(true);
+    await ContaReceberService.baixaLote({ ids: Array.from(selecionados), dataRecebimento: dataBaixa });
+    const res = await ContaReceberService.getAll();
+    setContas(res.data);
+    setSelecionados(new Set());
+    setShowBaixaModal(false);
+    setBaixando(false);
+  }
 
   async function handleDelete() {
     if (!deleteId) return;
@@ -99,6 +140,12 @@ export default function ContasReceberPage() {
             <button className="btn-primary" onClick={() => navigate('/contas-receber/nova')}>
               <Plus size={16} /> Nova Conta
             </button>
+            {selecionados.size > 0 && (
+              <button className="btn-primary" style={{ background: 'var(--success, #16a34a)' }}
+                onClick={() => { setDataBaixa(new Date().toISOString().substring(0, 10)); setShowBaixaModal(true); }}>
+                <CheckSquare size={16} /> Dar Baixa ({selecionados.size})
+              </button>
+            )}
           </div>
         </div>
 
@@ -111,6 +158,11 @@ export default function ContasReceberPage() {
             <table className="data-table">
               <thead>
                 <tr>
+                  <th style={{ width: 40 }}>
+                    <input type="checkbox" checked={todosSelecionados}
+                      onChange={toggleTodos}
+                      title="Selecionar todos em aberto" />
+                  </th>
                   <th style={{ width: 60 }}>#</th>
                   <th>Cliente</th>
                   <th style={{ width: 100 }}>Nº Nota</th>
@@ -123,8 +175,16 @@ export default function ContasReceberPage() {
                 </tr>
               </thead>
               <tbody>
-                {filtradas.map(c => (
-                  <tr key={c.id}>
+                {filtradas.map(c => {
+                  const selecionavel = c.status !== 'PAGO' && c.status !== 'RECEBIDO' && c.status !== 'CANCELADO';
+                  return (
+                  <tr key={c.id} style={selecionados.has(c.id) ? { background: 'var(--row-selected, #fef9ec)' } : {}}>
+                    <td style={{ textAlign: 'center' }}>
+                      {selecionavel && (
+                        <input type="checkbox" checked={selecionados.has(c.id)}
+                          onChange={() => toggleSelecionado(c.id)} />
+                      )}
+                    </td>
                     <td className="col-id">{c.id}</td>
                     <td>{c.nomeCliente ?? '—'}</td>
                     <td>{c.numeroNota}</td>
@@ -149,7 +209,8 @@ export default function ContasReceberPage() {
                       </button>
                     </td>
                   </tr>
-                ))}
+                  );
+                })}
               </tbody>
             </table>
           )}
@@ -171,6 +232,31 @@ export default function ContasReceberPage() {
                 {deleting ? 'Excluindo...' : 'Excluir'}
               </button>
               <button className="btn-secondary" onClick={() => setDeleteId(null)}>Cancelar</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showBaixaModal && (
+        <div className="modal-overlay" onClick={() => setShowBaixaModal(false)}>
+          <div className="modal modal-sm" onClick={e => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2 className="modal-title">Dar Baixa em Lote</h2>
+              <button className="modal-close" onClick={() => setShowBaixaModal(false)}>×</button>
+            </div>
+            <div className="modal-body">
+              <p>{selecionados.size} parcela(s) serão marcadas como <strong>PAGO</strong> com o valor da parcela como valor recebido.</p>
+              <div className="form-group" style={{ marginTop: 16 }}>
+                <label htmlFor="dataBaixa">Data de Recebimento</label>
+                <input id="dataBaixa" type="date" value={dataBaixa}
+                  onChange={e => setDataBaixa(e.target.value)} />
+              </div>
+            </div>
+            <div className="modal-footer">
+              <button className="btn-primary" onClick={handleBaixaLote} disabled={baixando}>
+                {baixando ? 'Processando...' : 'Confirmar Baixa'}
+              </button>
+              <button className="btn-secondary" onClick={() => setShowBaixaModal(false)}>Cancelar</button>
             </div>
           </div>
         </div>
