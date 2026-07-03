@@ -25,6 +25,9 @@ import ContaReceberViewPage from '../pages/ContaReceberViewPage';
 import ContasPagarPage from '../pages/ContasPagarPage';
 import ContaPagarFormPage from '../pages/ContaPagarFormPage';
 import ContaPagarViewPage from '../pages/ContaPagarViewPage';
+import FuncionariosPage from '../pages/FuncionariosPage';
+import FuncionarioFormPage from '../pages/FuncionarioFormPage';
+import FuncionarioViewPage from '../pages/FuncionarioViewPage';
 
 const router = createBrowserRouter([
   {
@@ -64,6 +67,10 @@ const router = createBrowserRouter([
       { path: 'contas-pagar/nova', element: <ContaPagarFormPage /> },
       { path: 'contas-pagar/editar/:id', element: <ContaPagarFormPage /> },
       { path: 'contas-pagar/visualizar/:id', element: <ContaPagarViewPage /> },
+      { path: 'funcionarios', element: <FuncionariosPage /> },
+      { path: 'funcionarios/novo', element: <FuncionarioFormPage /> },
+      { path: 'funcionarios/editar/:id', element: <FuncionarioFormPage /> },
+      { path: 'funcionarios/visualizar/:id', element: <FuncionarioViewPage /> },
     ],
   },
 ]);
