@@ -70,21 +70,44 @@ export type CargoUpdate = CargoCreate;
 export interface FornecedorView {
   id: number;
   nome: string;
-  cnpj: string;
-  contato1: string;
+  nomeFantasia?: string;
+  cpfCnpj: string;
+  rgIe?: string;
   contato2?: string;
+  celular?: string;
   email?: string;
+  cep?: string;
+  endereco?: string;
+  numero?: string;
+  complemento?: string;
+  bairro?: string;
   idCidade: number;
   nomeCidade?: string;
+  idCondicaoPagamento: number;
+  nomeCondicaoPagamento?: string;
+  ativo: boolean;
+  dataCriacao: string;
+  dataAtualizacao: string;
 }
+
 export interface FornecedorCreate {
   nome: string;
-  cnpj: string;
-  contato1: string;
+  nomeFantasia?: string;
+  cpfCnpj: string;
+  rgIe?: string;
   contato2?: string;
+  celular?: string;
   email?: string;
+  cep?: string;
+  endereco?: string;
+  numero?: string;
+  complemento?: string;
+  bairro?: string;
   idCidade: number;
+  idCondicaoPagamento: number;
+  ativo: boolean;
 }
+
 export type FornecedorUpdate = FornecedorCreate;
 
 // ── Funcionário ───────────────────────────────────────────────────────────────

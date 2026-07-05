@@ -28,6 +28,9 @@ import ContaPagarViewPage from '../pages/ContaPagarViewPage';
 import FuncionariosPage from '../pages/FuncionariosPage';
 import FuncionarioFormPage from '../pages/FuncionarioFormPage';
 import FuncionarioViewPage from '../pages/FuncionarioViewPage';
+import FornecedoresPage from '../pages/FornecedoresPage';
+import FornecedorFormPage from '../pages/FornecedorFormPage';
+import FornecedorViewPage from '../pages/FornecedorViewPage';
 
 const router = createBrowserRouter([
   {
@@ -71,6 +74,10 @@ const router = createBrowserRouter([
       { path: 'funcionarios/novo', element: <FuncionarioFormPage /> },
       { path: 'funcionarios/editar/:id', element: <FuncionarioFormPage /> },
       { path: 'funcionarios/visualizar/:id', element: <FuncionarioViewPage /> },
+      { path: 'fornecedores', element: <FornecedoresPage /> },
+      { path: 'fornecedores/novo', element: <FornecedorFormPage /> },
+      { path: 'fornecedores/editar/:id', element: <FornecedorFormPage /> },
+      { path: 'fornecedores/visualizar/:id', element: <FornecedorViewPage /> },
     ],
   },
 ]);
