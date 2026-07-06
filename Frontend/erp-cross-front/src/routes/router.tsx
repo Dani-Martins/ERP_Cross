@@ -31,6 +31,9 @@ import FuncionarioViewPage from '../pages/FuncionarioViewPage';
 import FornecedoresPage from '../pages/FornecedoresPage';
 import FornecedorFormPage from '../pages/FornecedorFormPage';
 import FornecedorViewPage from '../pages/FornecedorViewPage';
+import CargoPage from '../pages/CargoPage';
+import CargoFormPage from '../pages/CargoPage';
+import CargoViewPage from '../pages/CargoViewPage';
 
 const router = createBrowserRouter([
   {
@@ -78,6 +81,10 @@ const router = createBrowserRouter([
       { path: 'fornecedores/novo', element: <FornecedorFormPage /> },
       { path: 'fornecedores/editar/:id', element: <FornecedorFormPage /> },
       { path: 'fornecedores/visualizar/:id', element: <FornecedorViewPage /> },
+      { path: 'cargos', element: <CargoPage /> },
+      { path: 'cargos/novo', element: <CargoFormPage /> },
+      { path: 'cargos/editar/:id', element: <CargoFormPage /> },
+      { path: 'cargos/visualizar/:id', element: <CargoViewPage /> },
     ],
   },
 ]);

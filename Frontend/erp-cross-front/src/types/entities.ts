@@ -57,13 +57,23 @@ export type CidadeUpdate = CidadeCreate;
 // ── Cargo ─────────────────────────────────────────────────────────────────────
 export interface CargoView {
   id: number;
-  nome: string;
+  nomeCargo: string;
+  descricao?: string;
   salarioBase: number;
+  exigeCnh: boolean;
+  ativo: boolean;
+  dataCriacao: string;
+  dataAtualizacao: string;
 }
+
 export interface CargoCreate {
-  nome: string;
+  nomeCargo: string;
+  descricao?: string;
   salarioBase: number;
+  exigeCnh: boolean;
+  ativo: boolean;
 }
+
 export type CargoUpdate = CargoCreate;
 
 // ── Fornecedor ────────────────────────────────────────────────────────────────
