@@ -235,19 +235,36 @@ export type ClienteUpdate = ClienteCreate;
 // ── Produto ───────────────────────────────────────────────────────────────────
 export interface ProdutoView {
   id: number;
-  nome: string;
+  nomeProduto: string;
+  unidadeId?: number;
+  marcaId?: number;
+  categoriaId?: number;
   descricao?: string;
+  codigoBarras?: string;
   custoCompra: number;
-  lucroPercentual: number;
   precoVenda: number;
+  lucroPercentual: number;
   estoque: number;
+  estoqueMinimo: number;
+  ativo: boolean;
+  dataCriacao: string;
+  dataAtualizacao: string;
+  nomeUnidade?: string;
+  nomeMarca?: string;
+  nomeCategoria?: string;
 }
 export interface ProdutoCreate {
-  nome: string;
+  nomeProduto: string;
+  unidadeId?: number;
+  marcaId?: number;
+  categoriaId?: number;
   descricao?: string;
+  codigoBarras?: string;
   custoCompra: number;
   lucroPercentual: number;
   estoque: number;
+  estoqueMinimo: number;
+  ativo: boolean;
 }
 export type ProdutoUpdate = ProdutoCreate;
 

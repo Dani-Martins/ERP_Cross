@@ -34,6 +34,12 @@ import FornecedorViewPage from '../pages/FornecedorViewPage';
 import CargoPage from '../pages/CargoPage';
 import CargoFormPage from '../pages/CargoPage';
 import CargoViewPage from '../pages/CargoViewPage';
+import ProdutoPage from '../pages/ProdutoPage';
+import ProdutoFormPage from '../pages/ProdutoPage';
+import ProdutoViewPage from '../pages/ProdutoViewPage';
+//import NotaVendaPage from '../pages/NotaVendaPage';
+//import NotaVendaFormPage from '../pages/NotaVendaPage';
+//import NotaVendaViewPage from '../pages/NotaVendaViewPage';
 
 const router = createBrowserRouter([
   {
@@ -85,6 +91,14 @@ const router = createBrowserRouter([
       { path: 'cargos/novo', element: <CargoFormPage /> },
       { path: 'cargos/editar/:id', element: <CargoFormPage /> },
       { path: 'cargos/visualizar/:id', element: <CargoViewPage /> },
+      { path: 'produtos', element: <ProdutoPage /> },
+      { path: 'produtos/novo', element: <ProdutoFormPage /> },
+      { path: 'produtos/editar/:id', element: <ProdutoFormPage /> },
+      { path: 'produtos/visualizar/:id', element: <ProdutoViewPage /> },
+      //{ path: 'nota-vendas', element: <NotaVendaPage /> },
+      //{ path: 'nota-vendas/nova', element: <NotaVendaFormPage /> },
+      //{ path: 'nota-vendas/editar/:id', element: <NotaVendaFormPage /> },
+      //{ path: 'nota-vendas/visualizar/:id', element: <NotaVendaViewPage /> },
     ],
   },
 ]);
