@@ -1,15 +1,51 @@
 import api from './api';
 import type {
-  NotaVendaView, NotaVendaCreate, NotaVendaUpdate,
-  NotaVendaItemView, NotaVendaItemCreate, NotaVendaItemUpdate,
+  NotaVendaView,
+  NotaVendaCreate,
+  NotaVendaUpdate,
+  NotaVendaItemView,
+  NotaVendaItemCreate,
+  NotaVendaItemUpdate,
 } from '../types/entities';
 
 export const NotaVendaService = {
-  getAll: () => api.get<NotaVendaView[]>('/NotaVenda'),
-  getById: (id: number) => api.get<NotaVendaView>(`/NotaVenda/${id}`),
-  create: (data: NotaVendaCreate) => api.post<NotaVendaView>('/NotaVenda', data),
-  update: (id: number, data: NotaVendaUpdate) => api.put<void>(`/NotaVenda/${id}`, data),
-  remove: (id: number) => api.delete<void>(`/NotaVenda/${id}`),
+  getAll: () =>
+    api.get<NotaVendaView[]>('/NotaVenda'),
+
+  getByKey: (
+    numeroNota: string,
+    modelo: string,
+    serie: string,
+    clienteId: number
+  ) =>
+    api.get<NotaVendaView>(
+      `/NotaVenda/${numeroNota}/${modelo}/${serie}/${clienteId}`
+    ),
+
+  create: (data: NotaVendaCreate) =>
+    api.post<NotaVendaView>('/NotaVenda', data),
+
+  update: (
+    numeroNota: string,
+    modelo: string,
+    serie: string,
+    clienteId: number,
+    data: NotaVendaUpdate
+  ) =>
+    api.put<void>(
+      `/NotaVenda/${numeroNota}/${modelo}/${serie}/${clienteId}`,
+      data
+    ),
+
+  remove: (
+    numeroNota: string,
+    modelo: string,
+    serie: string,
+    clienteId: number
+  ) =>
+    api.delete<void>(
+      `/NotaVenda/${numeroNota}/${modelo}/${serie}/${clienteId}`
+    ),
 };
 
 export const NotaVendaItemService = {

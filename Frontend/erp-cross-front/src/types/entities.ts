@@ -469,24 +469,46 @@ export type ContaPagarUpdate = ContaPagarCreate;
 
 // ── Nota de Venda ─────────────────────────────────────────────────────────────
 export interface NotaVendaView {
-  id: number;
-  dataNota: string;
-  totalProdutos: number;
+  numeroNota: string;
+  modelo: string;
+  serie: string;
+  clienteId: number;
+  nomeCliente?: string;
+  dataEmissao: string;
+  transportadoraId?: number;
+  nomeTransportadora?: string;
+  placaVeiculo?: string;
+  tipoFrete: string;
   valorFrete: number;
   desconto: number;
+  totalProdutos: number;
   totalPagar: number;
-  idCliente: number;
-  nomeCliente?: string;
-  idCondicaoPagamento: number;
+  condicaoPagamentoId?: number;
   nomeCondicaoPagamento?: string;
+  observacao?: string;
+  status?: string;
+  ativo: boolean;
+  criadoEm: string;
+  atualizadoEm?: string;
+  dataCriacao: string;
+  dataAtualizacao?: string;
 }
 export interface NotaVendaCreate {
-  dataNota: string;
-  totalProdutos: number;
+  numeroNota: string;
+  modelo: string;
+  serie: string;
+  clienteId: number;
+  dataEmissao: string;
+  transportadoraId?: number;
+  placaVeiculo?: string;
+  tipoFrete: string;
   valorFrete: number;
   desconto: number;
-  idCliente: number;
-  idCondicaoPagamento: number;
+  totalProdutos: number;
+  condicaoPagamentoId?: number;
+  observacao?: string;
+  status?: string;
+  ativo: boolean;
 }
 export type NotaVendaUpdate = NotaVendaCreate;
 
