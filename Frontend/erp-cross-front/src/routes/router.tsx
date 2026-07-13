@@ -40,6 +40,9 @@ import ProdutoViewPage from '../pages/ProdutoViewPage';
 import NotaVendaPage from '../pages/NotaVendaPage';
 import NotaVendaFormPage from '../pages/NotaVendaPage';
 import NotaVendaViewPage from '../pages/NotaVendaViewPage';
+import NotaCompraPage from '../pages/NotaCompraPage';
+import NotaCompraFormPage from '../pages/NotaCompraPage';
+import NotaCompraViewPage from '../pages/NotaCompraViewPage';
 
 const router = createBrowserRouter([
   {
@@ -99,6 +102,10 @@ const router = createBrowserRouter([
       { path: 'notas-venda/nova', element: <NotaVendaFormPage /> },
       { path: 'notas-venda/editar/:id', element: <NotaVendaFormPage /> },
       { path: 'notas-venda/visualizar/:id', element: <NotaVendaViewPage /> },
+      { path: 'notas-compra', element: <NotaCompraPage /> },
+      { path: 'notas-compra/nova', element: <NotaCompraFormPage /> },
+      { path: 'notas-compra/editar/:id', element: <NotaCompraFormPage /> },
+      { path: 'notas-compra/visualizar/:id', element: <NotaCompraViewPage /> },
     ],
   },
 ]);

@@ -533,25 +533,48 @@ export type NotaVendaItemUpdate = NotaVendaItemCreate;
 // ── Nota de Compra ────────────────────────────────────────────────────────────
 export interface NotaCompraView {
   id: number;
-  dataNota: string;
-  totalProdutos: number;
+  fornecedorId: number;
+  nomeFornecedor?: string;
+  numeroNota: string;
+  modelo: string;
+  serie: string;
+  dataEmissao: string;
+  chaveAcesso?: string;
+  tipoFrete: string;
   valorFrete: number;
   valorSeguro: number;
   outrasDespesas: number;
+  totalProdutos: number;
   totalPagar: number;
-  idFornecedor: number;
-  nomeFornecedor?: string;
-  idCondicaoPagamento: number;
+  condicaoPagamentoId?: number;
   nomeCondicaoPagamento?: string;
+  transportadoraId?: number;
+  nomeTransportadora?: string;
+  placaVeiculo?: string;
+  observacao?: string;
+  status?: string;
+  ativo: boolean;
+  criadoEm: string;
+  atualizadoEm?: string;
 }
 export interface NotaCompraCreate {
-  dataNota: string;
-  totalProdutos: number;
+  fornecedorId: number;
+  numeroNota: string;
+  modelo: string;
+  serie: string;
+  dataEmissao: string;
+  chaveAcesso?: string;
+  tipoFrete: string;
   valorFrete: number;
   valorSeguro: number;
   outrasDespesas: number;
-  idFornecedor: number;
-  idCondicaoPagamento: number;
+  totalProdutos: number;
+  condicaoPagamentoId?: number;
+  transportadoraId?: number;
+  placaVeiculo?: string;
+  observacao?: string;
+  status?: string;
+  ativo: boolean;
 }
 export type NotaCompraUpdate = NotaCompraCreate;
 
