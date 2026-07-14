@@ -24,6 +24,10 @@ import {
   TrendingDown,
   ShoppingCart,
   PackageOpen,
+  Ruler,
+  Badge,
+  Tags,
+  Car,
   Sun,
   Moon,
   type LucideIcon,
@@ -72,10 +76,21 @@ const navGroups: NavGroup[] = [
     ],
   },
   {
-    label: 'Produtos',
-    icon: Package,
-    items: [
+  label: 'Produtos',
+  icon: Package,
+  items: [
       { label: 'Produtos', to: '/produtos', icon: Box },
+      { label: 'Unidades de Medida', to: '/unidades', icon: Ruler },
+      { label: 'Marcas', to: '/marcas', icon: Badge },
+      { label: 'Categorias', to: '/categorias', icon: Tags },
+    ],
+  },
+  {
+  label: 'Logística',
+  icon: Truck,
+  items: [
+      { label: 'Transportadoras', to: '/transportadoras', icon: Truck },
+      { label: 'Veículos', to: '/veiculos', icon: Car },
     ],
   },
   {
