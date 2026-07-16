@@ -43,6 +43,12 @@ import NotaVendaViewPage from '../pages/NotaVendaViewPage';
 import NotaCompraPage from '../pages/NotaCompraPage';
 import NotaCompraFormPage from '../pages/NotaCompraPage';
 import NotaCompraViewPage from '../pages/NotaCompraViewPage';
+import UnidadeMedidaPage from '../pages/UnidadeMedidaPage';
+import UnidadeMedidaFormPage from '../pages/UnidadeMedidaFormPage';
+import UnidadeMedidaViewPage from '../pages/UnidadeMedidaViewPage';
+//import MarcasPage from '../pages/MarcasPage';
+//import MarcasFormPage from '../pages/MarcasFormPage';
+//import MarcasViewPage from '../pages/MarcasViewPage';
 
 const router = createBrowserRouter([
   {
@@ -106,6 +112,14 @@ const router = createBrowserRouter([
       { path: 'notas-compra/nova', element: <NotaCompraFormPage /> },
       { path: 'notas-compra/editar/:id', element: <NotaCompraFormPage /> },
       { path: 'notas-compra/visualizar/:id', element: <NotaCompraViewPage /> },
+      { path: 'unidades', element: <UnidadeMedidaPage /> },
+      { path: 'unidades/nova', element: <UnidadeMedidaFormPage /> },
+      { path: 'unidades/editar/:id', element: <UnidadeMedidaFormPage /> },
+      { path: 'unidades/visualizar/:id', element: <UnidadeMedidaViewPage /> },
+      //{ path: 'marcas', element: <MarcasPage /> },
+      //{ path: 'marcas/nova', element: <MarcaFormPage /> },
+      //{ path: 'marcas/editar/:id', element: <MarcaFormPage /> },
+      //{ path: 'marcas/visualizar/:id', element: <MarcaViewPage /> },
     ],
   },
 ]);

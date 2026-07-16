@@ -601,3 +601,21 @@ export interface NotaCompraItemCreate {
   idProduto: number;
 }
 export type NotaCompraItemUpdate = NotaCompraItemCreate;
+
+// ── Unidade de Medida ────────────────────────────────────────────────────────
+export interface UnidadeMedidaView {
+  id: number;
+  nomeUnidade: string;
+  sigla?: string;
+  ativo: boolean;
+  dataCriacao: string;
+  dataAtualizacao: string;
+}
+
+export interface UnidadeMedidaCreate {
+  nomeUnidade: string;
+  sigla?: string;
+  ativo: boolean;
+}
+
+export type UnidadeMedidaUpdate = UnidadeMedidaCreate;
