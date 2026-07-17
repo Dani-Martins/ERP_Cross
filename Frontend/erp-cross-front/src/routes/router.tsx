@@ -46,9 +46,9 @@ import NotaCompraViewPage from '../pages/NotaCompraViewPage';
 import UnidadeMedidaPage from '../pages/UnidadeMedidaPage';
 import UnidadeMedidaFormPage from '../pages/UnidadeMedidaFormPage';
 import UnidadeMedidaViewPage from '../pages/UnidadeMedidaViewPage';
-//import MarcasPage from '../pages/MarcasPage';
-//import MarcasFormPage from '../pages/MarcasFormPage';
-//import MarcasViewPage from '../pages/MarcasViewPage';
+import MarcaPage from '../pages/MarcaPage';
+import MarcaFormPage from '../pages/MarcaFormPage';
+import MarcaViewPage from '../pages/MarcaViewPage';
 
 const router = createBrowserRouter([
   {
@@ -116,10 +116,10 @@ const router = createBrowserRouter([
       { path: 'unidades/nova', element: <UnidadeMedidaFormPage /> },
       { path: 'unidades/editar/:id', element: <UnidadeMedidaFormPage /> },
       { path: 'unidades/visualizar/:id', element: <UnidadeMedidaViewPage /> },
-      //{ path: 'marcas', element: <MarcasPage /> },
-      //{ path: 'marcas/nova', element: <MarcaFormPage /> },
-      //{ path: 'marcas/editar/:id', element: <MarcaFormPage /> },
-      //{ path: 'marcas/visualizar/:id', element: <MarcaViewPage /> },
+      { path: 'marcas', element: <MarcaPage /> },
+      { path: 'marcas/nova', element: <MarcaFormPage /> },
+      { path: 'marcas/editar/:id', element: <MarcaFormPage /> },
+      { path: 'marcas/visualizar/:id', element: <MarcaViewPage /> },
     ],
   },
 ]);

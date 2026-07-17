@@ -619,3 +619,21 @@ export interface UnidadeMedidaCreate {
 }
 
 export type UnidadeMedidaUpdate = UnidadeMedidaCreate;
+
+// ── Marca ────────────────────────────────────────────────────────────────────
+export interface MarcaView {
+  id: number;
+  nomeMarca: string;
+  descricao?: string;
+  ativo: boolean;
+  dataCriacao: string;
+  dataAtualizacao: string;
+}
+
+export interface MarcaCreate {
+  nomeMarca: string;
+  descricao?: string;
+  ativo: boolean;
+}
+
+export type MarcaUpdate = MarcaCreate;
