@@ -637,3 +637,21 @@ export interface MarcaCreate {
 }
 
 export type MarcaUpdate = MarcaCreate;
+
+// ── Categoria ────────────────────────────────────────────────────────────────
+export interface CategoriaView {
+  id: number;
+  nomeCategoria: string;
+  descricao?: string;
+  ativo: boolean;
+  dataCriacao: string;
+  dataAtualizacao: string;
+}
+
+export interface CategoriaCreate {
+  nomeCategoria: string;
+  descricao?: string;
+  ativo: boolean;
+}
+
+export type CategoriaUpdate = CategoriaCreate;

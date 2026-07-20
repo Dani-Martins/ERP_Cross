@@ -49,6 +49,9 @@ import UnidadeMedidaViewPage from '../pages/UnidadeMedidaViewPage';
 import MarcaPage from '../pages/MarcaPage';
 import MarcaFormPage from '../pages/MarcaFormPage';
 import MarcaViewPage from '../pages/MarcaViewPage';
+import CategoriaPage from '../pages/CategoriaPage';
+import CategoriaFormPage from '../pages/CategoriaFormPage';
+import CategoriaViewPage from '../pages/CategoriaViewPage';
 
 const router = createBrowserRouter([
   {
@@ -120,6 +123,10 @@ const router = createBrowserRouter([
       { path: 'marcas/nova', element: <MarcaFormPage /> },
       { path: 'marcas/editar/:id', element: <MarcaFormPage /> },
       { path: 'marcas/visualizar/:id', element: <MarcaViewPage /> },
+      { path: 'categorias', element: <CategoriaPage /> },
+      { path: 'categorias/nova', element: <CategoriaFormPage /> },
+      { path: 'categorias/editar/:id', element: <CategoriaFormPage /> },
+      { path: 'categorias/visualizar/:id', element: <CategoriaViewPage /> },
     ],
   },
 ]);
