@@ -655,3 +655,49 @@ export interface CategoriaCreate {
 }
 
 export type CategoriaUpdate = CategoriaCreate;
+
+// ── Transportadora ───────────────────────────────────────────────────────────
+export interface TransportadoraView {
+  id: number;
+  nome: string;
+  nomeFantasia?: string;
+  cpfCnpj: string;
+  rgIe?: string;
+  contato2?: string;
+  celular?: string;
+  email?: string;
+  cep?: string;
+  endereco?: string;
+  numero?: string;
+  complemento?: string;
+  bairro?: string;
+  idCidade: number;
+  nomeCidade?: string;
+  tipoPessoa: string;
+  idCondicaoPagamento: number;
+  nomeCondicaoPagamento?: string;
+  ativo: boolean;
+  dataCriacao: string;
+  dataAtualizacao: string;
+}
+
+export interface TransportadoraCreate {
+  nome: string;
+  nomeFantasia?: string;
+  cpfCnpj: string;
+  rgIe?: string;
+  contato2?: string;
+  celular?: string;
+  email?: string;
+  cep?: string;
+  endereco?: string;
+  numero?: string;
+  complemento?: string;
+  bairro?: string;
+  idCidade: number;
+  tipoPessoa: string;
+  idCondicaoPagamento: number;
+  ativo: boolean;
+}
+
+export type TransportadoraUpdate = TransportadoraCreate;

@@ -52,6 +52,10 @@ import MarcaViewPage from '../pages/MarcaViewPage';
 import CategoriaPage from '../pages/CategoriaPage';
 import CategoriaFormPage from '../pages/CategoriaFormPage';
 import CategoriaViewPage from '../pages/CategoriaViewPage';
+import TransportadoraPage from '../pages/TransportadoraPage';
+import TransportadoraFormPage from '../pages/TransportadoraFormPage';
+import TransportadoraViewPage from '../pages/TransportadoraViewPage';
+
 
 const router = createBrowserRouter([
   {
@@ -127,6 +131,10 @@ const router = createBrowserRouter([
       { path: 'categorias/nova', element: <CategoriaFormPage /> },
       { path: 'categorias/editar/:id', element: <CategoriaFormPage /> },
       { path: 'categorias/visualizar/:id', element: <CategoriaViewPage /> },
+      { path: 'transportadoras', element: <TransportadoraPage /> },
+      { path: 'transportadoras/novo', element: <TransportadoraFormPage /> },
+      { path: 'transportadoras/editar/:id', element: <TransportadoraFormPage /> },
+      { path: 'transportadoras/visualizar/:id', element: <TransportadoraViewPage /> },
     ],
   },
 ]);
