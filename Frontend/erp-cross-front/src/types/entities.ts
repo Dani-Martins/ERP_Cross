@@ -701,3 +701,28 @@ export interface TransportadoraCreate {
 }
 
 export type TransportadoraUpdate = TransportadoraCreate;
+
+// ── Veículo ────────────────────────────────────────────────────────────
+
+export interface VeiculoView {
+  id: number;
+  placa: string;
+  modelo: string;
+  marca: string;
+  ano: number;
+  descricao?: string;
+  ativo: boolean;
+  dataCriacao: string;
+  dataAtualizacao: string;
+}
+
+export interface VeiculoCreate {
+  placa: string;
+  modelo: string;
+  marca: string;
+  ano: number;
+  descricao?: string;
+  ativo: boolean;
+}
+
+export type VeiculoUpdate = VeiculoCreate;

@@ -55,6 +55,9 @@ import CategoriaViewPage from '../pages/CategoriaViewPage';
 import TransportadoraPage from '../pages/TransportadoraPage';
 import TransportadoraFormPage from '../pages/TransportadoraFormPage';
 import TransportadoraViewPage from '../pages/TransportadoraViewPage';
+import VeiculoPage from '../pages/VeiculoPage';
+import VeiculoFormPage from '../pages/VeiculoFormPage';
+import VeiculoViewPage from '../pages/VeiculoViewPage';
 
 
 const router = createBrowserRouter([
@@ -135,6 +138,10 @@ const router = createBrowserRouter([
       { path: 'transportadoras/novo', element: <TransportadoraFormPage /> },
       { path: 'transportadoras/editar/:id', element: <TransportadoraFormPage /> },
       { path: 'transportadoras/visualizar/:id', element: <TransportadoraViewPage /> },
+      { path: 'veiculos', element: <VeiculoPage /> },
+      { path: 'veiculos/novo', element: <VeiculoFormPage /> },
+      { path: 'veiculos/editar/:id', element: <VeiculoFormPage /> },
+      { path: 'veiculos/visualizar/:id', element: <VeiculoViewPage /> },
     ],
   },
 ]);

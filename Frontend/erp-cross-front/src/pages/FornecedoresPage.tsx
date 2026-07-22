@@ -57,9 +57,17 @@ export default function FornecedoresPage() {
             className="page-title-icon"
           />
 
-          <h1 className="page-title">
-            Fornecedores
-          </h1>
+          <div className="page-title-wrapper">
+
+            <h1 className="page-title">
+              Fornecedores
+            </h1>
+
+            <span className="page-count">
+              {fornecedores.length}
+            </span>
+
+          </div>
         </div>
 
         <button
@@ -72,7 +80,7 @@ export default function FornecedoresPage() {
 
       </div>
 
-      <div className="table-toolbar">
+      <div className="toolbar">
 
         <div className="search-box">
 
@@ -80,7 +88,7 @@ export default function FornecedoresPage() {
 
           <input
             type="text"
-            placeholder="Pesquisar fornecedor..."
+            placeholder="Buscar por nome, CNPJ..."
             value={search}
             onChange={e => setSearch(e.target.value)}
             onKeyDown={e => {
@@ -108,7 +116,7 @@ export default function FornecedoresPage() {
           Nenhum fornecedor encontrado.
         </div>
       ) : (
-        <div className="table-container">
+        <div className="table-card">
 
           <table className="data-table">
 
@@ -129,16 +137,16 @@ export default function FornecedoresPage() {
 
                 <tr key={fornecedor.id}>
 
-                  <td>
+                  <td className="col-name">
+
                     <div className="table-main">
-                      {fornecedor.nome}
+                        {fornecedor.nome}
                     </div>
 
-                    {fornecedor.nomeFantasia && (
-                      <div className="table-sub">
+                    <div className="table-sub">
                         {fornecedor.nomeFantasia}
-                      </div>
-                    )}
+                    </div>
+
                   </td>
 
                   <td>{fornecedor.cpfCnpj}</td>
