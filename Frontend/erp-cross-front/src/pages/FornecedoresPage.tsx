@@ -52,22 +52,20 @@ export default function FornecedoresPage() {
       <div className="page-header">
 
         <div className="page-title-area">
-          <Truck
-            size={24}
-            className="page-title-icon"
-          />
 
-          <div className="page-title-wrapper">
+            <Truck
+                size={24}
+                className="page-title-icon"
+            />
 
             <h1 className="page-title">
-              Fornecedores
+                Fornecedores
             </h1>
 
             <span className="page-count">
-              {fornecedores.length}
+                {fornecedores.length}
             </span>
 
-          </div>
         </div>
 
         <button
@@ -98,13 +96,6 @@ export default function FornecedoresPage() {
           />
 
         </div>
-
-        <button
-          className="btn-secondary"
-          onClick={carregar}
-        >
-          Pesquisar
-        </button>
 
       </div>
             {loading ? (
