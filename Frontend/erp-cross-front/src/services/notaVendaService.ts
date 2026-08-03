@@ -9,49 +9,68 @@ import type {
 } from '../types/entities';
 
 export const NotaVendaService = {
-  getAll: () =>
-    api.get<NotaVendaView[]>('/NotaVenda'),
+  getAll(q?: string) {
+    return api.get<NotaVendaView[]>('/NotaVenda', { params: { q } });
+  },
 
-  getByKey: (
+  getByKey(
     numeroNota: string,
     modelo: string,
     serie: string,
     clienteId: number
-  ) =>
-    api.get<NotaVendaView>(
+  ) {
+    return api.get<NotaVendaView>(
       `/NotaVenda/${numeroNota}/${modelo}/${serie}/${clienteId}`
-    ),
+    );
+  },
 
-  create: (data: NotaVendaCreate) =>
-    api.post<NotaVendaView>('/NotaVenda', data),
+  create(data: NotaVendaCreate) {
+    return api.post<NotaVendaView>('/NotaVenda', data);
+  },
 
-  update: (
+  update(
     numeroNota: string,
     modelo: string,
     serie: string,
     clienteId: number,
     data: NotaVendaUpdate
-  ) =>
-    api.put<void>(
+  ) {
+    return api.put<void>(
       `/NotaVenda/${numeroNota}/${modelo}/${serie}/${clienteId}`,
       data
-    ),
+    );
+  },
 
-  remove: (
+  remove(
     numeroNota: string,
     modelo: string,
     serie: string,
     clienteId: number
-  ) =>
-    api.delete<void>(
+  ) {
+    return api.delete<void>(
       `/NotaVenda/${numeroNota}/${modelo}/${serie}/${clienteId}`
-    ),
+    );
+  },
 };
 
 export const NotaVendaItemService = {
-  getAll: () => api.get<NotaVendaItemView[]>('/NotaVendaProduto'),
-  getById: (id: number) => api.get<NotaVendaItemView>(`/NotaVendaProduto/${id}`),
-  create: (data: NotaVendaItemCreate) => api.post<NotaVendaItemView>('/NotaVendaProduto', data),
-  update: (id: number, data: NotaVendaItemUpdate) => api.put<void>(`/NotaVendaProduto/${id}`, data),
-  remove: (id: number) => api.delete<void>(`/NotaVendaProduto/${id}`),
+  getAll(q?: string) {
+    return api.get<NotaVendaItemView[]>('/NotaVendaProduto', { params: { q } });
+  },
+
+  getById(id: number) {
+    return api.get<NotaVendaItemView>(`/NotaVendaProduto/${id}`);
+  },
+
+  create(data: NotaVendaItemCreate) {
+    return api.post<NotaVendaItemView>('/NotaVendaProduto', data);
+  },
+
+  update(id: number, data: NotaVendaItemUpdate) {
+    return api.put<void>(`/NotaVendaProduto/${id}`, data);
+  },
+
+  remove(id: number) {
+    return api.delete<void>(`/NotaVendaProduto/${id}`);
+  },
 };
