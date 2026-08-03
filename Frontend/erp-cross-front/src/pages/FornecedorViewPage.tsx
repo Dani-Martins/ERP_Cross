@@ -1,24 +1,14 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Truck, Pencil } from 'lucide-react';
-
 import { FornecedorService } from '../services/fornecedorService';
-
 import type { FornecedorView } from '../types/entities';
-
 import './PaisesPage.css';
 
-function formatDate(value: string | null |undefined) {
-
-  if (!value)
-    return '—';
-
-  const d = new Date(value.replace(' ', 'T'));
-
-  return isNaN(d.getTime())
-    ? '—'
-    : d.toLocaleString('pt-BR');
-
+function formatDate(value: string | null | undefined): string {
+  if (!value) return '—';
+  const d = new Date(value);
+  return isNaN(d.getTime()) ? '—' : d.toLocaleDateString('pt-BR');
 }
 
 export default function FornecedorViewPage() {

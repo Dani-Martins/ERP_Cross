@@ -1,11 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import type { AxiosError } from 'axios';
 import { Briefcase } from 'lucide-react';
-
 import { CargoService } from '../services/cargoService';
 import type { CargoCreate } from '../types/entities';
-import type { AxiosError } from 'axios';
-
 import './PaisesPage.css';
 
 const EMPTY: CargoCreate = {

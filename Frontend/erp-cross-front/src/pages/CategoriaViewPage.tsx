@@ -1,36 +1,21 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Shapes, Pencil } from 'lucide-react';
-
 import { CategoriaService } from '../services/categoriaService';
 import type { CategoriaView } from '../types/entities';
-
 import './PaisesPage.css';
 
-function formatDate(value: string | null | undefined) {
-
-  if (!value)
-    return '—';
-
+function formatDate(value: string | null | undefined): string {
+  if (!value) return '—';
   const d = new Date(value);
-
-  if (isNaN(d.getTime()))
-    return '—';
-
-  return d.toLocaleDateString('pt-BR');
+  return isNaN(d.getTime()) ? '—' : d.toLocaleDateString('pt-BR');
 }
 
 export default function CategoriaViewPage() {
-
-  const { id } = useParams();
-
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-
-  const [categoria, setCategoria] =
-    useState<CategoriaView | null>(null);
-
-  const [loading, setLoading] =
-    useState(true);
+  const [categoria, setCategoria] = useState<CategoriaView | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
 

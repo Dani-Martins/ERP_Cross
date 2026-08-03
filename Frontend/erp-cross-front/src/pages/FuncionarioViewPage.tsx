@@ -1,30 +1,18 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { UserCircle, Pencil } from 'lucide-react';
-
 import { FuncionarioService } from '../services/funcionarioService';
 import type { FuncionarioView } from '../types/entities';
-
 import './PaisesPage.css';
 
 function formatDate(value: string | null | undefined): string {
   if (!value) return '—';
+  const d = new Date(value);
+  return isNaN(d.getTime()) ? '—' : d.toLocaleDateString('pt-BR');
+}
 
-  const parts = value.split('/');
-
-  if (parts.length === 3) {
-    const [day, month, year] = parts;
-    const d = new Date(Number(year), Number(month) - 1, Number(day));
-
-    if (!isNaN(d.getTime()))
-      return d.toLocaleDateString('pt-BR');
-  }
-
-  const d = new Date(value.replace(' ', 'T'));
-
-  return isNaN(d.getTime())
-    ? '—'
-    : d.toLocaleString('pt-BR');
+function formatMoney(value?: number | null) {
+  return value == null ? '—' : value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 }
 
 const SEXO: Record<string, string> = {
@@ -32,15 +20,6 @@ const SEXO: Record<string, string> = {
   F: 'Feminino',
   O: 'Outro',
 };
-
-function formatMoney(value?: number | null) {
-  if (value == null) return '—';
-
-  return value.toLocaleString('pt-BR', {
-    style: 'currency',
-    currency: 'BRL',
-  });
-}
 
 export default function FuncionarioViewPage() {
 

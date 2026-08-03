@@ -28,7 +28,7 @@ export default function CargoLookupModal({
 
   const filtered = search
     ? all.filter(c =>
-        c.nome.toLowerCase().includes(search.toLowerCase())
+        c.nomeCargo.toLowerCase().includes(search.toLowerCase())
       )
     : all;
 
@@ -110,43 +110,22 @@ export default function CargoLookupModal({
                 <tbody>
 
                   {filtered.map(cargo => (
-
                     <tr key={cargo.id}>
-
-                      <td className="col-name">
-                        {cargo.nome}
-                      </td>
-
+                      <td className="col-name">{cargo.nomeCargo}</td>
                       <td>
-
-                        {cargo.salarioBase.toLocaleString(
-                          'pt-BR',
-                          {
-                            style: 'currency',
-                            currency: 'BRL'
-                          }
-                        )}
-
+                        {cargo.salarioBase.toLocaleString('pt-BR', {
+                          style: 'currency',
+                          currency: 'BRL'
+                        })}
                       </td>
-
                       <td>
-
                         <button
                           className="btn-select"
-                          onClick={() =>
-                            onSelect(
-                              cargo.id,
-                              cargo.nome
-                            )
-                          }
+                          onClick={() => onSelect(cargo.id, cargo.nomeCargo)}
                         >
-
                           Selecionar
-
                         </button>
-
                       </td>
-
                     </tr>
 
                   ))}

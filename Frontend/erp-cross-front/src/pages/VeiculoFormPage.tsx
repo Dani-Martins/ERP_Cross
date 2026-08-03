@@ -2,12 +2,8 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import type { AxiosError } from 'axios';
 import { Car } from 'lucide-react';
-
 import { VeiculoService } from '../services/veiculoService';
-import type {
-  VeiculoCreate,
-} from '../types/entities';
-
+import type { VeiculoCreate } from '../types/entities';
 import './PaisesPage.css';
 
 const EMPTY: VeiculoCreate = {
@@ -20,63 +16,38 @@ const EMPTY: VeiculoCreate = {
 };
 
 export default function VeiculoFormPage() {
-
-  const { id } = useParams();
-
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-
   const isEdit = !!id;
 
-  const [form, setForm] =
-    useState<VeiculoCreate>(EMPTY);
+  const [form, setForm] = useState<VeiculoCreate>(EMPTY);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
+  useEffect(() => {
+    if (!isEdit) {
+      setLoading(false);
+      return;
+    }
 
-  const [loading, setLoading] =
-    useState(true);
+    VeiculoService.getById(Number(id))
+      .then(res => {
+        const v = res.data;
+        setForm({
+          placa: v.placa,
+          modelo: v.modelo,
+          marca: v.marca,
+          ano: v.ano,
+          descricao: v.descricao ?? '',
+          ativo: v.ativo,
+        });
+      })
+      .catch(() => navigate('/veiculos'))
+      .finally(() => setLoading(false));
+  }, [id, isEdit, navigate]);
 
-  const [saving, setSaving] =
-    useState(false);
-
-  const [error, setError] =
-    useState('');
-    useEffect(() => {
-
-  if (!isEdit) {
-
-    setLoading(false);
-
-    return;
-
-  }
-
-  VeiculoService.getById(Number(id))
-
-    .then(res => {
-
-      const v = res.data;
-
-      setForm({
-
-        placa: v.placa,
-        modelo: v.modelo,
-        marca: v.marca,
-        ano: v.ano,
-        descricao: v.descricao ?? '',
-        ativo: v.ativo,
-
-      });
-
-    })
-
-    .catch(() => navigate('/veiculos'))
-
-    .finally(() => setLoading(false));
-
-}, [id, isEdit, navigate]);
-async function handleSave(
-  e: React.FormEvent
-) {
-
-  e.preventDefault();
+  async function handleSave(e: React.FormEvent) {
+    e.preventDefault();
 
   if (!form.placa.trim()) {
 

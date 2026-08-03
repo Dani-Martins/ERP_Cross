@@ -1,12 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import type { AxiosError } from 'axios';
 import { Package, Search } from 'lucide-react';
-
 import { ProdutoService } from '../services/produtoService';
 import type { ProdutoCreate } from '../types/entities';
-
-import type { AxiosError } from 'axios';
-
 import './PaisesPage.css';
 
 const EMPTY: ProdutoCreate = {

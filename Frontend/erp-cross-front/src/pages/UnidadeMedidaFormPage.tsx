@@ -1,11 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Ruler } from 'lucide-react';
 import type { AxiosError } from 'axios';
-
+import { Ruler } from 'lucide-react';
 import { UnidadeMedidaService } from '../services/unidadeMedidaService';
 import type { UnidadeMedidaCreate } from '../types/entities';
-
 import './PaisesPage.css';
 
 const EMPTY: UnidadeMedidaCreate = {
@@ -15,24 +13,14 @@ const EMPTY: UnidadeMedidaCreate = {
 };
 
 export default function UnidadeMedidaFormPage() {
-
-  const { id } = useParams();
-
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-
   const isEdit = !!id;
 
-  const [form, setForm] =
-    useState<UnidadeMedidaCreate>(EMPTY);
-
-  const [loading, setLoading] =
-    useState(true);
-
-  const [saving, setSaving] =
-    useState(false);
-
-  const [error, setError] =
-    useState('');
+  const [form, setForm] = useState<UnidadeMedidaCreate>(EMPTY);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
 
   useEffect(() => {
 

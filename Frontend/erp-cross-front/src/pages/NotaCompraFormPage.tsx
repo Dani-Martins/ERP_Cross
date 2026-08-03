@@ -1,17 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { FileDown, Search } from 'lucide-react';
 import type { AxiosError } from 'axios';
-
+import { FileDown, Search } from 'lucide-react';
 import { NotaCompraService } from '../services/notaCompraService';
 import { FornecedorService } from '../services/fornecedorService';
-import type {
-  NotaCompraCreate,
-  FornecedorView
-} from '../types/entities';
-
+import type { NotaCompraCreate, FornecedorView } from '../types/entities';
 import CondicaoPagamentoLookupModal from '../components/CondicaoPagamentoLookupModal';
-
 import './PaisesPage.css';
 
 function toInputDate(value: string | null |undefined): string {
@@ -62,33 +56,17 @@ const EMPTY: NotaCompraCreate = {
   ativo: true,
 };
 export default function NotaCompraFormPage() {
-
-  const { id } = useParams();
-
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-
   const isEdit = !!id;
 
-  const [form, setForm] =
-    useState<NotaCompraCreate>(EMPTY);
-
-  const [fornecedores, setFornecedores] =
-    useState<FornecedorView[]>([]);
-
-  const [nomeCondicao, setNomeCondicao] =
-    useState('');
-
-  const [loading, setLoading] =
-    useState(true);
-
-  const [saving, setSaving] =
-    useState(false);
-
-  const [error, setError] =
-    useState('');
-
-  const [showCondicaoModal, setShowCondicaoModal] =
-    useState(false);
+  const [form, setForm] = useState<NotaCompraCreate>(EMPTY);
+  const [fornecedores, setFornecedores] = useState<FornecedorView[]>([]);
+  const [nomeCondicao, setNomeCondicao] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
+  const [showCondicaoModal, setShowCondicaoModal] = useState(false);
       useEffect(() => {
 
     FornecedorService.getAll().then(r =>
@@ -148,10 +126,7 @@ export default function NotaCompraFormPage() {
       .finally(() => setLoading(false));
 
   }, [id, isEdit, navigate]);
-    async function handleSave(
-    e: React.FormEvent
-  ) {
-
+    async function handleSave(e: React.FormEvent) {
     e.preventDefault();
 
     if (!form.numeroNota.trim()) {

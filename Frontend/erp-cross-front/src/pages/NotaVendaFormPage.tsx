@@ -1,27 +1,19 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { FileText, Search } from 'lucide-react';
 import type { AxiosError } from 'axios';
-
+import { FileText, Search } from 'lucide-react';
 import { NotaVendaService } from '../services/notaVendaService';
-import type { NotaVendaCreate } from '../types/entities';
-
 import { ClienteService } from '../services/clienteService';
-import type { ClienteView } from '../types/entities';
-
+import type { NotaVendaCreate, ClienteView } from '../types/entities';
 import CondicaoPagamentoLookupModal from '../components/CondicaoPagamentoLookupModal';
-
 import './PaisesPage.css';
 
 function toInputDate(value: string | null | undefined): string {
   if (!value) return '';
   if (/^\d{4}-\d{2}-\d{2}$/.test(value)) return value;
   if (value.includes('T')) return value.split('T')[0];
-
   const d = new Date(value);
-  if (isNaN(d.getTime())) return '';
-
-  return d.toISOString().split('T')[0];
+  return isNaN(d.getTime()) ? '' : d.toISOString().split('T')[0];
 }
 
 const EMPTY: NotaVendaCreate = {
@@ -43,46 +35,36 @@ const EMPTY: NotaVendaCreate = {
 };
 
 export default function NotaVendaFormPage() {
-  const { numeroNota, modelo, serie, clienteId } = useParams();
+  const { numeroNota, modelo, serie, clienteId } = useParams<{
+    numeroNota: string;
+    modelo: string;
+    serie: string;
+    clienteId: string;
+  }>();
 
   const navigate = useNavigate();
 
-  const isEdit =
-    !!numeroNota &&
-    !!modelo &&
-    !!serie &&
-    !!clienteId;
+  const isEdit = !!(numeroNota && modelo && serie && clienteId);
 
   const [form, setForm] = useState<NotaVendaCreate>(EMPTY);
-
   const [nomeCondicao, setNomeCondicao] = useState('');
-
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
-
   const [showCondicaoModal, setShowCondicaoModal] = useState(false);
-
   const [clientes, setClientes] = useState<ClienteView[]>([]);
 
   useEffect(() => {
-    ClienteService.getAll().then(r => setClientes(r.data.filter(c => c.ativo))
-    );
+    ClienteService.getAll().then(r => setClientes(r.data.filter(c => c.ativo)));
 
     if (!isEdit) {
       setLoading(false);
       return;
     }
 
-    NotaVendaService.getByKey(
-      numeroNota!,
-      modelo!,
-      serie!,
-      Number(clienteId)
-    )
+    NotaVendaService.getByKey(numeroNota!, modelo!, serie!, Number(clienteId))
       .then(res => {
         const n = res.data;
-
         setForm({
           numeroNota: n.numeroNota,
           modelo: n.modelo,
@@ -100,41 +82,35 @@ export default function NotaVendaFormPage() {
           status: n.status ?? '',
           ativo: n.ativo,
         });
-
         setNomeCondicao(n.nomeCondicaoPagamento ?? '');
       })
       .catch(() => navigate('/notas-venda'))
       .finally(() => setLoading(false));
-
   }, [numeroNota, modelo, serie, clienteId, isEdit, navigate]);
-    async function handleSave(e: React.FormEvent) {
+
+  async function handleSave(e: React.FormEvent) {
     e.preventDefault();
 
     if (!form.numeroNota.trim()) {
       setError('Número da nota é obrigatório.');
       return;
     }
-
     if (!form.modelo.trim()) {
       setError('Modelo é obrigatório.');
       return;
     }
-
     if (!form.serie.trim()) {
       setError('Série é obrigatória.');
       return;
     }
-
     if (!form.clienteId) {
       setError('Cliente é obrigatório.');
       return;
     }
-
     if (!form.dataEmissao) {
       setError('Data de emissão é obrigatória.');
       return;
     }
-
     if (!form.condicaoPagamentoId) {
       setError('Condição de pagamento é obrigatória.');
       return;
@@ -145,52 +121,35 @@ export default function NotaVendaFormPage() {
 
     try {
       if (isEdit) {
-        await NotaVendaService.update(
-          numeroNota!,
-          modelo!,
-          serie!,
-          Number(clienteId),
-          form
-        );
+        await NotaVendaService.update(numeroNota!, modelo!, serie!, Number(clienteId), form);
       } else {
         await NotaVendaService.create(form);
       }
-
       navigate('/notas-venda');
     } catch (err) {
       const axiosErr = err as AxiosError<{ message: string }>;
-
       if (axiosErr.response?.status === 409) {
-        setError(
-          axiosErr.response.data?.message ??
-          'Já existe uma nota com esses dados.'
-        );
+        setError(axiosErr.response.data?.message ?? 'Já existe uma nota com esses dados.');
       } else {
         setError('Erro ao salvar a nota de venda.');
       }
-
       setSaving(false);
     }
   }
 
-  const totalPagar =
-    Number(form.totalProdutos) +
-    Number(form.valorFrete) -
-    Number(form.desconto);
+  const totalPagar = Number(form.totalProdutos) + Number(form.valorFrete) - Number(form.desconto);
 
   if (loading) {
     return (
       <div className="page-container">
-        <div className="table-loading">
-          Carregando...
-        </div>
+        <div className="table-loading">Carregando...</div>
       </div>
     );
   }
-    return (
+
+  return (
     <>
       <div className="page-container">
-
         <div className="page-header">
           <div className="page-title-area">
             <FileText size={24} className="page-title-icon" />
@@ -204,8 +163,8 @@ export default function NotaVendaFormPage() {
           <form onSubmit={handleSave} className="form-page">
 
             {/* Dados da Nota */}
+            <div className="form-section">
               <h2 className="form-section-title">Dados da Nota</h2>
-
               <div className="form-row">
                 <div className="form-group">
                   <label>Número da Nota *</label>
@@ -213,109 +172,68 @@ export default function NotaVendaFormPage() {
                     type="text"
                     value={form.numeroNota}
                     disabled={isEdit}
-                    onChange={e =>
-                      setForm({
-                        ...form,
-                        numeroNota: e.target.value.toUpperCase()
-                      })
-                    }
+                    onChange={e => setForm({ ...form, numeroNota: e.target.value.toUpperCase() })}
                   />
                 </div>
-
                 <div className="form-group">
                   <label>Modelo *</label>
                   <input
                     type="text"
                     value={form.modelo}
                     disabled={isEdit}
-                    onChange={e =>
-                      setForm({
-                        ...form,
-                        modelo: e.target.value.toUpperCase()
-                      })
-                    }
+                    onChange={e => setForm({ ...form, modelo: e.target.value.toUpperCase() })}
                   />
                 </div>
-
                 <div className="form-group">
                   <label>Série *</label>
                   <input
                     type="text"
                     value={form.serie}
                     disabled={isEdit}
-                    onChange={e =>
-                      setForm({
-                        ...form,
-                        serie: e.target.value.toUpperCase()
-                      })
-                    }
+                    onChange={e => setForm({ ...form, serie: e.target.value.toUpperCase() })}
                   />
                 </div>
               </div>
-
               <div className="form-row">
-
                 <div className="form-group">
                   <label>Data de Emissão *</label>
                   <input
                     type="date"
                     value={form.dataEmissao}
-                    onChange={e =>
-                      setForm({
-                        ...form,
-                        dataEmissao: e.target.value
-                      })
-                    }
+                    onChange={e => setForm({ ...form, dataEmissao: e.target.value })}
                   />
                 </div>
-
                 <div className="form-group">
                   <label>Tipo de Frete</label>
                   <select
                     value={form.tipoFrete}
-                    onChange={e =>
-                      setForm({
-                        ...form,
-                        tipoFrete: e.target.value
-                      })
-                    }
+                    onChange={e => setForm({ ...form, tipoFrete: e.target.value })}
                   >
                     <option value="CIF">CIF</option>
                     <option value="FOB">FOB</option>
                     <option value="SEM FRETE">Sem Frete</option>
                   </select>
                 </div>
-
               </div>
-                          {/* Cliente e Pagamento */}
+            </div>
+
+            {/* Cliente e Pagamento */}
             <div className="form-section">
               <h2 className="form-section-title">Cliente e Pagamento</h2>
-
               <div className="form-group">
                 <label>Cliente *</label>
-
                 <select
-                    value={form.clienteId}
-                    onChange={e =>
-                    setForm({
-                        ...form,
-                        clienteId: Number(e.target.value)
-                    })
-                    }
+                  value={form.clienteId}
+                  onChange={e => setForm({ ...form, clienteId: Number(e.target.value) })}
                 >
-                    <option value={0}>Selecione...</option>
-
-                    {clientes.map(cliente => (
-                    <option key={cliente.id} value={cliente.id}>
-                        {cliente.nome}
-                    </option>
-                    ))}
+                  <option value={0}>Selecione...</option>
+                  {clientes.map(cliente => (
+                    <option key={cliente.id} value={cliente.id}>{cliente.nome}</option>
+                  ))}
                 </select>
               </div>
-
               <div className="form-group">
                 <label>Condição de Pagamento *</label>
-
                 <div className="lookup-field">
                   <input
                     type="text"
@@ -323,12 +241,7 @@ export default function NotaVendaFormPage() {
                     placeholder="Selecione uma condição..."
                     readOnly
                   />
-
-                  <button
-                    type="button"
-                    className="btn-search"
-                    onClick={() => setShowCondicaoModal(true)}
-                  >
+                  <button type="button" className="btn-search" onClick={() => setShowCondicaoModal(true)}>
                     <Search size={16} />
                   </button>
                 </div>
@@ -338,144 +251,87 @@ export default function NotaVendaFormPage() {
             {/* Valores */}
             <div className="form-section">
               <h2 className="form-section-title">Valores</h2>
-
               <div className="form-row">
-
                 <div className="form-group">
                   <label>Total dos Produtos</label>
                   <input
                     type="number"
                     step="0.01"
                     value={form.totalProdutos}
-                    onChange={e =>
-                      setForm({
-                        ...form,
-                        totalProdutos: Number(e.target.value)
-                      })
-                    }
+                    onChange={e => setForm({ ...form, totalProdutos: Number(e.target.value) })}
                   />
                 </div>
-
                 <div className="form-group">
                   <label>Valor do Frete</label>
                   <input
                     type="number"
                     step="0.01"
                     value={form.valorFrete}
-                    onChange={e =>
-                      setForm({
-                        ...form,
-                        valorFrete: Number(e.target.value)
-                      })
-                    }
+                    onChange={e => setForm({ ...form, valorFrete: Number(e.target.value) })}
                   />
                 </div>
-
                 <div className="form-group">
                   <label>Desconto</label>
                   <input
                     type="number"
                     step="0.01"
                     value={form.desconto}
-                    onChange={e =>
-                      setForm({
-                        ...form,
-                        desconto: Number(e.target.value)
-                      })
-                    }
+                    onChange={e => setForm({ ...form, desconto: Number(e.target.value) })}
                   />
                 </div>
-
               </div>
-
               <div className="form-group">
                 <label>Total a Pagar</label>
                 <input
                   type="text"
                   readOnly
-                  value={totalPagar.toLocaleString('pt-BR', {
-                    style: 'currency',
-                    currency: 'BRL'
-                  })}
+                  value={totalPagar.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
                 />
               </div>
             </div>
-                        {/* Observações */}
+
+            {/* Informações Adicionais */}
             <div className="form-section">
               <h2 className="form-section-title">Informações Adicionais</h2>
-
               <div className="form-group">
                 <label>Observação</label>
                 <textarea
                   rows={4}
                   value={form.observacao ?? ''}
-                  onChange={e =>
-                    setForm({
-                      ...form,
-                      observacao: e.target.value
-                    })
-                  }
+                  onChange={e => setForm({ ...form, observacao: e.target.value })}
                 />
               </div>
-
               <div className="form-row">
-
                 <div className="form-group">
                   <label>Status</label>
                   <select
                     value={form.status ?? ''}
-                    onChange={e =>
-                      setForm({
-                        ...form,
-                        status: e.target.value
-                      })
-                    }
+                    onChange={e => setForm({ ...form, status: e.target.value })}
                   >
                     <option value="ABERTA">Aberta</option>
                     <option value="FATURADA">Faturada</option>
                     <option value="CANCELADA">Cancelada</option>
                   </select>
                 </div>
-
                 <div className="form-group checkbox-group">
                   <label>
                     <input
                       type="checkbox"
                       checked={form.ativo}
-                      onChange={e =>
-                        setForm({
-                          ...form,
-                          ativo: e.target.checked
-                        })
-                      }
+                      onChange={e => setForm({ ...form, ativo: e.target.checked })}
                     />
                     Ativo
                   </label>
                 </div>
-
               </div>
-
-              {error && (
-                <div className="form-error">
-                  {error}
-                </div>
-              )}
+              {error && <div className="form-error">{error}</div>}
             </div>
 
             <div className="form-page-footer">
-              <button
-                type="submit"
-                className="btn-primary"
-                disabled={saving}
-              >
+              <button type="submit" className="btn-primary" disabled={saving}>
                 {saving ? 'Salvando...' : 'Salvar'}
               </button>
-
-              <button
-                type="button"
-                className="btn-secondary"
-                onClick={() => navigate('/notas-venda')}
-              >
+              <button type="button" className="btn-secondary" onClick={() => navigate('/notas-venda')}>
                 Cancelar
               </button>
             </div>
@@ -483,15 +339,12 @@ export default function NotaVendaFormPage() {
           </form>
         </div>
       </div>
-      
+
       {showCondicaoModal && (
         <CondicaoPagamentoLookupModal
           onClose={() => setShowCondicaoModal(false)}
           onSelect={(id, nome) => {
-            setForm({
-              ...form,
-              condicaoPagamentoId: id
-            });
+            setForm({ ...form, condicaoPagamentoId: id });
             setNomeCondicao(nome);
             setShowCondicaoModal(false);
           }}

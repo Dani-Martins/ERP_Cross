@@ -1,29 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import type { AxiosError } from 'axios';
 import { Truck, Search } from 'lucide-react';
-
 import { FornecedorService } from '../services/fornecedorService';
 import { CidadeService } from '../services/cidadeService';
-
+import type { FornecedorCreate } from '../types/entities';
+import { formatCPF, validateCPF, formatCNPJ, validateCNPJ, formatRG, validateRG, formatIE, validateIE, formatPhone, formatCEP } from '../utils/formatting';
 import CidadeLookupModal from '../components/CidadeLookupModal';
 import CondicaoPagamentoLookupModal from '../components/CondicaoPagamentoLookupModal';
-
-import type { FornecedorCreate } from '../types/entities';
-import type { AxiosError } from 'axios';
-
-import {
-  formatCPF,
-  validateCPF,
-  formatCNPJ,
-  validateCNPJ,
-  formatRG,
-  validateRG,
-  formatIE,
-  validateIE,
-  formatPhone,
-  formatCEP
-} from '../utils/formatting';
-
 import './PaisesPage.css';
 
 function toInput(value: string | null | undefined) {

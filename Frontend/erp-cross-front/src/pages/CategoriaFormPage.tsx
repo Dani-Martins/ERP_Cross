@@ -1,11 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Shapes } from 'lucide-react';
 import type { AxiosError } from 'axios';
-
+import { Shapes } from 'lucide-react';
 import { CategoriaService } from '../services/categoriaService';
 import type { CategoriaCreate } from '../types/entities';
-
 import './PaisesPage.css';
 
 const EMPTY: CategoriaCreate = {
@@ -15,24 +13,14 @@ const EMPTY: CategoriaCreate = {
 };
 
 export default function CategoriaFormPage() {
-
-  const { id } = useParams();
-
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-
   const isEdit = !!id;
 
-  const [form, setForm] =
-    useState<CategoriaCreate>(EMPTY);
-
-  const [loading, setLoading] =
-    useState(true);
-
-  const [saving, setSaving] =
-    useState(false);
-
-  const [error, setError] =
-    useState('');
+  const [form, setForm] = useState<CategoriaCreate>(EMPTY);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
 
   useEffect(() => {
 

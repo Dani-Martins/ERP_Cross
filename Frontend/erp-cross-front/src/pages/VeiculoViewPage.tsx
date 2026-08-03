@@ -1,37 +1,21 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Car, Pencil } from 'lucide-react';
-
 import { VeiculoService } from '../services/veiculoService';
 import type { VeiculoView } from '../types/entities';
-
 import './PaisesPage.css';
 
-function formatDate(value: string | null | undefined) {
-
-  if (!value)
-    return '—';
-
-  const data = new Date(value);
-
-  if (isNaN(data.getTime()))
-    return '—';
-
-  return data.toLocaleDateString('pt-BR');
-
+function formatDate(value: string | null | undefined): string {
+  if (!value) return '—';
+  const d = new Date(value);
+  return isNaN(d.getTime()) ? '—' : d.toLocaleDateString('pt-BR');
 }
 
 export default function VeiculoViewPage() {
-
-  const { id } = useParams();
-
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-
-  const [veiculo, setVeiculo] =
-    useState<VeiculoView | null>(null);
-
-  const [loading, setLoading] =
-    useState(true);
+  const [veiculo, setVeiculo] = useState<VeiculoView | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
 

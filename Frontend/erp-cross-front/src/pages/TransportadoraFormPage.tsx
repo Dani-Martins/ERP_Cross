@@ -1,32 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Truck, Search } from 'lucide-react';
 import type { AxiosError } from 'axios';
-import CidadeLookupModal from '../components/CidadeLookupModal';
-
+import { Truck, Search } from 'lucide-react';
 import { TransportadoraService } from '../services/transportadoraService';
-import type {
-  TransportadoraCreate,
-  CidadeView
-} from '../types/entities';
-
-import { CidadeService } from '../services/cidadeService';
-
+import type { TransportadoraCreate } from '../types/entities';
+import { formatCPF, validateCPF, formatCNPJ, validateCNPJ, formatRG, validateRG, formatIE, validateIE, formatPhone, formatCEP } from '../utils/formatting';
+import CidadeLookupModal from '../components/CidadeLookupModal';
 import CondicaoPagamentoLookupModal from '../components/CondicaoPagamentoLookupModal';
-
-import {
-  formatCPF,
-  validateCPF,
-  formatCNPJ,
-  validateCNPJ,
-  formatRG,
-  validateRG,
-  formatIE,
-  validateIE,
-  formatPhone,
-  formatCEP,
-} from '../utils/formatting';
-
 import './PaisesPage.css';
 
 function toInput(value: string | null | undefined) {
@@ -78,23 +58,14 @@ export default function TransportadoraFormPage() {
   const [nomeCondicao, setNomeCondicao] =
     useState('');
 
-  const [showCondicaoModal, setShowCondicaoModal] =
-    useState(false);
+  const [showCondicaoModal, setShowCondicaoModal] = useState(false);
+  const [showCidadeModal, setShowCidadeModal] = useState(false);
 
-  const [showCidadeModal, setShowCidadeModal] =
-    useState(false);
-
-  const [cidades, setCidades] =
-    useState<CidadeView[]>([]);
-    useEffect(() => {
-
-  CidadeService.getAll()
-    .then(r => setCidades(r.data));
-
-  if (!isEdit) {
-    setLoading(false);
-    return;
-  }
+  useEffect(() => {
+    if (!isEdit) {
+      setLoading(false);
+      return;
+    }
 
   TransportadoraService.getById(Number(id))
     .then(res => {

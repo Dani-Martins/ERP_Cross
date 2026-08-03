@@ -1,34 +1,21 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { FileDown, Pencil } from 'lucide-react';
-
 import { NotaCompraService } from '../services/notaCompraService';
 import type { NotaCompraView } from '../types/entities';
-
 import './PaisesPage.css';
 
-function formatDate(value: string | null | undefined) {
+function formatDate(value: string | null | undefined): string {
   if (!value) return '—';
-
   const d = new Date(value);
-
-  if (isNaN(d.getTime()))
-    return '—';
-
-  return d.toLocaleDateString('pt-BR');
+  return isNaN(d.getTime()) ? '—' : d.toLocaleDateString('pt-BR');
 }
 
 export default function NotaCompraViewPage() {
-
-  const { id } = useParams();
-
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-
-  const [nota, setNota] =
-    useState<NotaCompraView | null>(null);
-
-  const [loading, setLoading] =
-    useState(true);
+  const [nota, setNota] = useState<NotaCompraView | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
 

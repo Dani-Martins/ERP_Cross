@@ -1,25 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import type { AxiosError } from 'axios';
 import { Search, UserCircle } from 'lucide-react';
-
 import { FuncionarioService } from '../services/funcionarioService';
 import { CidadeService } from '../services/cidadeService';
-
-import type { AxiosError } from 'axios';
 import type { FuncionarioCreate } from '../types/entities';
-
-import {
-    formatCPF,
-    validateCPF,
-    formatRG,
-    validateRG,
-    formatPhone,
-    formatCEP
-} from '../utils/formatting';
-
+import { formatCPF, validateCPF, formatRG, validateRG, formatPhone, formatCEP } from '../utils/formatting';
 import CidadeLookupModal from '../components/CidadeLookupModal';
 import CargoLookupModal from '../components/CargoLookupModal';
-
 import './PaisesPage.css';
 
 function toInputDate(value?: string | null): string {

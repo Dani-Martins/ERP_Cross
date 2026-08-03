@@ -1,34 +1,21 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Ruler, Pencil } from 'lucide-react';
-
 import { UnidadeMedidaService } from '../services/unidadeMedidaService';
 import type { UnidadeMedidaView } from '../types/entities';
-
 import './PaisesPage.css';
 
-function formatDate(value: string | null | undefined) {
+function formatDate(value: string | null | undefined): string {
   if (!value) return '—';
-
   const d = new Date(value);
-
-  if (isNaN(d.getTime()))
-    return '—';
-
-  return d.toLocaleDateString('pt-BR');
+  return isNaN(d.getTime()) ? '—' : d.toLocaleDateString('pt-BR');
 }
 
 export default function UnidadeMedidaViewPage() {
-
-  const { id } = useParams();
-
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-
-  const [unidade, setUnidade] =
-    useState<UnidadeMedidaView | null>(null);
-
-  const [loading, setLoading] =
-    useState(true);
+  const [unidade, setUnidade] = useState<UnidadeMedidaView | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
 

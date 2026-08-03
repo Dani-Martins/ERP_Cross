@@ -1,11 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Badge } from 'lucide-react';
 import type { AxiosError } from 'axios';
-
+import { Badge } from 'lucide-react';
 import { MarcaService } from '../services/marcaService';
 import type { MarcaCreate } from '../types/entities';
-
 import './PaisesPage.css';
 
 const EMPTY: MarcaCreate = {
@@ -15,24 +13,14 @@ const EMPTY: MarcaCreate = {
 };
 
 export default function MarcaFormPage() {
-
-  const { id } = useParams();
-
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-
   const isEdit = !!id;
 
-  const [form, setForm] =
-    useState<MarcaCreate>(EMPTY);
-
-  const [loading, setLoading] =
-    useState(true);
-
-  const [saving, setSaving] =
-    useState(false);
-
-  const [error, setError] =
-    useState('');
+  const [form, setForm] = useState<MarcaCreate>(EMPTY);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
 
   useEffect(() => {
 

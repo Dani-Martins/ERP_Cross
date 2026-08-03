@@ -1,34 +1,21 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Badge, Pencil } from 'lucide-react';
-
 import { MarcaService } from '../services/marcaService';
 import type { MarcaView } from '../types/entities';
-
 import './PaisesPage.css';
 
-function formatDate(value: string | null | undefined) {
+function formatDate(value: string | null | undefined): string {
   if (!value) return '—';
-
   const d = new Date(value);
-
-  if (isNaN(d.getTime()))
-    return '—';
-
-  return d.toLocaleDateString('pt-BR');
+  return isNaN(d.getTime()) ? '—' : d.toLocaleDateString('pt-BR');
 }
 
 export default function MarcaViewPage() {
-
-  const { id } = useParams();
-
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-
-  const [marca, setMarca] =
-    useState<MarcaView | null>(null);
-
-  const [loading, setLoading] =
-    useState(true);
+  const [marca, setMarca] = useState<MarcaView | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
 

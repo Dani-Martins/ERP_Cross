@@ -1,20 +1,14 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Briefcase, Pencil } from 'lucide-react';
-
 import { CargoService } from '../services/cargoService';
 import type { CargoView } from '../types/entities';
-
 import './PaisesPage.css';
 
-function formatDate(value: string | null |undefined): string {
+function formatDate(value: string | null | undefined): string {
   if (!value) return '—';
-
-  const d = new Date(value.replace(' ', 'T'));
-
-  return isNaN(d.getTime())
-    ? '—'
-    : d.toLocaleString('pt-BR');
+  const d = new Date(value);
+  return isNaN(d.getTime()) ? '—' : d.toLocaleDateString('pt-BR');
 }
 
 export default function CargoViewPage() {

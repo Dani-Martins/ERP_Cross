@@ -1,37 +1,21 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Truck, Pencil } from 'lucide-react';
-
 import { TransportadoraService } from '../services/transportadoraService';
 import type { TransportadoraView } from '../types/entities';
-
 import './PaisesPage.css';
 
-function formatDate(value: string | null |undefined) {
-
-  if (!value)
-    return '—';
-
+function formatDate(value: string | null | undefined): string {
+  if (!value) return '—';
   const d = new Date(value);
-
-  if (isNaN(d.getTime()))
-    return '—';
-
-  return d.toLocaleDateString('pt-BR');
-
+  return isNaN(d.getTime()) ? '—' : d.toLocaleDateString('pt-BR');
 }
 
 export default function TransportadoraViewPage() {
-
-  const { id } = useParams();
-
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-
-  const [transportadora, setTransportadora] =
-    useState<TransportadoraView | null>(null);
-
-  const [loading, setLoading] =
-    useState(true);
+  const [transportadora, setTransportadora] = useState<TransportadoraView | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
 
