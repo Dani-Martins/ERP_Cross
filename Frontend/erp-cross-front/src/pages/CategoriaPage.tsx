@@ -87,7 +87,7 @@ export default function CategoriaPage() {
               </button>
             )}
           </div>
-          <button className="btn-primary" onClick={() => navigate('/categorias/novo')}>
+          <button className="btn-primary" onClick={() => navigate('/categorias/nova')}>
             <Plus size={16} /> Nova Categoria
           </button>
         </div>

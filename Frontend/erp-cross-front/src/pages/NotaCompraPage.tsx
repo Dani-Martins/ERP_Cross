@@ -72,7 +72,7 @@ export default function NotaCompraPage() {
               </button>
             )}
           </div>
-          <button className="btn-primary" onClick={() => navigate('/nota-compras/nova')}>
+          <button className="btn-primary" onClick={() => navigate('/notas-compra/nova')}>
             <Plus size={16} /> Nova Nota
           </button>
         </div>

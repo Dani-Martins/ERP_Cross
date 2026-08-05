@@ -87,7 +87,7 @@ export default function MarcaPage() {
               </button>
             )}
           </div>
-          <button className="btn-primary" onClick={() => navigate('/marcas/novo')}>
+          <button className="btn-primary" onClick={() => navigate('/marcas/nova')}>
             <Plus size={16} /> Nova Marca
           </button>
         </div>

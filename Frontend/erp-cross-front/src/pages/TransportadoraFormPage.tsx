@@ -538,30 +538,6 @@ return (
 
               </div>
 
-              <div className="form-group">
-
-                <label>Cidade *</label>
-
-                <div className="lookup-field">
-
-                  <input
-                    type="text"
-                    value={nomeCidade}
-                    placeholder="Selecione uma cidade..."
-                    readOnly
-                  />
-
-                  <button
-                    type="button"
-                    className="btn-search"
-                  >
-                    <Search size={16} />
-                  </button>
-
-                </div>
-
-              </div>
-
             </div>
 
           </div>
@@ -586,12 +562,14 @@ return (
                     value={nomeCidade}
                     placeholder="Selecione uma cidade..."
                     readOnly
+                    className="lookup-input"
                   />
 
                   <button
                     type="button"
-                    className="btn-search"
+                    className="btn-lookup"
                     onClick={() => setShowCidadeModal(true)}
+                    title="Pesquisar cidade"
                   >
                     <Search size={16} />
                   </button>
@@ -611,14 +589,16 @@ return (
                     value={nomeCondicao}
                     placeholder="Selecione uma condição..."
                     readOnly
+                    className="lookup-input"
                   />
 
                   <button
                     type="button"
-                    className="btn-search"
+                    className="btn-lookup"
                     onClick={() =>
                       setShowCondicaoModal(true)
                     }
+                    title="Pesquisar condição de pagamento"
                   >
                     <Search size={16} />
                   </button>
