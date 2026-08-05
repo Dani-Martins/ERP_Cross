@@ -4,6 +4,9 @@ import type { AxiosError } from 'axios';
 import { Package, Search } from 'lucide-react';
 import { ProdutoService } from '../services/produtoService';
 import type { ProdutoCreate } from '../types/entities';
+import CategoriaLookupModal from '../components/CategoriaLookupModal';
+import MarcaLookupModal from '../components/MarcaLookupModal';
+import UnidadeMedidaLookupModal from '../components/UnidadeMedidaLookupModal';
 import './PaisesPage.css';
 
 const EMPTY: ProdutoCreate = {
@@ -32,10 +35,12 @@ export default function ProdutoFormPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
 
-  // futuramente
-  const [nomeCategoria] = useState('');
-  const [nomeMarca] = useState('');
-  const [nomeUnidade] = useState('');
+  const [nomeCategoria, setNomeCategoria] = useState('');
+  const [nomeMarca, setNomeMarca] = useState('');
+  const [nomeUnidade, setNomeUnidade] = useState('');
+  const [showCategoriaModal, setShowCategoriaModal] = useState(false);
+  const [showMarcaModal, setShowMarcaModal] = useState(false);
+  const [showUnidadeModal, setShowUnidadeModal] = useState(false);
 
   useEffect(() => {
     if (!isEdit) {
@@ -60,6 +65,9 @@ export default function ProdutoFormPage() {
           estoqueMinimo: p.estoqueMinimo,
           ativo: p.ativo
         });
+        setNomeCategoria(p.nomeCategoria ?? '');
+        setNomeMarca(p.nomeMarca ?? '');
+        setNomeUnidade(p.nomeUnidade ?? '');
       })
       .catch(() => navigate('/produtos'))
       .finally(() => setLoading(false));
@@ -115,7 +123,7 @@ export default function ProdutoFormPage() {
   }
 
   return (
-        <div className="page-container">
+    <div className="page-container">
 
       <div className="page-header">
         <div className="page-title-area">
@@ -138,9 +146,9 @@ export default function ProdutoFormPage() {
               <input
                 id="nomeProduto"
                 type="text"
+                placeholder="Ex: WHEY PROTEIN 900G"
                 value={form.nomeProduto}
                 autoFocus
-                placeholder="Ex: WHEY PROTEIN 900G"
                 onChange={e =>
                   setForm({
                     ...form,
@@ -166,8 +174,25 @@ export default function ProdutoFormPage() {
                 style={{
                   resize: 'vertical',
                   width: '100%',
-                  fontFamily: 'inherit'
+                  fontFamily: 'inherit',
+                  fontSize: 'inherit'
                 }}
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="codigoBarras">Código de Barras</label>
+              <input
+                id="codigoBarras"
+                type="text"
+                placeholder="Ex: 1234567890123"
+                value={form.codigoBarras}
+                onChange={e =>
+                  setForm({
+                    ...form,
+                    codigoBarras: e.target.value
+                  })
+                }
               />
             </div>
 
@@ -187,15 +212,18 @@ export default function ProdutoFormPage() {
 
                 <input
                   readOnly
+                  type="text"
                   value={nomeCategoria}
-                  placeholder="Será implementado futuramente..."
+                  placeholder="Categoria"
                   className="lookup-input"
+                  title="Pesquisar Categoria"
                 />
 
                 <button
                   type="button"
                   className="btn-lookup"
-                  disabled
+                  onClick={() => setShowCategoriaModal(true)}
+                  title="Pesquisar Categoria"
                 >
                   <Search size={16}/>
                 </button>
@@ -210,15 +238,18 @@ export default function ProdutoFormPage() {
 
                 <input
                   readOnly
+                  type="text"
                   value={nomeMarca}
-                  placeholder="Será implementado futuramente..."
+                  placeholder="Marca"
                   className="lookup-input"
+                  title="Pesquisar Marca"
                 />
 
                 <button
                   type="button"
                   className="btn-lookup"
-                  disabled
+                  onClick={() => setShowMarcaModal(true)}
+                  title="Pesquisar Marca"
                 >
                   <Search size={16}/>
                 </button>
@@ -233,15 +264,18 @@ export default function ProdutoFormPage() {
 
                 <input
                   readOnly
+                  type="text"
                   value={nomeUnidade}
-                  placeholder="Será implementado futuramente..."
+                  placeholder="Unidade de Medida"
                   className="lookup-input"
+                  title="Pesquisar Unidade"
                 />
 
                 <button
                   type="button"
                   className="btn-lookup"
-                  disabled
+                  onClick={() => setShowUnidadeModal(true)}
+                  title="Pesquisar Unidade"
                 >
                   <Search size={16}/>
                 </button>
@@ -250,7 +284,8 @@ export default function ProdutoFormPage() {
             </div>
 
           </div>
-                    {/* Valores */}
+
+          {/* Valores */}
           <div className="form-section">
             <h2 className="form-section-title">Valores</h2>
 
@@ -263,6 +298,7 @@ export default function ProdutoFormPage() {
                   type="number"
                   min="0"
                   step="0.01"
+                  placeholder="0.00"
                   value={form.custoCompra}
                   onChange={e =>
                     setForm({
@@ -280,6 +316,7 @@ export default function ProdutoFormPage() {
                   type="number"
                   min="0"
                   step="0.01"
+                  placeholder="0.00"
                   value={form.lucroPercentual}
                   onChange={e =>
                     setForm({
@@ -298,6 +335,7 @@ export default function ProdutoFormPage() {
               <input
                 type="text"
                 readOnly
+                placeholder="Preço de Venda"
                 value={precoVenda.toLocaleString('pt-BR', {
                   style: 'currency',
                   currency: 'BRL'
@@ -318,6 +356,7 @@ export default function ProdutoFormPage() {
                 id="estoque"
                 type="number"
                 min="0"
+                placeholder="0"
                 value={form.estoque}
                 onChange={e =>
                   setForm({
@@ -358,6 +397,39 @@ export default function ProdutoFormPage() {
 
         </form>
       </div>
+
+      {showCategoriaModal && (
+        <CategoriaLookupModal
+          onSelect={(id, nome) => {
+            setForm({ ...form, categoriaId: id });
+            setNomeCategoria(nome);
+            setShowCategoriaModal(false);
+          }}
+          onClose={() => setShowCategoriaModal(false)}
+        />
+      )}
+
+      {showMarcaModal && (
+        <MarcaLookupModal
+          onSelect={(id, nome) => {
+            setForm({ ...form, marcaId: id });
+            setNomeMarca(nome);
+            setShowMarcaModal(false);
+          }}
+          onClose={() => setShowMarcaModal(false)}
+        />
+      )}
+
+      {showUnidadeModal && (
+        <UnidadeMedidaLookupModal
+          onSelect={(id, nome) => {
+            setForm({ ...form, unidadeId: id });
+            setNomeUnidade(nome);
+            setShowUnidadeModal(false);
+          }}
+          onClose={() => setShowUnidadeModal(false)}
+        />
+      )}
     </div>
   );
 }

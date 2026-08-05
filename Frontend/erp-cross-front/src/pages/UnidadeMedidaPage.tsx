@@ -87,7 +87,7 @@ export default function UnidadeMedidaPage() {
               </button>
             )}
           </div>
-          <button className="btn-primary" onClick={() => navigate('/unidades/novo')}>
+          <button className="btn-primary" onClick={() => navigate('/unidades/nova')}>
             <Plus size={16} /> Nova Unidade
           </button>
         </div>

@@ -5,6 +5,15 @@ import { TransportadoraService } from '../services/transportadoraService';
 import type { TransportadoraView } from '../types/entities';
 import './PaisesPage.css';
 
+/** Mascara CNPJ → 12.345.678/****-** */
+function maskCnpj(cnpj: string): string {
+  const d = cnpj.replace(/\D/g, '');
+  if (d.length === 14) {
+    return `${d.slice(0, 2)}.${d.slice(2, 5)}.${d.slice(5, 8)}/****-**`;
+  }
+  return cnpj;
+}
+
 export default function TransportadoraPage() {
   const navigate = useNavigate();
   const [transportadoras, setTransportadoras] = useState<TransportadoraView[]>([]);
@@ -124,7 +133,7 @@ export default function TransportadoraPage() {
                       <span className="view-muted">{transportadora.nomeFantasia}</span>
                     )}
                   </td>
-                  <td>{transportadora.cpfCnpj}</td>
+                  <td>{maskCnpj(transportadora.cpfCnpj)}</td>
                   <td>{transportadora.nomeCidade || '—'}</td>
                   <td>
                     <span className={`status-badge ${transportadora.ativo ? 'status-active' : 'status-inactive'}`}>

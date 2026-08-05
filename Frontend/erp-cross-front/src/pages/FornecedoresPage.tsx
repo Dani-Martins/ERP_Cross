@@ -5,6 +5,15 @@ import { FornecedorService } from '../services/fornecedorService';
 import type { FornecedorView } from '../types/entities';
 import './PaisesPage.css';
 
+/** Mascara CNPJ → 12.345.678/****-** */
+function maskCnpj(cnpj: string): string {
+  const d = cnpj.replace(/\D/g, '');
+  if (d.length === 14) {
+    return `${d.slice(0, 2)}.${d.slice(2, 5)}.${d.slice(5, 8)}/****-**`;
+  }
+  return cnpj;
+}
+
 export default function FornecedoresPage() {
   const navigate = useNavigate();
   const [fornecedores, setFornecedores] = useState<FornecedorView[]>([]);
@@ -128,7 +137,7 @@ export default function FornecedoresPage() {
                       </span>
                     )}
                   </td>
-                  <td><span className="tag">{f.cpfCnpj}</span></td>
+                  <td><span className="tag">{maskCnpj(f.cpfCnpj)}</span></td>
                   <td>{f.nomeCidade ?? '—'}</td>
                   <td>{f.nomeCondicaoPagamento ?? '—'}</td>
                   <td>

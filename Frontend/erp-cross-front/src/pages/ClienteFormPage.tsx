@@ -44,7 +44,7 @@ const EMPTY: ClienteCreate = {
   contato2: '', celular: '', email: '',
   cep: '', endereco: '', numero: '', complemento: '', bairro: '',
   idCidade: 0, pf: true, dataNascimento: '', sexo: '',
-  idCondicaoPagamento: undefined, funcionalKids: false,
+  idCondicaoPagamento: undefined, limiteCredito: 0, funcionalKids: false,
   nomeResponsavel: '', cpfResponsavel: '', parentescoResponsavel: '', observacao: '', ativo: true,
 };
 
@@ -78,6 +78,7 @@ export default function ClienteFormPage() {
             dataNascimento: toInputDate(c.dataNascimento), sexo: c.sexo ?? '',
             idCondicaoPagamento: c.idCondicaoPagamento ?? undefined,
             funcionalKids: c.funcionalKids, ativo: c.ativo,
+            limiteCredito: c.limiteCredito ?? 0,
             nomeResponsavel: c.nomeResponsavel ?? '', cpfResponsavel: c.cpfResponsavel ?? '',
             parentescoResponsavel: c.parentescoResponsavel ?? '', observacao: c.observacao ?? '',
           });

@@ -123,10 +123,11 @@ export default function CargoFormPage() {
             </h2>
 
             <div className="form-group">
-              <label>Nome do Cargo *</label>
+              <label htmlFor="nomeCargo">Nome do Cargo *</label>
               <input
+                id="nomeCargo"
                 type="text"
-                placeholder="Ex: PROFESSOR"
+                placeholder="Ex: GERENTE DE VENDAS"
                 value={form.nomeCargo}
                 onChange={e =>
                   setForm({
@@ -139,10 +140,11 @@ export default function CargoFormPage() {
             </div>
 
             <div className="form-group">
-              <label>Descrição</label>
+              <label htmlFor="descricao">Descrição</label>
               <textarea
+                id="descricao"
                 rows={4}
-                placeholder="Descrição do cargo..."
+                placeholder="Descrição das responsabilidades do cargo..."
                 value={form.descricao ?? ''}
                 onChange={e =>
                   setForm({
@@ -161,11 +163,13 @@ export default function CargoFormPage() {
 
             <div className="form-row">
               <div className="form-group">
-                <label>Salário Base *</label>
+                <label htmlFor="salarioBase">Salário Base *</label>
                 <input
+                  id="salarioBase"
                   type="number"
-                  min={0}
+                  min="0"
                   step="0.01"
+                  placeholder="Ex: 2500.00"
                   value={form.salarioBase}
                   onChange={e =>
                     setForm({
@@ -175,7 +179,7 @@ export default function CargoFormPage() {
                   }
                 />
               </div>
-                            <div className="form-group form-check">
+              <div className="form-group form-check">
                 <label>
                   <input
                     type="checkbox"

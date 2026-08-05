@@ -140,34 +140,30 @@ return (
           </h2>
 
           <div className="form-group">
-
-            <label>
-              Nome da Unidade *
-            </label>
-
+            <label htmlFor="nomeUnidade">Nome da Unidade *</label>
             <input
+              id="nomeUnidade"
               type="text"
+              placeholder="Ex: QUILOGRAMA"
               value={form.nomeUnidade}
               onChange={e =>
                 setForm({
                   ...form,
-                  nomeUnidade: e.target.value
+                  nomeUnidade: e.target.value.toUpperCase()
                 })
               }
+              autoFocus
             />
-
           </div>
 
           <div className="form-group">
-
-            <label>
-              Sigla
-            </label>
-
+            <label htmlFor="sigla">Sigla</label>
             <input
+              id="sigla"
               type="text"
-              value={form.sigla ?? ''}
+              placeholder="Ex: KG"
               maxLength={10}
+              value={form.sigla ?? ''}
               onChange={e =>
                 setForm({
                   ...form,
@@ -175,7 +171,6 @@ return (
                 })
               }
             />
-
           </div>
 
           <div className="form-group checkbox-group">
