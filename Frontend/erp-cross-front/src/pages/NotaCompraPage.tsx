@@ -116,14 +116,14 @@ export default function NotaCompraPage() {
                     <button
                       className="btn-icon btn-view"
                       title="Visualizar"
-                      onClick={() => navigate(`/nota-compras/visualizar/${nota.id}`)}
+                      onClick={() => navigate(`/notas-compra/visualizar/${nota.id}`)}
                     >
                       <Eye size={15} />
                     </button>
                     <button
                       className="btn-icon btn-edit"
                       title="Editar"
-                      onClick={() => navigate(`/nota-compras/editar/${nota.id}`)}
+                      onClick={() => navigate(`/notas-compra/editar/${nota.id}`)}
                     >
                       <Pencil size={15} />
                     </button>

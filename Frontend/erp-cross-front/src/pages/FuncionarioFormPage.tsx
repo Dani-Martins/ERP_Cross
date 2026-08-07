@@ -8,6 +8,7 @@ import type { FuncionarioCreate } from '../types/entities';
 import { formatCPF, validateCPF, formatRG, validateRG, formatPhone, formatCEP } from '../utils/formatting';
 import CidadeLookupModal from '../components/CidadeLookupModal';
 import CargoLookupModal from '../components/CargoLookupModal';
+import CurrencyInput from '../components/CurrencyInput';
 import './PaisesPage.css';
 
 function toInputDate(value?: string | null): string {
@@ -589,33 +590,25 @@ export default function FuncionarioFormPage() {
 
                             <div className="form-group">
 
-                                <label>
+                                <label htmlFor="salario">
 
                                     Salário
 
                                 </label>
 
-                                <input
-                                    type="number"
-                                    step="0.01"
-                                    value={form.salario ?? ''}
-                                    onChange={e =>
+                                <CurrencyInput
+                                    id="salario"
+                                    value={form.salario ?? 0}
+                                    onChange={value =>
                                         setForm({
 
                                             ...form,
 
-                                            salario:
-
-                                                e.target.value === ''
-
-                                                    ? undefined
-
-                                                    : Number(
-                                                          e.target.value
-                                                      )
+                                            salario: value
 
                                         })
                                     }
+                                    placeholder="R$ 0,00"
                                 />
 
                             </div>

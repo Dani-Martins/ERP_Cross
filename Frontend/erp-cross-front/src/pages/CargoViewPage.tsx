@@ -91,8 +91,8 @@ export default function CargoViewPage() {
               </span>
             </div>
 
-            <div className="form-row"></div>
-                          <div className="view-group">
+            <div className="form-row">
+              <div className="view-group">
                 <span className="view-label">
                   Salário Base
                 </span>
@@ -140,8 +140,8 @@ export default function CargoViewPage() {
               Informações do Sistema
             </h2>
 
-            <div className="form-row"></div>
-                          <div className="view-group">
+            <div className="form-row">
+              <div className="view-group">
                 <span className="view-label">
                   Criado em
                 </span>
@@ -184,5 +184,9 @@ export default function CargoViewPage() {
           </div>
 
         </div>
-    );
+
+      </div>
+
+    </div>
+  );
 }

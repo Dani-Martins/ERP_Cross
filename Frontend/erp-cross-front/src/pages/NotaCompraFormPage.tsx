@@ -385,14 +385,16 @@ export default function NotaCompraFormPage() {
                     value={nomeCondicao}
                     placeholder="Selecione uma condição..."
                     readOnly
+                    className="lookup-input"
                   />
 
                   <button
                     type="button"
-                    className="btn-search"
+                    className="btn-lookup"
                     onClick={() =>
                       setShowCondicaoModal(true)
                     }
+                    title="Pesquisar condição de pagamento"
                   >
                     <Search size={16} />
                   </button>

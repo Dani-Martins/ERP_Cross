@@ -21,7 +21,7 @@ export default function NotaCompraViewPage() {
 
     NotaCompraService.getById(Number(id))
       .then(r => setNota(r.data))
-      .catch(() => navigate('/nota-compras'))
+      .catch(() => navigate('/notas-compra'))
       .finally(() => setLoading(false));
 
   }, [id, navigate]);
@@ -364,7 +364,7 @@ export default function NotaCompraViewPage() {
             <button
               className="btn-primary"
               onClick={() =>
-                navigate(`/nota-compras/editar/${nota.id}`)
+                navigate(`/notas-compra/editar/${nota.id}`)
               }
             >
               <Pencil size={15} />
@@ -373,7 +373,7 @@ export default function NotaCompraViewPage() {
 
             <button
               className="btn-secondary"
-              onClick={() => navigate('/nota-compras')}
+              onClick={() => navigate('/notas-compra')}
             >
               Voltar
             </button>

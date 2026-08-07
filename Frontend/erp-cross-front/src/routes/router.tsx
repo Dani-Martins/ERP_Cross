@@ -38,10 +38,10 @@ import ProdutoPage from '../pages/ProdutoPage';
 import ProdutoFormPage from '../pages/ProdutoFormPage';
 import ProdutoViewPage from '../pages/ProdutoViewPage';
 import NotaVendaPage from '../pages/NotaVendaPage';
-import NotaVendaFormPage from '../pages/NotaVendaPage';
+import NotaVendaFormPage from '../pages/NotaVendaFormPage';
 import NotaVendaViewPage from '../pages/NotaVendaViewPage';
 import NotaCompraPage from '../pages/NotaCompraPage';
-import NotaCompraFormPage from '../pages/NotaCompraPage';
+import NotaCompraFormPage from '../pages/NotaCompraFormPage';
 import NotaCompraViewPage from '../pages/NotaCompraViewPage';
 import UnidadeMedidaPage from '../pages/UnidadeMedidaPage';
 import UnidadeMedidaFormPage from '../pages/UnidadeMedidaFormPage';
@@ -116,8 +116,8 @@ const router = createBrowserRouter([
       { path: 'produtos/visualizar/:id', element: <ProdutoViewPage /> },
       { path: 'notas-venda', element: <NotaVendaPage /> },
       { path: 'notas-venda/nova', element: <NotaVendaFormPage /> },
-      { path: 'notas-venda/editar/:id', element: <NotaVendaFormPage /> },
-      { path: 'notas-venda/visualizar/:id', element: <NotaVendaViewPage /> },
+      { path: 'notas-venda/editar/:numeroNota/:modelo/:serie/:clienteId', element: <NotaVendaFormPage /> },
+      { path: 'notas-venda/visualizar/:numeroNota/:modelo/:serie/:clienteId', element: <NotaVendaViewPage /> },
       { path: 'notas-compra', element: <NotaCompraPage /> },
       { path: 'notas-compra/nova', element: <NotaCompraFormPage /> },
       { path: 'notas-compra/editar/:id', element: <NotaCompraFormPage /> },

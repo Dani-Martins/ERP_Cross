@@ -4,6 +4,7 @@ import type { AxiosError } from 'axios';
 import { Briefcase } from 'lucide-react';
 import { CargoService } from '../services/cargoService';
 import type { CargoCreate } from '../types/entities';
+import CurrencyInput from '../components/CurrencyInput';
 import './PaisesPage.css';
 
 const EMPTY: CargoCreate = {
@@ -164,35 +165,36 @@ export default function CargoFormPage() {
             <div className="form-row">
               <div className="form-group">
                 <label htmlFor="salarioBase">Salário Base *</label>
-                <input
+                <CurrencyInput
                   id="salarioBase"
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  placeholder="Ex: 2500.00"
                   value={form.salarioBase}
-                  onChange={e =>
+                  onChange={value =>
                     setForm({
                       ...form,
-                      salarioBase: Number(e.target.value)
+                      salarioBase: value
                     })
                   }
+                  placeholder="R$ 0,00"
                 />
               </div>
-              <div className="form-group form-check">
-                <label>
-                  <input
-                    type="checkbox"
-                    checked={form.exigeCnh}
-                    onChange={e =>
-                      setForm({
-                        ...form,
-                        exigeCnh: e.target.checked
-                      })
-                    }
-                  />
-                  Exige CNH
-                </label>
+              <div className="form-group">
+                <label htmlFor="exigeCnh">&nbsp;</label>
+                <div style={{ display: 'flex', alignItems: 'center', height: '100%', paddingTop: '4px' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', margin: 0, cursor: 'pointer' }}>
+                    <input
+                      id="exigeCnh"
+                      type="checkbox"
+                      checked={form.exigeCnh}
+                      onChange={e =>
+                        setForm({
+                          ...form,
+                          exigeCnh: e.target.checked
+                        })
+                      }
+                    />
+                    Exige CNH
+                  </label>
+                </div>
               </div>
             </div>
 
