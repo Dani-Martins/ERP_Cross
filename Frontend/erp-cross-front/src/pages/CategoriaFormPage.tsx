@@ -153,7 +153,7 @@ return (
               onChange={e =>
                 setForm({
                   ...form,
-                  nomeCategoria: e.target.value
+                  nomeCategoria: e.target.value.toUpperCase()
                 })
               }
             />
@@ -172,7 +172,7 @@ return (
               onChange={e =>
                 setForm({
                   ...form,
-                  descricao: e.target.value
+                  descricao: e.target.value.toUpperCase()
                 })
               }
             />

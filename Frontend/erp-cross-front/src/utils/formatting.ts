@@ -161,3 +161,15 @@ export function validatePIS(pis: string): boolean {
 
   return digit === parseInt(clean.charAt(10));
 }
+
+// ── EAN-13 (Código de Barras) ────────────────────────────────
+export function formatEAN13(value: string): string {
+  const clean = value.replace(/\D/g, '').slice(0, 13);
+  return clean;
+}
+
+export function validateEAN13(ean: string): boolean {
+  const clean = ean.replace(/\D/g, '');
+  // EAN-13: exatamente 13 dígitos
+  return clean.length === 13;
+}

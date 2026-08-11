@@ -4,6 +4,8 @@ import type { AxiosError } from 'axios';
 import { Package, Search } from 'lucide-react';
 import { ProdutoService } from '../services/produtoService';
 import type { ProdutoCreate } from '../types/entities';
+import { formatEAN13 } from '../utils/formatting';
+import CurrencyInput from '../components/CurrencyInput';
 import CategoriaLookupModal from '../components/CategoriaLookupModal';
 import MarcaLookupModal from '../components/MarcaLookupModal';
 import UnidadeMedidaLookupModal from '../components/UnidadeMedidaLookupModal';
@@ -168,7 +170,7 @@ export default function ProdutoFormPage() {
                 onChange={e =>
                   setForm({
                     ...form,
-                    descricao: e.target.value
+                    descricao: e.target.value.toUpperCase()
                   })
                 }
                 style={{
@@ -181,16 +183,17 @@ export default function ProdutoFormPage() {
             </div>
 
             <div className="form-group">
-              <label htmlFor="codigoBarras">Código de Barras</label>
+              <label htmlFor="codigoBarras">Código de Barras (EAN-13)</label>
               <input
                 id="codigoBarras"
                 type="text"
                 placeholder="Ex: 1234567890123"
+                maxLength={13}
                 value={form.codigoBarras}
                 onChange={e =>
                   setForm({
                     ...form,
-                    codigoBarras: e.target.value
+                    codigoBarras: formatEAN13(e.target.value)
                   })
                 }
               />
@@ -293,17 +296,13 @@ export default function ProdutoFormPage() {
 
               <div className="form-group">
                 <label htmlFor="custoCompra">Custo de Compra *</label>
-                <input
+                <CurrencyInput
                   id="custoCompra"
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  placeholder="0.00"
                   value={form.custoCompra}
-                  onChange={e =>
+                  onChange={value =>
                     setForm({
                       ...form,
-                      custoCompra: Number(e.target.value)
+                      custoCompra: value
                     })
                   }
                 />
@@ -329,44 +328,58 @@ export default function ProdutoFormPage() {
 
             </div>
 
-            <div className="form-group">
-              <label>Preço de Venda</label>
+            <div className="form-row">
 
-              <input
-                type="text"
-                readOnly
-                placeholder="Preço de Venda"
-                value={precoVenda.toLocaleString('pt-BR', {
-                  style: 'currency',
-                  currency: 'BRL'
-                })}
-              />
+              <div className="form-group">
+                <label>Preço de Venda</label>
+                <input
+                  type="text"
+                  readOnly
+                  placeholder="Preço de Venda"
+                  value={precoVenda.toLocaleString('pt-BR', {
+                    style: 'currency',
+                    currency: 'BRL'
+                  })}
+                  style={{ fontSize: '0.9em' }}
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="estoque">Quantidade em Estoque *</label>
+                <input
+                  id="estoque"
+                  type="number"
+                  min="0"
+                  placeholder="0"
+                  value={form.estoque}
+                  onChange={e =>
+                    setForm({
+                      ...form,
+                      estoque: Number(e.target.value)
+                    })
+                  }
+                  style={{ fontSize: '0.9em' }}
+                />
+              </div>
+
             </div>
 
           </div>
 
-          {/* Estoque */}
-          <div className="form-section">
-            <h2 className="form-section-title">Estoque</h2>
-
-            <div className="form-group">
-              <label htmlFor="estoque">Quantidade em Estoque *</label>
-
+          <div className="form-group checkbox-group">
+            <label>
               <input
-                id="estoque"
-                type="number"
-                min="0"
-                placeholder="0"
-                value={form.estoque}
+                type="checkbox"
+                checked={form.ativo}
                 onChange={e =>
                   setForm({
                     ...form,
-                    estoque: Number(e.target.value)
+                    ativo: e.target.checked
                   })
                 }
               />
-            </div>
-
+              Ativo
+            </label>
           </div>
 
           {error && (
