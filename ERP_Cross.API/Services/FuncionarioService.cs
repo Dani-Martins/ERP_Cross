@@ -28,7 +28,7 @@ public class FuncionarioService
             Nome = dto.Nome, CpfCnpj = dto.CpfCnpj, RgIe = dto.RgIe,
             Contato2 = dto.Contato2, Celular = dto.Celular, Email = dto.Email,
             Cep = dto.Cep, Endereco = dto.Endereco, Numero = dto.Numero, Complemento = dto.Complemento, Bairro = dto.Bairro,
-            IdCidade = dto.IdCidade, IdCargo = dto.IdCargo, Pis = dto.Pis, Ctps = dto.Ctps,
+            IdCidade = dto.IdCidade, IdCargo = dto.IdCargo, Pis = dto.Pis,
             Salario = salarioFinal, DataAdmissao = dto.DataAdmissao, DataDemissao = dto.DataDemissao,
             Sexo = dto.Sexo, Ativo = dto.Ativo
         };
@@ -46,7 +46,7 @@ public class FuncionarioService
         f.Nome = dto.Nome; f.CpfCnpj = dto.CpfCnpj; f.RgIe = dto.RgIe;
         f.Contato2 = dto.Contato2; f.Celular = dto.Celular; f.Email = dto.Email;
         f.Cep = dto.Cep; f.Endereco = dto.Endereco; f.Numero = dto.Numero; f.Complemento = dto.Complemento; f.Bairro = dto.Bairro;
-        f.IdCidade = dto.IdCidade; f.IdCargo = dto.IdCargo; f.Pis = dto.Pis; f.Ctps = dto.Ctps;
+        f.IdCidade = dto.IdCidade; f.IdCargo = dto.IdCargo; f.Pis = dto.Pis;
         f.Salario = salarioFinal; f.DataAdmissao = dto.DataAdmissao; f.DataDemissao = dto.DataDemissao;
         f.Sexo = dto.Sexo; f.Ativo = dto.Ativo;
 

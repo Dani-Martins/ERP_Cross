@@ -23,7 +23,6 @@ public class CreateFuncionarioDto
     [Range(1, int.MaxValue, ErrorMessage = "IdCargo deve ser maior que zero.")]
     public int? IdCargo { get; set; }
     public string? Pis { get; set; }
-    public string? Ctps { get; set; }
     public decimal? Salario { get; set; }
     public DateTime? DataAdmissao { get; set; }
     public DateTime? DataDemissao { get; set; }
@@ -51,7 +50,6 @@ public class UpdateFuncionarioDto
     [Range(1, int.MaxValue, ErrorMessage = "IdCargo deve ser maior que zero.")]
     public int? IdCargo { get; set; }
     public string? Pis { get; set; }
-    public string? Ctps { get; set; }
     public decimal? Salario { get; set; }
     public DateTime? DataAdmissao { get; set; }
     public DateTime? DataDemissao { get; set; }
@@ -76,7 +74,6 @@ public class FuncionarioView
     public int IdCidade { get; set; }
     public int? IdCargo { get; set; }
     public string? Pis { get; set; }
-    public string? Ctps { get; set; }
     public decimal? Salario { get; set; }
     public DateTime? DataAdmissao { get; set; }
     public DateTime? DataDemissao { get; set; }

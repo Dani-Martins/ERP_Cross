@@ -248,8 +248,8 @@ export default function FornecedorFormPage() {
                 <input
                   id="rgIe"
                   type="text"
-                  placeholder={pessoaFisica ? 'Ex: 00.000.000-0' : 'Ex: 000.000.000.000'}
-                  maxLength={pessoaFisica ? 12 : 14}
+                  placeholder={pessoaFisica ? 'Ex: 00.000.000-0' : 'Ex: 90.233.073-99'}
+                  maxLength={12}
                   value={form.rgIe}
                   onChange={e => {
                     const val = pessoaFisica ? formatRG(e.target.value) : formatIE(e.target.value);
@@ -296,7 +296,7 @@ export default function FornecedorFormPage() {
                 type="email"
                 placeholder="Ex: contato@email.com"
                 value={form.email}
-                onChange={e => setForm({ ...form, email: e.target.value })}
+                onChange={e => setForm({ ...form, email: e.target.value.toUpperCase() })}
               />
             </div>
           </div>

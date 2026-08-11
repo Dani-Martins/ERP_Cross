@@ -139,7 +139,6 @@ export interface FuncionarioView {
   idCargo?: number;
   nomeCargo?: string;
   pis?: string;
-  ctps?: string;
   salario?: number;
   dataAdmissao?: string;
   dataDemissao?: string;
@@ -163,7 +162,6 @@ export interface FuncionarioCreate {
   idCidade: number;
   idCargo?: number;
   pis?: string;
-  ctps?: string;
   salario?: number;
   dataAdmissao?: string;
   dataDemissao?: string;

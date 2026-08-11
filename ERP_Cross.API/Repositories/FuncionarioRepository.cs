@@ -13,7 +13,7 @@ public class FuncionarioRepository
     private const string SelectColumns = @"
         fn.Id, fn.Nome, fn.CpfCnpj, fn.RgIe, fn.Contato2, fn.Celular, fn.Email,
         fn.Cep, fn.Endereco, fn.Numero, fn.Complemento, fn.Bairro, fn.IdCidade,
-        fn.IdCargo, fn.Pis, fn.Ctps, fn.Salario, fn.DataAdmissao, fn.DataDemissao, fn.Sexo,
+        fn.IdCargo, fn.Pis, fn.Salario, fn.DataAdmissao, fn.DataDemissao, fn.Sexo,
         fn.Ativo, fn.DataCriacao, fn.DataAtualizacao,
         ci.NomeCidade, ca.NomeCargo";
 
@@ -38,10 +38,10 @@ public class FuncionarioRepository
         const string sql = @"
             INSERT INTO Funcionarios (Nome, CpfCnpj, RgIe, Contato2, Celular, Email,
                 Cep, Endereco, Numero, Complemento, Bairro, IdCidade,
-                IdCargo, Pis, Ctps, Salario, DataAdmissao, DataDemissao, Sexo, Ativo, DataCriacao, DataAtualizacao)
+                IdCargo, Pis, Salario, DataAdmissao, DataDemissao, Sexo, Ativo, DataCriacao, DataAtualizacao)
             VALUES (@Nome, @CpfCnpj, @RgIe, @Contato2, @Celular, @Email,
                 @Cep, @Endereco, @Numero, @Complemento, @Bairro, @IdCidade,
-                @IdCargo, @Pis, @Ctps, @Salario, @DataAdmissao, @DataDemissao, @Sexo, @Ativo, NOW(), NOW());
+                @IdCargo, @Pis, @Salario, @DataAdmissao, @DataDemissao, @Sexo, @Ativo, NOW(), NOW());
             SELECT LAST_INSERT_ID();";
         return await _connection.ExecuteScalarAsync<int>(sql, f);
     }
@@ -53,7 +53,7 @@ public class FuncionarioRepository
                 Nome=@Nome, CpfCnpj=@CpfCnpj, RgIe=@RgIe,
                 Contato2=@Contato2, Celular=@Celular, Email=@Email,
                 Cep=@Cep, Endereco=@Endereco, Numero=@Numero, Complemento=@Complemento, Bairro=@Bairro, IdCidade=@IdCidade,
-                IdCargo=@IdCargo, Pis=@Pis, Ctps=@Ctps, Salario=@Salario,
+                IdCargo=@IdCargo, Pis=@Pis, Salario=@Salario,
                 DataAdmissao=@DataAdmissao, DataDemissao=@DataDemissao, Sexo=@Sexo,
                 Ativo=@Ativo, DataAtualizacao=NOW()
             WHERE Id = @Id";
@@ -61,6 +61,6 @@ public class FuncionarioRepository
     }
 
     public async Task<bool> DeleteAsync(int id)
-        => await _connection.ExecuteAsync("UPDATE Funcionarios SET Ativo = 0, DataAtualizacao = NOW() WHERE Id = @Id", new { Id = id }) > 0;
+        => await _connection.ExecuteAsync("UPDATE Funcionarios SET Ativo = 0, DataDemissao = NOW(), DataAtualizacao = NOW() WHERE Id = @Id", new { Id = id }) > 0;
 }
 

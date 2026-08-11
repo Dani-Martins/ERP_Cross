@@ -4,8 +4,9 @@ import type { AxiosError } from 'axios';
 import { Search, UserCircle } from 'lucide-react';
 import { FuncionarioService } from '../services/funcionarioService';
 import { CidadeService } from '../services/cidadeService';
+import { CargoService } from '../services/cargoService';
 import type { FuncionarioCreate } from '../types/entities';
-import { formatCPF, validateCPF, formatRG, validateRG, formatPhone, formatCEP } from '../utils/formatting';
+import { formatCPF, validateCPF, formatRG, validateRG, formatPhone, formatCEP, formatPIS, validatePIS } from '../utils/formatting';
 import CidadeLookupModal from '../components/CidadeLookupModal';
 import CargoLookupModal from '../components/CargoLookupModal';
 import CurrencyInput from '../components/CurrencyInput';
@@ -16,14 +17,39 @@ function toInputDate(value?: string | null): string {
     if (!value)
         return '';
 
+    // Já está em formato YYYY-MM-DD
     if (/^\d{4}-\d{2}-\d{2}$/.test(value))
         return value;
 
+    // ISO 8601 com T
     if (value.includes('T'))
         return value.split('T')[0];
 
+    // Formato brasileiro dd/MM/yyyy
+    if (/^\d{2}\/\d{2}\/\d{4}$/.test(value)) {
+        const [dia, mes, ano] = value.split('/');
+        return `${ano}-${mes}-${dia}`;
+    }
+
     return '';
 
+}
+
+function getHoje(): string {
+    const hoje = new Date();
+    const ano = hoje.getFullYear();
+    const mes = String(hoje.getMonth() + 1).padStart(2, '0');
+    const dia = String(hoje.getDate()).padStart(2, '0');
+    return `${ano}-${mes}-${dia}`;
+}
+
+function formatDateToBrasileiro(dateStr: string): string {
+    if (!dateStr) return '';
+    if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+        const [ano, mes, dia] = dateStr.split('-');
+        return `${dia}/${mes}/${ano}`;
+    }
+    return '';
 }
 
 const EMPTY: FuncionarioCreate = {
@@ -46,7 +72,6 @@ const EMPTY: FuncionarioCreate = {
     idCargo: undefined,
 
     pis: '',
-    ctps: '',
 
     salario: undefined,
 
@@ -89,6 +114,17 @@ export default function FuncionarioFormPage() {
 
         if (!isEdit) {
 
+            // Pré-preencher Data de Admissão com a data atual (YYYY-MM-DD)
+            const hoje = getHoje();
+
+            setForm(prev => ({
+
+                ...prev,
+
+                dataAdmissao: hoje
+
+            }));
+
             setLoading(false);
 
             return;
@@ -100,6 +136,8 @@ export default function FuncionarioFormPage() {
             .then(res => {
 
                 const f = res.data;
+
+                const dataAdmConvertida = toInputDate(f.dataAdmissao);
 
                 setForm({
 
@@ -121,11 +159,10 @@ export default function FuncionarioFormPage() {
                     idCargo: f.idCargo,
 
                     pis: f.pis ?? '',
-                    ctps: f.ctps ?? '',
 
                     salario: f.salario,
 
-                    dataAdmissao: toInputDate(f.dataAdmissao),
+                    dataAdmissao: dataAdmConvertida,
 
                     dataDemissao: toInputDate(f.dataDemissao),
 
@@ -146,6 +183,38 @@ export default function FuncionarioFormPage() {
             .finally(() => setLoading(false));
 
     }, [id]);
+
+    useEffect(() => {
+
+        if (!form.idCargo) return;
+
+        const cargoId = form.idCargo;
+
+        CargoService.getById(cargoId)
+
+            .then(res => {
+
+                if (res.data?.salarioBase) {
+
+                    setForm(prev => ({
+
+                        ...prev,
+
+                        salario: res.data.salarioBase
+
+                    }));
+
+                }
+
+            })
+
+            .catch(() => {
+
+                // Silenciosamente ignorar erro se cargo não for encontrado
+
+            });
+
+    }, [form.idCargo]);
 
     async function buscarEnderecoPorCEP(cep: string) {
 
@@ -258,6 +327,14 @@ export default function FuncionarioFormPage() {
 
         }
 
+        if (form.pis && !validatePIS(form.pis)) {
+
+            setError('PIS inválido.');
+
+            return;
+
+        }
+
         if (!form.idCargo) {
 
             setError('Cargo é obrigatório.');
@@ -274,22 +351,100 @@ export default function FuncionarioFormPage() {
 
         }
 
+        if (!form.pis || !form.pis.trim()) {
+
+            setError('PIS é obrigatório.');
+
+            return;
+
+        }
+
+        if (!validatePIS(form.pis)) {
+
+            setError('PIS inválido.');
+
+            return;
+
+        }
+
+        if (!form.celular || !form.celular.trim()) {
+
+            setError('Celular é obrigatório.');
+
+            return;
+
+        }
+
+        if (!form.cep || !form.cep.trim()) {
+
+            setError('CEP é obrigatório.');
+
+            return;
+
+        }
+
+        if (!form.endereco || !form.endereco.trim()) {
+
+            setError('Logradouro é obrigatório.');
+
+            return;
+
+        }
+
+        if (!form.numero || !form.numero.trim()) {
+
+            setError('Número é obrigatório.');
+
+            return;
+
+        }
+
+        if (!form.bairro || !form.bairro.trim()) {
+
+            setError('Bairro é obrigatório.');
+
+            return;
+
+        }
+
+        if (form.salario === undefined || form.salario === 0) {
+
+            setError('Salário é obrigatório.');
+
+            return;
+
+        }
+
+        if (!form.dataAdmissao || !form.dataAdmissao.trim()) {
+
+            setError('Data de Admissão é obrigatória.');
+
+            return;
+
+        }
+
         setSaving(true);
 
         setError('');
 
         try {
 
+            const dataToSend = {
+                ...form,
+                dataAdmissao: form.dataAdmissao ? formatDateToBrasileiro(form.dataAdmissao) : '',
+                dataDemissao: form.dataDemissao ? formatDateToBrasileiro(form.dataDemissao) : ''
+            };
+
             if (isEdit)
 
                 await FuncionarioService.update(
                     Number(id),
-                    form
+                    dataToSend
                 );
 
             else
 
-                await FuncionarioService.create(form);
+                await FuncionarioService.create(dataToSend);
 
             navigate('/funcionarios');
 
@@ -544,40 +699,21 @@ export default function FuncionarioFormPage() {
 
                             <div className="form-group">
 
-                                <label>
+                                <label htmlFor="pis">
 
-                                    PIS
+                                    PIS *
 
                                 </label>
 
                                 <input
+                                    id="pis"
                                     type="text"
+                                    placeholder="000.00000.00-0"
                                     value={form.pis}
                                     onChange={e =>
                                         setForm({
                                             ...form,
-                                            pis: e.target.value
-                                        })
-                                    }
-                                />
-
-                            </div>
-
-                            <div className="form-group">
-
-                                <label>
-
-                                    CTPS
-
-                                </label>
-
-                                <input
-                                    type="text"
-                                    value={form.ctps}
-                                    onChange={e =>
-                                        setForm({
-                                            ...form,
-                                            ctps: e.target.value
+                                            pis: formatPIS(e.target.value)
                                         })
                                     }
                                 />
@@ -592,7 +728,7 @@ export default function FuncionarioFormPage() {
 
                                 <label htmlFor="salario">
 
-                                    Salário
+                                    Salário *
 
                                 </label>
 
@@ -615,14 +751,16 @@ export default function FuncionarioFormPage() {
 
                             <div className="form-group">
 
-                                <label>
+                                <label htmlFor="dataAdmissao">
 
-                                    Data de Admissão
+                                    Data de Admissão *
 
                                 </label>
 
                                 <input
+                                    id="dataAdmissao"
                                     type="date"
+                                    max={getHoje()}
                                     value={form.dataAdmissao}
                                     onChange={e =>
                                         setForm({
@@ -644,14 +782,16 @@ export default function FuncionarioFormPage() {
 
                             <div className="form-group">
 
-                                <label>
+                                <label htmlFor="dataDemissao">
 
                                     Data de Demissão
 
                                 </label>
 
                                 <input
+                                    id="dataDemissao"
                                     type="date"
+                                    max={getHoje()}
                                     value={form.dataDemissao}
                                     onChange={e =>
                                         setForm({
@@ -674,21 +814,20 @@ export default function FuncionarioFormPage() {
                                 }}
                             >
 
-                                <label>
+                                <label htmlFor="ativo">
 
                                     <input
+                                        id="ativo"
                                         type="checkbox"
                                         checked={form.ativo}
-                                        onChange={e =>
-                                            setForm({
-
-                                                ...form,
-
-                                                ativo:
-                                                    e.target.checked
-
-                                            })
-                                        }
+                                        onChange={e => {
+                                            const novoStatus = e.target.checked;
+                                            setForm(prev => ({
+                                                ...prev,
+                                                ativo: novoStatus,
+                                                dataDemissao: !novoStatus ? getHoje() : ''
+                                            }));
+                                        }}
                                     />
 
                                     Ativo
@@ -718,7 +857,7 @@ export default function FuncionarioFormPage() {
 
                                 <label>
 
-                                    Celular
+                                    Celular *
 
                                 </label>
 
@@ -777,7 +916,7 @@ export default function FuncionarioFormPage() {
                                 onChange={e =>
                                     setForm({
                                         ...form,
-                                        email: e.target.value
+                                        email: e.target.value.toUpperCase()
                                     })
                                 }
                             />
@@ -804,7 +943,7 @@ export default function FuncionarioFormPage() {
 
                                 <label>
 
-                                    CEP
+                                    CEP *
 
                                 </label>
 
@@ -856,7 +995,7 @@ export default function FuncionarioFormPage() {
 
                                 <label>
 
-                                    Bairro
+                                    Bairro *
 
                                 </label>
 
@@ -890,7 +1029,7 @@ export default function FuncionarioFormPage() {
 
                                 <label>
 
-                                    Logradouro
+                                    Logradouro *
 
                                 </label>
 
@@ -919,7 +1058,7 @@ export default function FuncionarioFormPage() {
 
                                 <label>
 
-                                    Número
+                                    Número *
 
                                 </label>
 

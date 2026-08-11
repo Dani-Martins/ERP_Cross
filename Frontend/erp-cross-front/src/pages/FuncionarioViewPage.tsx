@@ -201,22 +201,6 @@ export default function FuncionarioViewPage() {
 
               </div>
 
-              <div className="view-group">
-
-                <span className="view-label">
-
-                  CTPS
-
-                </span>
-
-                <span className="view-value">
-
-                  {funcionario.ctps || '—'}
-
-                </span>
-
-              </div>
-
             </div>
 
             <div className="form-row">

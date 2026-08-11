@@ -122,13 +122,42 @@ export function formatPhone(value: string): string {
 
 // ── IE (Inscrição Estadual) ────────────────────────────────────────────
 export function formatIE(value: string): string {
-  const clean = value.replace(/\D/g, '').slice(0, 14);
-  // Formato genérico, pode variar por estado
-  return clean;
+  const clean = value.replace(/\D/g, '').slice(0, 10);
+  if (clean.length <= 3) return clean;
+  if (clean.length <= 8) return `${clean.slice(0, 3)}.${clean.slice(3)}`;
+  return `${clean.slice(0, 3)}.${clean.slice(3, 8)}-${clean.slice(8)}`;
 }
 
 export function validateIE(ie: string): boolean {
   const clean = ie.replace(/\D/g, '');
-  // IE tem tamanho variável (8-14), apenas verifica tamanho mínimo
-  return clean.length >= 8;
+  // IE Paraná: 10 dígitos (formato XXX.XXXXX-XX)
+  return clean.length === 10;
+}
+
+// ── PIS (Programa de Integração Social) ────────────────────────────────
+export function formatPIS(value: string): string {
+  const clean = value.replace(/\D/g, '').slice(0, 11);
+  if (clean.length <= 3) return clean;
+  if (clean.length <= 8) return `${clean.slice(0, 3)}.${clean.slice(3)}`;
+  if (clean.length <= 10) return `${clean.slice(0, 3)}.${clean.slice(3, 8)}.${clean.slice(8)}`;
+  return `${clean.slice(0, 3)}.${clean.slice(3, 8)}.${clean.slice(8, 10)}-${clean.slice(10)}`;
+}
+
+export function validatePIS(pis: string): boolean {
+  const clean = pis.replace(/\D/g, '');
+  if (clean.length !== 11) return false;
+  if (/^(\d)\1{10}$/.test(clean)) return false; // todos dígitos iguais
+
+  let sum = 0;
+  const multiplier = [3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
+
+  // Calcula dígito verificador
+  for (let i = 0; i < 10; i++) {
+    sum += parseInt(clean.charAt(i)) * multiplier[i];
+  }
+
+  let remainder = sum % 11;
+  const digit = remainder < 2 ? 0 : 11 - remainder;
+
+  return digit === parseInt(clean.charAt(10));
 }
