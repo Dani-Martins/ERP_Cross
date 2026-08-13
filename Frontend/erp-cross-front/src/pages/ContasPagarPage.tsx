@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { TrendingDown, Eye, Pencil, Trash2, Plus, Search, X } from 'lucide-react';
+import { TrendingDown, Eye, Pencil, Trash2, Plus, Search, X, CheckSquare } from 'lucide-react';
 import { ContaPagarService } from '../services/contasService';
 import type { ContaPagarView } from '../types/entities';
 import './PaisesPage.css';
@@ -38,6 +38,10 @@ export default function ContasPagarPage() {
   const [loading, setLoading] = useState(true);
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [selecionados, setSelecionados] = useState<Set<number>>(new Set());
+  const [showPagamentoModal, setShowPagamentoModal] = useState(false);
+  const [dataPagamento, setDataPagamento] = useState(new Date().toISOString().substring(0, 10));
+  const [pagando, setPagando] = useState(false);
 
   useEffect(() => {
     ContaPagarService.getAll()
@@ -55,6 +59,24 @@ export default function ContasPagarPage() {
       c.numeroNota.toLowerCase().includes(busca.toLowerCase());
     return matchStatus && matchBusca;
   });
+
+  function toggleSelecionado(id: number) {
+    setSelecionados(prev => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  }
+
+  async function handlePagamentoLote() {
+    setPagando(true);
+    await ContaPagarService.pagamentoLote({ ids: Array.from(selecionados), dataPagamento: dataPagamento });
+    const res = await ContaPagarService.getAll();
+    setContas(res.data);
+    setSelecionados(new Set());
+    setShowPagamentoModal(false);
+    setPagando(false);
+  }
 
   async function handleDelete() {
     if (!deleteId) return;
@@ -98,6 +120,12 @@ export default function ContasPagarPage() {
             <button className="btn-primary" onClick={() => navigate('/contas-pagar/nova')}>
               <Plus size={16} /> Nova Conta
             </button>
+            {selecionados.size > 0 && (
+              <button className="btn-primary" style={{ background: 'var(--success, #16a34a)' }}
+                onClick={() => { setDataPagamento(new Date().toISOString().substring(0, 10)); setShowPagamentoModal(true); }}>
+                <CheckSquare size={16} /> Dar Pagamento ({selecionados.size})
+              </button>
+            )}
           </div>
         </div>
 
@@ -110,6 +138,7 @@ export default function ContasPagarPage() {
             <table className="data-table">
               <thead>
                 <tr>
+                  <th style={{ width: 50, textAlign: 'center' }}>Pagamentos</th>
                   <th style={{ width: 60 }}>#</th>
                   <th>Fornecedor</th>
                   <th style={{ width: 100 }}>Nº Nota</th>
@@ -122,8 +151,21 @@ export default function ContasPagarPage() {
                 </tr>
               </thead>
               <tbody>
-                {filtradas.map(c => (
-                  <tr key={c.id}>
+                {filtradas.map(c => {
+                  const selecionavel = c.status !== 'PAGO' && c.status !== 'CANCELADO';
+                  return (
+                  <tr key={c.id} style={selecionados.has(c.id) ? { background: 'linear-gradient(90deg, rgba(212, 160, 23, 0.15), rgba(212, 160, 23, 0.05))', borderLeft: '4px solid #D4A017' } : { borderLeft: '4px solid transparent' }}>
+                    <td style={{ textAlign: 'center' }}>
+                      {selecionavel && (
+                        <input 
+                          type="checkbox" 
+                          checked={selecionados.has(c.id)}
+                          onChange={() => toggleSelecionado(c.id)}
+                          title="Selecionar para dar pagamento" 
+                          style={{ cursor: 'pointer', width: 18, height: 18 }}
+                        />
+                      )}
+                    </td>
                     <td className="col-id">{c.id}</td>
                     <td>{c.nomeFornecedor ?? '—'}</td>
                     <td>{c.numeroNota}</td>
@@ -148,7 +190,8 @@ export default function ContasPagarPage() {
                       </button>
                     </td>
                   </tr>
-                ))}
+                  );
+                })}
               </tbody>
             </table>
           )}
@@ -170,6 +213,32 @@ export default function ContasPagarPage() {
                 {deleting ? 'Excluindo...' : 'Excluir'}
               </button>
               <button className="btn-secondary" onClick={() => setDeleteId(null)}>Cancelar</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showPagamentoModal && (
+        <div className="modal-overlay" onClick={() => setShowPagamentoModal(false)}>
+          <div className="modal modal-sm" onClick={e => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2 className="modal-title">Dar Pagamento em Lote</h2>
+              <button className="modal-close" onClick={() => setShowPagamentoModal(false)}>×</button>
+            </div>
+            <div className="modal-body">
+              <label>Data de Pagamento:</label>
+              <input 
+                type="date" 
+                value={dataPagamento}
+                onChange={e => setDataPagamento(e.target.value)}
+                style={{ width: '100%', padding: '8px', marginTop: '8px' }}
+              />
+            </div>
+            <div className="modal-footer">
+              <button className="btn-primary" onClick={handlePagamentoLote} disabled={pagando}>
+                {pagando ? 'Processando...' : 'Confirmar Pagamento'}
+              </button>
+              <button className="btn-secondary" onClick={() => setShowPagamentoModal(false)}>Cancelar</button>
             </div>
           </div>
         </div>

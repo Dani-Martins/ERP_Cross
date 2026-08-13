@@ -117,6 +117,7 @@ export default function TransportadoraPage() {
               <tr>
                 <th>#</th>
                 <th>Transportadora</th>
+                <th>Nome Fantasia</th>
                 <th>CNPJ</th>
                 <th>Cidade</th>
                 <th>Status</th>
@@ -129,10 +130,8 @@ export default function TransportadoraPage() {
                   <td className="col-id">{transportadora.id}</td>
                   <td className="col-name">
                     {transportadora.nome}
-                    {transportadora.nomeFantasia && (
-                      <span className="view-muted">{transportadora.nomeFantasia}</span>
-                    )}
                   </td>
+                  <td>{transportadora.nomeFantasia || '—'}</td>
                   <td>{maskCnpj(transportadora.cpfCnpj)}</td>
                   <td>{transportadora.nomeCidade || '—'}</td>
                   <td>

@@ -1,7 +1,7 @@
 import api from './api';
 import type {
   ContaReceberView, ContaReceberCreate, ContaReceberUpdate, ContaReceberLoteCreate, ContaReceberBaixaLote,
-  ContaPagarView, ContaPagarCreate, ContaPagarUpdate,
+  ContaPagarView, ContaPagarCreate, ContaPagarUpdate, ContaPagarPagamentoLote,
 } from '../types/entities';
 
 export const ContaReceberService = {
@@ -19,6 +19,7 @@ export const ContaPagarService = {
   getAll: () => api.get<ContaPagarView[]>('/ContaPagar'),
   getById: (id: number) => api.get<ContaPagarView>(`/ContaPagar/${id}`),
   create: (data: ContaPagarCreate) => api.post<ContaPagarView>('/ContaPagar', data),
+  pagamentoLote: (data: ContaPagarPagamentoLote) => api.post<{ atualizadas: number }>('/ContaPagar/pagamento-lote', data),
   update: (id: number, data: ContaPagarUpdate) => api.put<void>(`/ContaPagar/${id}`, data),
   remove: (id: number) => api.delete<void>(`/ContaPagar/${id}`),
 };

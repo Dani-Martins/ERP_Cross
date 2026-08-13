@@ -465,6 +465,11 @@ export interface ContaPagarCreate {
 }
 export type ContaPagarUpdate = ContaPagarCreate;
 
+export interface ContaPagarPagamentoLote {
+  ids: number[];
+  dataPagamento: string;
+}
+
 // ── Nota de Venda ─────────────────────────────────────────────────────────────
 export interface NotaVendaView {
   numeroNota: string;

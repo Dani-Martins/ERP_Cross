@@ -73,7 +73,7 @@ export default function FormaPagamentoFormPage() {
             <h2 className="form-section-title">Dados da Forma de Pagamento</h2>
 
             <div className="form-group">
-              <label htmlFor="nomeFormaPagamento">Nome *</label>
+              <label htmlFor="nomeFormaPagamento">Nome da Forma de Pagamento *</label>
               <input
                 id="nomeFormaPagamento"
                 type="text"

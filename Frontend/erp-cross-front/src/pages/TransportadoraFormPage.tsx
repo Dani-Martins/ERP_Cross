@@ -150,6 +150,36 @@ async function handleSave(e: React.FormEvent) {
     return;
   }
 
+  if (!form.celular?.trim()) {
+    setError('Celular é obrigatório.');
+    return;
+  }
+
+  if (!form.email?.trim()) {
+    setError('E-mail é obrigatório.');
+    return;
+  }
+
+  if (!form.cep?.trim()) {
+    setError('CEP é obrigatório.');
+    return;
+  }
+
+  if (!form.endereco?.trim()) {
+    setError('Endereço é obrigatório.');
+    return;
+  }
+
+  if (!form.numero?.trim()) {
+    setError('Número é obrigatório.');
+    return;
+  }
+
+  if (!form.bairro?.trim()) {
+    setError('Bairro é obrigatório.');
+    return;
+  }
+
   setSaving(true);
   setError('');
 
@@ -241,11 +271,37 @@ return (
               Dados Gerais
             </h2>
 
+            <div className="form-group">
+              <label>Tipo de Pessoa *</label>
+              <div style={{ display: 'flex', gap: 16, alignItems: 'center', paddingTop: 4 }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer', fontWeight: 500 }}>
+                  <input
+                    type="radio"
+                    name="tipoPessoa"
+                    checked={form.tipoPessoa === 'PF'}
+                    onChange={() => setForm({ ...form, tipoPessoa: 'PF', cpfCnpj: '', rgIe: '' })}
+                    style={{ accentColor: '#D4A017' }}
+                  />
+                  Pessoa Física
+                </label>
+                <label style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer', fontWeight: 500 }}>
+                  <input
+                    type="radio"
+                    name="tipoPessoa"
+                    checked={form.tipoPessoa === 'PJ'}
+                    onChange={() => setForm({ ...form, tipoPessoa: 'PJ', cpfCnpj: '', rgIe: '' })}
+                    style={{ accentColor: '#D4A017' }}
+                  />
+                  Pessoa Jurídica
+                </label>
+              </div>
+            </div>
+
             <div className="form-row">
 
-              <div className="form-group">
+              <div className="form-group" style={{ gridColumn: 'span 2' }}>
 
-                <label>Nome *</label>
+                <label>{form.tipoPessoa === 'PF' ? 'Nome Completo *' : 'Razão Social *'}</label>
 
                 <input
                   type="text"
@@ -253,13 +309,16 @@ return (
                   onChange={e =>
                     setForm({
                       ...form,
-                      nome: e.target.value
+                      nome: e.target.value.toUpperCase()
                     })
                   }
                 />
 
               </div>
 
+            </div>
+
+            {form.tipoPessoa === 'PJ' && (
               <div className="form-group">
 
                 <label>Nome Fantasia</label>
@@ -270,43 +329,15 @@ return (
                   onChange={e =>
                     setForm({
                       ...form,
-                      nomeFantasia: e.target.value
+                      nomeFantasia: e.target.value.toUpperCase()
                     })
                   }
                 />
 
               </div>
-
-            </div>
+            )}
 
             <div className="form-row">
-
-              <div className="form-group">
-
-                <label>Tipo Pessoa</label>
-
-                <select
-                  value={form.tipoPessoa}
-                  onChange={e =>
-                    setForm({
-                      ...form,
-                      tipoPessoa: e.target.value,
-                      cpfCnpj: '',
-                      rgIe: ''
-                    })
-                  }
-                >
-                  <option value="PJ">
-                    Pessoa Jurídica
-                  </option>
-
-                  <option value="PF">
-                    Pessoa Física
-                  </option>
-
-                </select>
-
-              </div>
 
               <div className="form-group">
 
@@ -320,6 +351,7 @@ return (
 
                 <input
                   type="text"
+                  maxLength={form.tipoPessoa === 'PF' ? 14 : 18}
                   value={form.cpfCnpj}
                   onChange={e => {
 
@@ -350,6 +382,7 @@ return (
 
                 <input
                   type="text"
+                  maxLength={form.tipoPessoa === 'PF' ? 12 : 14}
                   value={form.rgIe ?? ''}
                   onChange={e => {
 
@@ -383,7 +416,7 @@ return (
 
               <div className="form-group">
 
-                <label>Celular</label>
+                <label>Celular *</label>
 
                 <input
                   type="text"
@@ -408,7 +441,7 @@ return (
                   onChange={e =>
                     setForm({
                       ...form,
-                      contato2: e.target.value
+                      contato2: e.target.value.toUpperCase()
                     })
                   }
                 />
@@ -417,7 +450,7 @@ return (
 
               <div className="form-group">
 
-                <label>E-mail</label>
+                <label>E-mail *</label>
 
                 <input
                   type="email"
@@ -425,7 +458,7 @@ return (
                   onChange={e =>
                     setForm({
                       ...form,
-                      email: e.target.value
+                      email: e.target.value.toUpperCase()
                     })
                   }
                 />
@@ -447,7 +480,7 @@ return (
 
               <div className="form-group">
 
-                <label>CEP</label>
+                <label>CEP *</label>
 
                 <input
                   type="text"
@@ -464,7 +497,7 @@ return (
 
               <div className="form-group">
 
-                <label>Endereço</label>
+                <label>Endereço *</label>
 
                 <input
                   type="text"
@@ -472,7 +505,7 @@ return (
                   onChange={e =>
                     setForm({
                       ...form,
-                      endereco: e.target.value
+                      endereco: e.target.value.toUpperCase()
                     })
                   }
                 />
@@ -485,7 +518,7 @@ return (
 
               <div className="form-group">
 
-                <label>Número</label>
+                <label>Número *</label>
 
                 <input
                   type="text"
@@ -493,7 +526,7 @@ return (
                   onChange={e =>
                     setForm({
                       ...form,
-                      numero: e.target.value
+                      numero: e.target.value.toUpperCase()
                     })
                   }
                 />
@@ -510,7 +543,7 @@ return (
                   onChange={e =>
                     setForm({
                       ...form,
-                      complemento: e.target.value
+                      complemento: e.target.value.toUpperCase()
                     })
                   }
                 />
@@ -523,7 +556,7 @@ return (
 
               <div className="form-group">
 
-                <label>Bairro</label>
+                <label>Bairro *</label>
 
                 <input
                   type="text"
@@ -531,7 +564,7 @@ return (
                   onChange={e =>
                     setForm({
                       ...form,
-                      bairro: e.target.value
+                      bairro: e.target.value.toUpperCase()
                     })
                   }
                 />
@@ -539,15 +572,6 @@ return (
               </div>
 
             </div>
-
-          </div>
-                    {/* Financeiro */}
-
-          <div className="form-section">
-
-            <h2 className="form-section-title">
-              Informações Financeiras
-            </h2>
 
             <div className="form-row">
 
@@ -577,6 +601,19 @@ return (
                 </div>
 
               </div>
+
+            </div>
+
+          </div>
+                    {/* Financeiro */}
+
+          <div className="form-section">
+
+            <h2 className="form-section-title">
+              Informações Financeiras
+            </h2>
+
+            <div className="form-row">
 
               <div className="form-group">
 

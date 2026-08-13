@@ -61,31 +61,12 @@ export default function ContasReceberPage() {
     return matchStatus && matchBusca;
   });
 
-  const selecionaveis = filtradas.filter(c => c.status !== 'PAGO' && c.status !== 'RECEBIDO' && c.status !== 'CANCELADO');
-  const todosSelecionados = selecionaveis.length > 0 && selecionaveis.every(c => selecionados.has(c.id));
-
   function toggleSelecionado(id: number) {
     setSelecionados(prev => {
       const next = new Set(prev);
       next.has(id) ? next.delete(id) : next.add(id);
       return next;
     });
-  }
-
-  function toggleTodos() {
-    if (todosSelecionados) {
-      setSelecionados(prev => {
-        const next = new Set(prev);
-        selecionaveis.forEach(c => next.delete(c.id));
-        return next;
-      });
-    } else {
-      setSelecionados(prev => {
-        const next = new Set(prev);
-        selecionaveis.forEach(c => next.add(c.id));
-        return next;
-      });
-    }
   }
 
   async function handleBaixaLote() {
@@ -158,11 +139,7 @@ export default function ContasReceberPage() {
             <table className="data-table">
               <thead>
                 <tr>
-                  <th style={{ width: 40 }}>
-                    <input type="checkbox" checked={todosSelecionados}
-                      onChange={toggleTodos}
-                      title="Selecionar todos em aberto" />
-                  </th>
+                  <th style={{ width: 50, textAlign: 'center' }}>Baixas</th>
                   <th style={{ width: 60 }}>#</th>
                   <th>Cliente</th>
                   <th style={{ width: 100 }}>Nº Nota</th>
@@ -178,11 +155,16 @@ export default function ContasReceberPage() {
                 {filtradas.map(c => {
                   const selecionavel = c.status !== 'PAGO' && c.status !== 'RECEBIDO' && c.status !== 'CANCELADO';
                   return (
-                  <tr key={c.id} style={selecionados.has(c.id) ? { background: 'var(--row-selected, #fef9ec)' } : {}}>
+                  <tr key={c.id} style={selecionados.has(c.id) ? { background: 'linear-gradient(90deg, rgba(212, 160, 23, 0.15), rgba(212, 160, 23, 0.05))', borderLeft: '4px solid #D4A017' } : { borderLeft: '4px solid transparent' }}>
                     <td style={{ textAlign: 'center' }}>
                       {selecionavel && (
-                        <input type="checkbox" checked={selecionados.has(c.id)}
-                          onChange={() => toggleSelecionado(c.id)} />
+                        <input 
+                          type="checkbox" 
+                          checked={selecionados.has(c.id)}
+                          onChange={() => toggleSelecionado(c.id)}
+                          title="Selecionar para dar baixa" 
+                          style={{ cursor: 'pointer', width: 18, height: 18 }}
+                        />
                       )}
                     </td>
                     <td className="col-id">{c.id}</td>
