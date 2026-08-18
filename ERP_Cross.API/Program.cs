@@ -73,6 +73,7 @@ builder.Services.AddScoped<NotaCompraRepository>();
 builder.Services.AddScoped<NotaCompraItemRepository>();
 builder.Services.AddScoped<NotaVendaRepository>();
 builder.Services.AddScoped<NotaVendaProdutoRepository>();
+builder.Services.AddScoped<ParcelaNotaVendaRepository>();
 builder.Services.AddScoped<ContaPagarRepository>();
 builder.Services.AddScoped<ContaReceberRepository>();
 
@@ -97,6 +98,7 @@ builder.Services.AddScoped<NotaCompraService>();
 builder.Services.AddScoped<NotaCompraItemService>();
 builder.Services.AddScoped<NotaVendaService>();
 builder.Services.AddScoped<NotaVendaProdutoService>();
+builder.Services.AddScoped<ParcelaNotaVendaService>();
 builder.Services.AddScoped<ContaPagarService>();
 builder.Services.AddScoped<ContaReceberService>();
 

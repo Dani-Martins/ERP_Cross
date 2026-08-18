@@ -28,6 +28,27 @@ public class CondicaoPagamentoRepository
         return await _connection.QueryFirstOrDefaultAsync<CondicaoPagamento>(sql, new { Id = id });
     }
 
+    public async Task<IEnumerable<ParcelaCondicaoPagamento>> GetParcelasAsync(int condicaoPagamentoId)
+    {
+        const string sql = @"
+            SELECT pcp.Numero, pcp.Dias, pcp.Percentual, pcp.FormaPagamentoId, fp.Nome AS NomeFormaPagamento
+            FROM ParcelasCondicaoPagamento pcp
+            LEFT JOIN FormasPagamento fp ON pcp.FormaPagamentoId = fp.Id
+            WHERE pcp.CondicaoPagamentoId = @CondicaoPagamentoId AND pcp.Ativo = 1
+            ORDER BY pcp.Numero";
+        return await _connection.QueryAsync<ParcelaCondicaoPagamento>(sql, new { CondicaoPagamentoId = condicaoPagamentoId });
+    }
+
+    public class ParcelaCondicaoPagamento
+    {
+        public int Numero { get; set; }
+        public int Dias { get; set; }
+        public decimal Percentual { get; set; }
+        public int? FormaPagamentoId { get; set; }
+        public string? NomeFormaPagamento { get; set; }
+    }
+
+
     public async Task<int> InsertAsync(CondicaoPagamento condicao)
     {
         const string sql = @"

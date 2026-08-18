@@ -478,12 +478,14 @@ export interface NotaVendaView {
   clienteId: number;
   nomeCliente?: string;
   dataEmissao: string;
+  dataChegada?: string;
   transportadoraId?: number;
   nomeTransportadora?: string;
   placaVeiculo?: string;
   tipoFrete: string;
   valorFrete: number;
   desconto: number;
+  outrosCustos?: number;
   totalProdutos: number;
   totalPagar: number;
   condicaoPagamentoId?: number;
@@ -491,6 +493,8 @@ export interface NotaVendaView {
   observacao?: string;
   status?: string;
   ativo: boolean;
+  produtos?: NotaVendaItemView[];
+  parcelas?: ParcelaNotaVenda[];
   criadoEm: string;
   atualizadoEm?: string;
   dataCriacao: string;
@@ -502,18 +506,35 @@ export interface NotaVendaCreate {
   serie: string;
   clienteId: number;
   dataEmissao: string;
+  dataChegada?: string;
   transportadoraId?: number;
   placaVeiculo?: string;
   tipoFrete: string;
   valorFrete: number;
+  valorSeguro?: number;
   desconto: number;
+  outrosCustos?: number;
   totalProdutos: number;
   condicaoPagamentoId?: number;
   observacao?: string;
   status?: string;
   ativo: boolean;
+  produtos?: NotaVendaItemCreate[];
+  parcelas?: ParcelaNotaVenda[];
 }
 export type NotaVendaUpdate = NotaVendaCreate;
+
+// ── Parcela de Nota de Venda ──────────────────────────────────────────────────
+export interface ParcelaNotaVenda {
+  id: number;
+  numParcela: number;
+  formaPagamentoId?: number;
+  nomeFormaPagamento?: string;
+  dataVencimento: string;
+  valorParcela: number;
+  pago: boolean;
+  dataPagamento?: string;
+}
 
 // ── Item de Nota de Venda ─────────────────────────────────────────────────────
 export interface NotaVendaItemView {
@@ -524,12 +545,17 @@ export interface NotaVendaItemView {
   idNotaVenda: number;
   idProduto: number;
   nomeProduto?: string;
+  unidadeMedida?: string;
+  desconto?: number;
 }
 export interface NotaVendaItemCreate {
   quantidade: number;
   precoUnit: number;
   idNotaVenda: number;
   idProduto: number;
+  nomeProduto?: string;
+  unidadeMedida?: string;
+  desconto?: number;
 }
 export type NotaVendaItemUpdate = NotaVendaItemCreate;
 

@@ -8,11 +8,14 @@ public class NotaVenda
     public string Serie { get; set; } = string.Empty;
     public int ClienteId { get; set; }
     public DateTime DataEmissao { get; set; }
+    public DateTime? DataChegada { get; set; }
     public int? TransportadoraId { get; set; }
     public string? PlacaVeiculo { get; set; }
     public string TipoFrete { get; set; } = "CIF";
     public decimal ValorFrete { get; set; }
+    public decimal ValorSeguro { get; set; }
     public decimal Desconto { get; set; }
+    public decimal OutrosCustos { get; set; }
     public decimal TotalProdutos { get; set; }
     public decimal TotalPagar { get; set; }
     public int? CondicaoPagamentoId { get; set; }

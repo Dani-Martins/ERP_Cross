@@ -375,8 +375,12 @@
 
 .form-row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(3, 1fr);
   gap: 12px;
+}
+
+.form-row-2 {
+  grid-template-columns: 1fr 1fr;
 }
 
 .form-check label {
@@ -390,6 +394,32 @@
 }
 
 .form-check input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: #D4A017;
+  cursor: pointer;
+}
+
+.checkbox-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  justify-content: flex-end;
+  padding-top: 24px;
+}
+
+.checkbox-group label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  color: var(--form-check-color);
+  margin: 0;
+}
+
+.checkbox-group input[type="checkbox"] {
   width: 16px;
   height: 16px;
   accent-color: #D4A017;
@@ -657,6 +687,24 @@
 }
 
 .parcela-cell-select:focus {
+  border-color: #D4A017;
+  box-shadow: 0 0 0 2px rgba(212, 160, 23, 0.15);
+}
+
+/* ── Inputs da tabela de produtos ──────────────────────────────────────────── */
+.produto-table-input {
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  font-size: 0.875rem;
+  background: var(--bg-input);
+  color: var(--text-secondary);
+  outline: none;
+  text-align: center;
+}
+
+.produto-table-input:focus {
   border-color: #D4A017;
   box-shadow: 0 0 0 2px rgba(212, 160, 23, 0.15);
 }

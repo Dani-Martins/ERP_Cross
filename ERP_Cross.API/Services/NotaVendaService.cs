@@ -49,5 +49,8 @@ public class NotaVendaService
 
     public async Task<bool> DeleteAsync(string numeroNota, string modelo, string serie, int clienteId)
         => await _repository.DeleteAsync(numeroNota, modelo, serie, clienteId);
+
+    public async Task<string> GetNextNumeroNotaAsync(string modelo, string serie)
+        => await _repository.GetNextNumeroNotaAsync(modelo, serie);
 }
 

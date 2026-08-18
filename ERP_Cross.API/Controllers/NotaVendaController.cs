@@ -37,5 +37,12 @@ public class NotaVendaController(NotaVendaService service) : ControllerBase
     [HttpDelete("{numeroNota}/{modelo}/{serie}/{clienteId:int}")]
     public async Task<IActionResult> Delete(string numeroNota, string modelo, string serie, int clienteId)
         => await _service.DeleteAsync(numeroNota, modelo, serie, clienteId) ? NoContent() : NotFound();
+
+    [HttpGet("proximo-numero/{modelo}/{serie}")]
+    public async Task<ActionResult<string>> GetNextNumeroNota(string modelo, string serie)
+    {
+        var proximoNumero = await _service.GetNextNumeroNotaAsync(modelo, serie);
+        return Ok(proximoNumero);
+    }
 }
 

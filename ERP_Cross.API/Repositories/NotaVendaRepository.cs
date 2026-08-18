@@ -11,8 +11,8 @@ public class NotaVendaRepository
     public NotaVendaRepository(IDbConnection db) { _db = db; }
 
     private const string SelectColumns =
-        "nv.NumeroNota, nv.Modelo, nv.Serie, nv.ClienteId, nv.DataEmissao, nv.TransportadoraId, nv.PlacaVeiculo, " +
-        "nv.TipoFrete, nv.ValorFrete, nv.Desconto, nv.TotalProdutos, nv.TotalPagar, nv.CondicaoPagamentoId, nv.Observacao, nv.Status, nv.Ativo, nv.CriadoEm, nv.AtualizadoEm, " +
+        "nv.NumeroNota, nv.Modelo, nv.Serie, nv.ClienteId, nv.DataEmissao, nv.DataChegada, nv.TransportadoraId, nv.PlacaVeiculo, " +
+        "nv.TipoFrete, nv.ValorFrete, nv.Desconto, nv.OutrosCustos, nv.TotalProdutos, nv.TotalPagar, nv.CondicaoPagamentoId, nv.Observacao, nv.Status, nv.Ativo, nv.CriadoEm, nv.AtualizadoEm, " +
         "cl.Nome AS NomeCliente, cp.NomeCondicao AS NomeCondicaoPagamento, t.Nome AS NomeTransportadora";
 
     private const string FromJoin = @"
@@ -31,16 +31,16 @@ public class NotaVendaRepository
 
     public async Task<bool> InsertAsync(NotaVenda n)
         => await _db.ExecuteAsync(
-            @"INSERT INTO NotaVenda (NumeroNota, Modelo, Serie, ClienteId, DataEmissao, TransportadoraId, PlacaVeiculo,
-              TipoFrete, ValorFrete, Desconto, TotalProdutos, TotalPagar, CondicaoPagamentoId, Observacao, Status, Ativo, CriadoEm)
-              VALUES (@NumeroNota, @Modelo, @Serie, @ClienteId, @DataEmissao, @TransportadoraId, @PlacaVeiculo,
-              @TipoFrete, @ValorFrete, @Desconto, @TotalProdutos, @TotalPagar, @CondicaoPagamentoId, @Observacao, @Status, @Ativo, NOW())", n) > 0;
+            @"INSERT INTO NotaVenda (NumeroNota, Modelo, Serie, ClienteId, DataEmissao, DataChegada, TransportadoraId, PlacaVeiculo,
+              TipoFrete, ValorFrete, Desconto, OutrosCustos, TotalProdutos, TotalPagar, CondicaoPagamentoId, Observacao, Status, Ativo, CriadoEm)
+              VALUES (@NumeroNota, @Modelo, @Serie, @ClienteId, @DataEmissao, @DataChegada, @TransportadoraId, @PlacaVeiculo,
+              @TipoFrete, @ValorFrete, @Desconto, @OutrosCustos, @TotalProdutos, @TotalPagar, @CondicaoPagamentoId, @Observacao, @Status, @Ativo, NOW())", n) > 0;
 
     public async Task<bool> UpdateAsync(NotaVenda n)
         => await _db.ExecuteAsync(
-            @"UPDATE NotaVenda SET DataEmissao=@DataEmissao, TransportadoraId=@TransportadoraId,
+            @"UPDATE NotaVenda SET DataEmissao=@DataEmissao, DataChegada=@DataChegada, TransportadoraId=@TransportadoraId,
               PlacaVeiculo=@PlacaVeiculo, TipoFrete=@TipoFrete, ValorFrete=@ValorFrete,
-              Desconto=@Desconto, TotalProdutos=@TotalProdutos, TotalPagar=@TotalPagar, CondicaoPagamentoId=@CondicaoPagamentoId,
+              Desconto=@Desconto, OutrosCustos=@OutrosCustos, TotalProdutos=@TotalProdutos, TotalPagar=@TotalPagar, CondicaoPagamentoId=@CondicaoPagamentoId,
               Observacao=@Observacao, Status=@Status, Ativo=@Ativo, AtualizadoEm=NOW()
               WHERE NumeroNota=@NumeroNota AND Modelo=@Modelo AND Serie=@Serie AND ClienteId=@ClienteId", n) > 0;
 
@@ -48,5 +48,15 @@ public class NotaVendaRepository
         => await _db.ExecuteAsync(
             "UPDATE NotaVenda SET Ativo = 0, AtualizadoEm = NOW() WHERE NumeroNota=@NumeroNota AND Modelo=@Modelo AND Serie=@Serie AND ClienteId=@ClienteId",
             new { NumeroNota = numeroNota, Modelo = modelo, Serie = serie, ClienteId = clienteId }) > 0;
+
+    public async Task<string> GetNextNumeroNotaAsync(string modelo, string serie)
+    {
+        var result = await _db.QueryFirstOrDefaultAsync<int?>(
+            @"SELECT COALESCE(MAX(CAST(NumeroNota AS SIGNED)), 0) + 1 
+              FROM NotaVenda 
+              WHERE Modelo = @Modelo AND Serie = @Serie AND Ativo = 1",
+            new { Modelo = modelo, Serie = serie });
+        return (result ?? 1).ToString();
+    }
 }
 
