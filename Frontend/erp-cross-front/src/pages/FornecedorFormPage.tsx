@@ -203,7 +203,7 @@ export default function FornecedorFormPage() {
 
             <div className="form-row">
               <div className="form-group" style={{ gridColumn: 'span 2' }}>
-                <label htmlFor="nome">{pessoaFisica ? 'Nome Completo *' : 'Razão Social *'}</label>
+                <label htmlFor="nome">{pessoaFisica ? 'Fornecedor *' : 'Razão Social *'}</label>
                 <input
                   id="nome"
                   type="text"

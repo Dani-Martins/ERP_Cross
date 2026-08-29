@@ -70,7 +70,7 @@ export default function UnidadeMedidaViewPage() {
             <div className="view-group">
 
               <span className="view-label">
-                Nome da Unidade
+                Unidade de Medida
               </span>
 
               <span className="view-value">

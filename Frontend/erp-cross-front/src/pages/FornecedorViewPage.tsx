@@ -52,7 +52,7 @@ export default function FornecedorViewPage() {
             </div>
 
             <div className="view-group">
-              <span className="view-label">{pessoaFisica ? 'Nome Completo' : 'Razão Social'}</span>
+              <span className="view-label">{pessoaFisica ? 'Fornecedor' : 'Razão Social'}</span>
               <span className="view-value">{fornecedor.nome}</span>
             </div>
 

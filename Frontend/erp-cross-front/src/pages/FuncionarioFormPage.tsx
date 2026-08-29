@@ -540,7 +540,7 @@ export default function FuncionarioFormPage() {
 
                                 <label>
 
-                                    Nome Completo *
+                                    Funcionário *
 
                                 </label>
 

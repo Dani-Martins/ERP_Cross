@@ -80,7 +80,7 @@ export default function CidadeFormPage() {
             <h2 className="form-section-title">Dados da Cidade</h2>
 
             <div className="form-group">
-              <label htmlFor="nomeCidade">Nome da Cidade *</label>
+              <label htmlFor="nomeCidade">Cidade *</label>
               <input
                 id="nomeCidade"
                 type="text"

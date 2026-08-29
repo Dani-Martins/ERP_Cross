@@ -144,7 +144,7 @@ export default function ProdutoFormPage() {
             <h2 className="form-section-title">Dados Básicos</h2>
 
             <div className="form-group">
-              <label htmlFor="nomeProduto">Nome *</label>
+              <label htmlFor="nomeProduto">Produto *</label>
               <input
                 id="nomeProduto"
                 type="text"

@@ -61,7 +61,7 @@ export default function ClienteViewPage() {
               <span className="view-value">{cliente.pf ? 'Pessoa Física' : 'Pessoa Jurídica'}</span>
             </div>
             <div className="view-group">
-              <span className="view-label">{cliente.pf ? 'Nome Completo' : 'Razão Social'}</span>
+              <span className="view-label">{cliente.pf ? 'Cliente' : 'Razão Social'}</span>
               <span className="view-value">{cliente.nome}</span>
             </div>
             {!cliente.pf && cliente.nomeFantasia && (

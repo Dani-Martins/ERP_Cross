@@ -50,7 +50,7 @@ export default function EstadoCreateModal({ onCreated, onClose, zBase = 1100 }: 
           <form onSubmit={handleSave}>
             <div className="modal-form">
               <div className="form-group">
-                <label>Nome do Estado *</label>
+                <label>Estado *</label>
                 <input
                   type="text"
                   placeholder="Ex: SÃO PAULO"

@@ -301,7 +301,7 @@ return (
 
               <div className="form-group" style={{ gridColumn: 'span 2' }}>
 
-                <label>{form.tipoPessoa === 'PF' ? 'Nome Completo *' : 'Razão Social *'}</label>
+                <label>{form.tipoPessoa === 'PF' ? 'Transportadora *' : 'Razão Social *'}</label>
 
                 <input
                   type="text"

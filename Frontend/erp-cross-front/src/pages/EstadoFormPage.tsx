@@ -86,7 +86,7 @@ export default function EstadoFormPage() {
             <h2 className="form-section-title">Dados do Estado</h2>
 
             <div className="form-group">
-              <label htmlFor="nomeEstado">Nome do Estado *</label>
+              <label htmlFor="nomeEstado">Estado *</label>
               <input
                 id="nomeEstado"
                 type="text"
@@ -99,7 +99,7 @@ export default function EstadoFormPage() {
 
             <div className="form-row">
               <div className="form-group">
-                <label htmlFor="uf">Sigla do Estado *</label>
+                <label htmlFor="uf">Sigla *</label>
                 <input
                   id="uf"
                   type="text"

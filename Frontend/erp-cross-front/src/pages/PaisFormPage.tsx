@@ -80,7 +80,7 @@ export default function PaisFormPage() {
             <h2 className="form-section-title">Dados do País</h2>
 
             <div className="form-group">
-              <label htmlFor="nomePais">Nome do País *</label>
+              <label htmlFor="nomePais">País *</label>
               <input
                 id="nomePais"
                 type="text"

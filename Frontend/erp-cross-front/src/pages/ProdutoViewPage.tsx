@@ -54,7 +54,7 @@ export default function ProdutoViewPage() {
             </h2>
 
             <div className="view-group">
-              <span className="view-label">Nome</span>
+              <span className="view-label">Produto</span>
               <span className="view-value">{produto.nomeProduto}</span>
             </div>
 

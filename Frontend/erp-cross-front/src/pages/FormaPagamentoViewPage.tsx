@@ -48,7 +48,7 @@ export default function FormaPagamentoViewPage() {
             <h2 className="form-section-title">Dados da Forma de Pagamento</h2>
 
             <div className="view-group">
-              <span className="view-label">Nome</span>
+              <span className="view-label">Forma de Pagamento</span>
               <span className="view-value">{forma.nomeFormaPagamento}</span>
             </div>
 

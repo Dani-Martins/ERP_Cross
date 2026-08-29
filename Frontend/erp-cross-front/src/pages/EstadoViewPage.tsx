@@ -56,13 +56,13 @@ export default function EstadoViewPage() {
             <h2 className="form-section-title">Dados do Estado</h2>
 
             <div className="view-group">
-              <span className="view-label">Nome do Estado</span>
+              <span className="view-label">Estado</span>
               <span className="view-value">{estado.nomeEstado}</span>
             </div>
 
             <div className="form-row">
               <div className="view-group">
-                <span className="view-label">Sigla do Estado</span>
+                <span className="view-label">Sigla</span>
                 <span className="view-value">{estado.uf}</span>
               </div>
               <div className="view-group">

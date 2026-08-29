@@ -143,7 +143,7 @@ return (
           <div className="form-group">
 
             <label>
-              Nome da Marca *
+              Marca *
             </label>
 
             <input

@@ -140,7 +140,7 @@ return (
           </h2>
 
           <div className="form-group">
-            <label htmlFor="nomeUnidade">Nome da Unidade *</label>
+            <label htmlFor="nomeUnidade">Unidade de Medida *</label>
             <input
               id="nomeUnidade"
               type="text"

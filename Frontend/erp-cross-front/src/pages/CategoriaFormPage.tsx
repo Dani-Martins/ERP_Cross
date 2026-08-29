@@ -144,7 +144,7 @@ return (
           <div className="form-group">
 
             <label>
-              Nome da Categoria *
+              Categoria *
             </label>
 
             <input

@@ -52,7 +52,7 @@ export default function PaisCreateModal({ onCreated, onClose, zBase = 1100 }: Pr
         <form onSubmit={handleSave}>
           <div className="modal-form">
             <div className="form-group">
-              <label>Nome do País *</label>
+              <label>País *</label>
               <input
                 type="text"
                 placeholder="Ex: BRASIL"

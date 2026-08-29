@@ -46,7 +46,7 @@ export default function CidadeCreateModal({ onCreated, onClose, zBase = 1100 }: 
           <form onSubmit={handleSave}>
             <div className="modal-form">
               <div className="form-group">
-                <label>Nome da Cidade *</label>
+                <label>Cidade *</label>
                 <input
                   type="text"
                   placeholder="Ex: SÃO PAULO"

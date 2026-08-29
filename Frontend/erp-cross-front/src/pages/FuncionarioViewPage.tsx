@@ -99,7 +99,7 @@ export default function FuncionarioViewPage() {
 
               <span className="view-label">
 
-                Nome Completo
+                Funcionário
 
               </span>
 

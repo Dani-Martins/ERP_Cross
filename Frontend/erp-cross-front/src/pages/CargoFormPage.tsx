@@ -124,7 +124,7 @@ export default function CargoFormPage() {
             </h2>
 
             <div className="form-group">
-              <label htmlFor="nomeCargo">Nome do Cargo *</label>
+              <label htmlFor="nomeCargo">Cargo *</label>
               <input
                 id="nomeCargo"
                 type="text"

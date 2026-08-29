@@ -71,7 +71,7 @@ return (
           <div className="view-group">
 
             <span className="view-label">
-              Nome da Categoria
+              Categoria
             </span>
 
             <span className="view-value">

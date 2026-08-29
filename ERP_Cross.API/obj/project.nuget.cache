@@ -1,26 +1,26 @@
 {
   "version": 2,
-  "dgSpecHash": "tkZ4+vvnFWs=",
+  "dgSpecHash": "OzXqViLLrG4=",
   "success": true,
-  "projectFilePath": "D:\\DOCUMENTOS\\Documents\\ERP_Cross\\ERP_Cross.API\\ERP_Cross.API.csproj",
+  "projectFilePath": "C:\\Users\\USUARIO\\Documents\\ERP_Cross\\ERP_Cross.API\\ERP_Cross.API.csproj",
   "expectedPackageFiles": [
-    "C:\\Users\\DANIEL\\.nuget\\packages\\dapper\\2.1.72\\dapper.2.1.72.nupkg.sha512",
-    "C:\\Users\\DANIEL\\.nuget\\packages\\microsoft.extensions.apidescription.server\\10.0.0\\microsoft.extensions.apidescription.server.10.0.0.nupkg.sha512",
-    "C:\\Users\\DANIEL\\.nuget\\packages\\microsoft.openapi\\2.4.1\\microsoft.openapi.2.4.1.nupkg.sha512",
-    "C:\\Users\\DANIEL\\.nuget\\packages\\mysqlconnector\\2.5.0\\mysqlconnector.2.5.0.nupkg.sha512",
-    "C:\\Users\\DANIEL\\.nuget\\packages\\swashbuckle.aspnetcore\\10.1.7\\swashbuckle.aspnetcore.10.1.7.nupkg.sha512",
-    "C:\\Users\\DANIEL\\.nuget\\packages\\swashbuckle.aspnetcore.swagger\\10.1.7\\swashbuckle.aspnetcore.swagger.10.1.7.nupkg.sha512",
-    "C:\\Users\\DANIEL\\.nuget\\packages\\swashbuckle.aspnetcore.swaggergen\\10.1.7\\swashbuckle.aspnetcore.swaggergen.10.1.7.nupkg.sha512",
-    "C:\\Users\\DANIEL\\.nuget\\packages\\swashbuckle.aspnetcore.swaggerui\\10.1.7\\swashbuckle.aspnetcore.swaggerui.10.1.7.nupkg.sha512"
+    "C:\\Users\\USUARIO\\.nuget\\packages\\dapper\\2.1.72\\dapper.2.1.72.nupkg.sha512",
+    "C:\\Users\\USUARIO\\.nuget\\packages\\microsoft.extensions.apidescription.server\\10.0.0\\microsoft.extensions.apidescription.server.10.0.0.nupkg.sha512",
+    "C:\\Users\\USUARIO\\.nuget\\packages\\microsoft.openapi\\2.4.1\\microsoft.openapi.2.4.1.nupkg.sha512",
+    "C:\\Users\\USUARIO\\.nuget\\packages\\mysqlconnector\\2.5.0\\mysqlconnector.2.5.0.nupkg.sha512",
+    "C:\\Users\\USUARIO\\.nuget\\packages\\swashbuckle.aspnetcore\\10.1.7\\swashbuckle.aspnetcore.10.1.7.nupkg.sha512",
+    "C:\\Users\\USUARIO\\.nuget\\packages\\swashbuckle.aspnetcore.swagger\\10.1.7\\swashbuckle.aspnetcore.swagger.10.1.7.nupkg.sha512",
+    "C:\\Users\\USUARIO\\.nuget\\packages\\swashbuckle.aspnetcore.swaggergen\\10.1.7\\swashbuckle.aspnetcore.swaggergen.10.1.7.nupkg.sha512",
+    "C:\\Users\\USUARIO\\.nuget\\packages\\swashbuckle.aspnetcore.swaggerui\\10.1.7\\swashbuckle.aspnetcore.swaggerui.10.1.7.nupkg.sha512"
   ],
   "logs": [
     {
       "code": "NU1903",
       "level": "Warning",
       "message": "O pacote 'Microsoft.OpenApi' 2.4.1 tem uma alta vulnerabilidade de gravidade conhecida, https://github.com/advisories/GHSA-v5pm-xwqc-g5wc",
-      "projectPath": "D:\\DOCUMENTOS\\Documents\\ERP_Cross\\ERP_Cross.API\\ERP_Cross.API.csproj",
+      "projectPath": "C:\\Users\\USUARIO\\Documents\\ERP_Cross\\ERP_Cross.API\\ERP_Cross.API.csproj",
       "warningLevel": 1,
-      "filePath": "D:\\DOCUMENTOS\\Documents\\ERP_Cross\\ERP_Cross.API\\ERP_Cross.API.csproj",
+      "filePath": "C:\\Users\\USUARIO\\Documents\\ERP_Cross\\ERP_Cross.API\\ERP_Cross.API.csproj",
       "libraryId": "Microsoft.OpenApi",
       "targetGraphs": [
         "net10.0"

@@ -268,7 +268,7 @@ export default function ClienteFormPage() {
 
             <div className="form-row">
               <div className="form-group" style={{ gridColumn: 'span 2' }}>
-                <label htmlFor="nome">{form.pf ? 'Nome Completo *' : 'Razão Social *'}</label>
+                <label htmlFor="nome">{form.pf ? 'Cliente *' : 'Razão Social *'}</label>
                 <input
                   id="nome"
                   type="text"

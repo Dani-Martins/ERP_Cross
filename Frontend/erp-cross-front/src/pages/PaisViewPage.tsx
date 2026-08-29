@@ -60,7 +60,7 @@ export default function PaisViewPage() {
             <h2 className="form-section-title">Dados do País</h2>
 
             <div className="view-group">
-              <span className="view-label">Nome do País</span>
+              <span className="view-label">País</span>
               <span className="view-value">{pais.nomePais}</span>
             </div>
 

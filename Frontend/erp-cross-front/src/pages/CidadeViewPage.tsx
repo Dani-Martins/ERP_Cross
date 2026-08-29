@@ -56,7 +56,7 @@ export default function CidadeViewPage() {
             <h2 className="form-section-title">Dados da Cidade</h2>
 
             <div className="view-group">
-              <span className="view-label">Nome da Cidade</span>
+              <span className="view-label">Cidade</span>
               <span className="view-value">{cidade.nomeCidade}</span>
             </div>
 
