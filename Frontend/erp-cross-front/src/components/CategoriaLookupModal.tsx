@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
-import { X, Search } from 'lucide-react';
+import { X, Search, Plus } from 'lucide-react';
 import { CategoriaService } from '../services/categoriaService';
 import type { CategoriaView } from '../types/entities';
+import CategoriaCreateModal from './CategoriaCreateModal';
 import '../pages/PaisesPage.css';
 
 interface Props {
@@ -14,6 +15,7 @@ export default function CategoriaLookupModal({ onSelect, onClose, zBase = 1000 }
   const [all, setAll] = useState<CategoriaView[]>([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
+  const [showCreate, setShowCreate] = useState(false);
 
   useEffect(() => {
     CategoriaService.getAll()
@@ -27,8 +29,14 @@ export default function CategoriaLookupModal({ onSelect, onClose, zBase = 1000 }
       )
     : all;
 
+  function handleCreated(id: number, nome: string) {
+    setShowCreate(false);
+    onSelect(id, nome);
+  }
+
   return (
-    <div className="modal-overlay" style={{ zIndex: zBase }} onClick={onClose}>
+    <>
+      <div className="modal-overlay" style={{ zIndex: zBase }} onClick={onClose}>
       <div className="modal modal-lookup" onClick={e => e.stopPropagation()}>
         <div className="modal-header">
           <h2>Selecionar Categoria</h2>
@@ -75,9 +83,19 @@ export default function CategoriaLookupModal({ onSelect, onClose, zBase = 1000 }
           )}
         </div>
         <div className="modal-footer">
+          <button className="btn-primary" type="button" onClick={() => setShowCreate(true)}>
+            <Plus size={15} /> Nova Categoria
+          </button>
           <button className="btn-secondary" type="button" onClick={onClose}>Fechar</button>
         </div>
       </div>
     </div>
-  );
+    {showCreate && (
+      <CategoriaCreateModal
+        onCreated={handleCreated}
+        onClose={() => setShowCreate(false)}
+        zBase={zBase + 100}
+      />
+    )}
+  </>);
 }

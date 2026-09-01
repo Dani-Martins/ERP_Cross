@@ -29,150 +29,68 @@ export default function UnidadeMedidaViewPage() {
   if (loading) {
     return (
       <div className="page-container">
-        <div className="table-loading">
-          Carregando...
-        </div>
+        <div className="table-loading">Carregando...</div>
       </div>
     );
   }
 
-  if (!unidade)
-    return null;
+  if (!unidade) return null;
+
   return (
     <div className="page-container">
-
+      {/* Cabeçalho */}
       <div className="page-header">
-
         <div className="page-title-area">
-          <Ruler
-            size={24}
-            className="page-title-icon"
-          />
-
-          <h1 className="page-title">
-            Visualizar Unidade de Medida
-          </h1>
-
+          <Ruler size={24} className="page-title-icon" />
+          <h1 className="page-title">Visualizar Unidade de Medida</h1>
         </div>
-
       </div>
 
+      {/* Dados */}
       <div className="form-card">
-
         <div className="form-page">
-
           <div className="form-section">
-
-            <h2 className="form-section-title">
-              Dados da Unidade
-            </h2>
+            <h2 className="form-section-title">Dados da Unidade</h2>
 
             <div className="view-group">
-
-              <span className="view-label">
-                Unidade de Medida
-              </span>
-
-              <span className="view-value">
-                {unidade.nomeUnidade}
-              </span>
-
+              <span className="view-label">Unidade de Medida</span>
+              <span className="view-value">{unidade.nomeUnidade}</span>
             </div>
 
             <div className="view-group">
-
-              <span className="view-label">
-                Sigla
-              </span>
-
-              <span className="view-value">
-                {unidade.sigla || '—'}
-              </span>
-
+              <span className="view-label">Sigla</span>
+              <span className="view-value">{unidade.sigla || '—'}</span>
             </div>
 
             <div className="view-group">
-
-              <span className="view-label">
-                Status
+              <span className="view-label">Status</span>
+              <span className={`status-badge ${unidade.ativo ? 'status-active' : 'status-inactive'}`}>
+                {unidade.ativo ? 'Ativo' : 'Inativo'}
               </span>
-
-              <span
-                className={`status-badge ${
-                  unidade.ativo
-                    ? 'status-active'
-                    : 'status-inactive'
-                }`}
-              >
-                {unidade.ativo
-                  ? 'Ativo'
-                  : 'Inativo'}
-              </span>
-
             </div>
 
-          </div>
-                    <div className="form-section view-dates">
-
-            <h2 className="form-section-title">
-              Informações do Sistema
-            </h2>
-
-            <div className="form-row">
-
+            <div className="form-row view-dates">
               <div className="view-group">
-
-                <span className="view-label">
-                  Criado em
-                </span>
-
-                <span className="view-value view-muted">
-                  {formatDate(unidade.dataCriacao)}
-                </span>
-
+                <span className="view-label">Criado em</span>
+                <span className="view-value view-muted">{formatDate(unidade.dataCriacao)}</span>
               </div>
-
               <div className="view-group">
-
-                <span className="view-label">
-                  Atualizado em
-                </span>
-
-                <span className="view-value view-muted">
-                  {formatDate(unidade.dataAtualizacao)}
-                </span>
-
+                <span className="view-label">Atualizado em</span>
+                <span className="view-value view-muted">{formatDate(unidade.dataAtualizacao)}</span>
               </div>
-
             </div>
-
           </div>
 
           <div className="form-page-footer">
-
-            <button
-              className="btn-primary"
-              onClick={() =>
-                navigate(`/unidades/editar/${unidade.id}`)
-              }
-            >
-              <Pencil size={15} />
-              Editar
+            <button className="btn-primary" onClick={() => navigate(`/unidades/editar/${unidade.id}`)}>
+              <Pencil size={15} /> Editar
             </button>
-
-            <button
-              className="btn-secondary"
-              onClick={() => navigate('/unidades')}
-            >
-              Voltar
+            <button className="btn-secondary" onClick={() => navigate('/unidades')}>
+              Cancelar
             </button>
-
           </div>
-
         </div>
-
       </div>
-
     </div>
   );
 }

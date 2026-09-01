@@ -35,6 +35,7 @@ export default function FormaPagamentoViewPage() {
 
   return (
     <div className="page-container">
+      {/* Cabeçalho */}
       <div className="page-header">
         <div className="page-title-area">
           <CreditCard size={24} className="page-title-icon" />
@@ -42,6 +43,7 @@ export default function FormaPagamentoViewPage() {
         </div>
       </div>
 
+      {/* Dados */}
       <div className="form-card">
         <div className="form-page">
           <div className="form-section">
@@ -66,11 +68,8 @@ export default function FormaPagamentoViewPage() {
                 </span>
               </div>
             </div>
-          </div>
 
-          <div className="form-section view-dates">
-            <h2 className="form-section-title">Informações do Sistema</h2>
-            <div className="form-row">
+            <div className="form-row view-dates">
               <div className="view-group">
                 <span className="view-label">Criado em</span>
                 <span className="view-value view-muted">{formatDate(forma.dataCriacao)}</span>

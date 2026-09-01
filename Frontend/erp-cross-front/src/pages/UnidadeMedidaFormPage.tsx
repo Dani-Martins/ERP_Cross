@@ -45,188 +45,103 @@ export default function UnidadeMedidaFormPage() {
       .finally(() => setLoading(false));
 
   }, [id, isEdit, navigate]);
+
   async function handleSave(e: React.FormEvent) {
-  e.preventDefault();
+    e.preventDefault();
+    if (!form.nomeUnidade.trim()) { setError('Nome da unidade é obrigatório.'); return; }
 
-  if (!form.nomeUnidade.trim()) {
-    setError('Nome da unidade é obrigatório.');
-    return;
+    setSaving(true);
+    setError('');
+    try {
+      if (isEdit) {
+        await UnidadeMedidaService.update(Number(id), form);
+      } else {
+        await UnidadeMedidaService.create(form);
+      }
+      navigate('/unidades');
+    } catch (err) {
+      const axiosErr = err as AxiosError<{ message: string }>;
+      if (axiosErr.response?.status === 409) {
+        setError(axiosErr.response.data?.message ?? 'Já existe uma unidade de medida com esse nome.');
+      } else {
+        setError('Erro ao salvar a unidade de medida.');
+      }
+      setSaving(false);
+    }
   }
 
-  setSaving(true);
-  setError('');
-
-  try {
-
-    if (isEdit) {
-
-      await UnidadeMedidaService.update(
-        Number(id),
-        form
-      );
-
-    } else {
-
-      await UnidadeMedidaService.create(form);
-
-    }
-
-    navigate('/unidades');
-
-  } catch (err) {
-
-    const axiosErr =
-      err as AxiosError<{ message: string }>;
-
-    if (axiosErr.response?.status === 409) {
-
-      setError(
-        axiosErr.response.data?.message ??
-        'Já existe uma unidade de medida com esse nome.'
-      );
-
-    } else {
-
-      setError(
-        'Erro ao salvar a unidade de medida.'
-      );
-
-    }
-
-    setSaving(false);
+  if (loading) {
+    return (
+      <div className="page-container">
+        <div className="table-loading">Carregando...</div>
+      </div>
+    );
   }
-}
 
-if (loading) {
   return (
+    <>
     <div className="page-container">
-      <div className="table-loading">
-        Carregando...
-      </div>
-    </div>
-  );
-}
-return (
-  <div className="page-container">
-
-    <div className="page-header">
-
-      <div className="page-title-area">
-        <Ruler
-          size={24}
-          className="page-title-icon"
-        />
-
-        <h1 className="page-title">
-          {isEdit
-            ? 'Editar Unidade de Medida'
-            : 'Nova Unidade de Medida'}
-        </h1>
+      <div className="page-header">
+        <div className="page-title-area">
+          <Ruler size={24} className="page-title-icon" />
+          <h1 className="page-title">{isEdit ? 'Editar Unidade de Medida' : 'Nova Unidade de Medida'}</h1>
+        </div>
       </div>
 
-    </div>
+      <div className="form-card">
+        <form onSubmit={handleSave} className="form-page">
+          <div className="form-section">
+            <h2 className="form-section-title">Dados da Unidade</h2>
 
-    <div className="form-card">
-
-      <form
-        onSubmit={handleSave}
-        className="form-page"
-      >
-
-        <div className="form-section">
-
-          <h2 className="form-section-title">
-            Dados da Unidade
-          </h2>
-
-          <div className="form-group">
-            <label htmlFor="nomeUnidade">Unidade de Medida *</label>
-            <input
-              id="nomeUnidade"
-              type="text"
-              placeholder="Ex: QUILOGRAMA"
-              value={form.nomeUnidade}
-              onChange={e =>
-                setForm({
-                  ...form,
-                  nomeUnidade: e.target.value.toUpperCase()
-                })
-              }
-              autoFocus
-            />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="sigla">Sigla</label>
-            <input
-              id="sigla"
-              type="text"
-              placeholder="Ex: KG"
-              maxLength={10}
-              value={form.sigla ?? ''}
-              onChange={e =>
-                setForm({
-                  ...form,
-                  sigla: e.target.value.toUpperCase()
-                })
-              }
-            />
-          </div>
-
-          <div className="form-group checkbox-group">
-
-            <label>
-
+            <div className="form-group">
+              <label htmlFor="nomeUnidade">Unidade de Medida *</label>
               <input
-                type="checkbox"
-                checked={form.ativo}
-                onChange={e =>
-                  setForm({
-                    ...form,
-                    ativo: e.target.checked
-                  })
-                }
+                id="nomeUnidade"
+                type="text"
+                placeholder="Ex: QUILOGRAMA"
+                value={form.nomeUnidade}
+                onChange={e => setForm({ ...form, nomeUnidade: e.target.value.toUpperCase() })}
+                autoFocus
               />
-
-              Ativo
-
-            </label>
-
-          </div>
-                    {error && (
-            <div className="form-error">
-              {error}
             </div>
-          )}
 
-        </div>
+            <div className="form-group">
+              <label htmlFor="sigla">Sigla</label>
+              <input
+                id="sigla"
+                type="text"
+                placeholder="Ex: KG"
+                maxLength={10}
+                value={form.sigla ?? ''}
+                onChange={e => setForm({ ...form, sigla: e.target.value.toUpperCase() })}
+              />
+            </div>
 
-        <div className="form-page-footer">
+            <div className="form-group form-check">
+              <label>
+                <input
+                  type="checkbox"
+                  checked={form.ativo}
+                  onChange={e => setForm({ ...form, ativo: e.target.checked })}
+                />
+                Ativo
+              </label>
+            </div>
+          </div>
 
-          <button
-            type="submit"
-            className="btn-primary"
-            disabled={saving}
-          >
-            {saving
-              ? 'Salvando...'
-              : 'Salvar'}
-          </button>
+          {error && <p className="form-error">{error}</p>}
 
-          <button
-            type="button"
-            className="btn-secondary"
-            onClick={() => navigate('/unidades')}
-          >
-            Cancelar
-          </button>
-
-        </div>
-
-      </form>
-
+          <div className="form-page-footer">
+            <button type="submit" className="btn-primary" disabled={saving}>
+              {saving ? 'Salvando...' : 'Salvar'}
+            </button>
+            <button type="button" className="btn-secondary" onClick={() => navigate('/unidades')}>
+              Cancelar
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
-
-  </div>
-);
+    </>
+  );
 }

@@ -190,8 +190,6 @@ export interface ClienteView {
   pf: boolean;
   dataNascimento?: string;
   sexo?: string;
-  idCondicaoPagamento?: number;
-  nomeCondicaoPagamento?: string;
   limiteCredito: number;
   funcionalKids: boolean;
   nomeResponsavel?: string;
@@ -219,7 +217,6 @@ export interface ClienteCreate {
   pf: boolean;
   dataNascimento?: string;
   sexo?: string;
-  idCondicaoPagamento?: number;
   limiteCredito: number;
   funcionalKids: boolean;
   nomeResponsavel?: string;

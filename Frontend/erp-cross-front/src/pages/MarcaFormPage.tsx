@@ -45,193 +45,102 @@ export default function MarcaFormPage() {
       .finally(() => setLoading(false));
 
   }, [id, isEdit, navigate]);
+
   async function handleSave(e: React.FormEvent) {
-  e.preventDefault();
+    e.preventDefault();
+    if (!form.nomeMarca.trim()) { setError('Nome da marca é obrigatório.'); return; }
 
-  if (!form.nomeMarca.trim()) {
-    setError('Nome da marca é obrigatório.');
-    return;
+    setSaving(true);
+    setError('');
+    try {
+      if (isEdit) {
+        await MarcaService.update(Number(id), form);
+      } else {
+        await MarcaService.create(form);
+      }
+      navigate('/marcas');
+    } catch (err) {
+      const axiosErr = err as AxiosError<{ message: string }>;
+      if (axiosErr.response?.status === 409) {
+        setError(axiosErr.response.data?.message ?? 'Já existe uma marca com esse nome.');
+      } else {
+        setError('Erro ao salvar a marca.');
+      }
+      setSaving(false);
+    }
   }
 
-  setSaving(true);
-  setError('');
-
-  try {
-
-    if (isEdit) {
-
-      await MarcaService.update(
-        Number(id),
-        form
-      );
-
-    } else {
-
-      await MarcaService.create(form);
-
-    }
-
-    navigate('/marcas');
-
-  } catch (err) {
-
-    const axiosErr =
-      err as AxiosError<{ message: string }>;
-
-    if (axiosErr.response?.status === 409) {
-
-      setError(
-        axiosErr.response.data?.message ??
-        'Já existe uma marca com esse nome.'
-      );
-
-    } else {
-
-      setError(
-        'Erro ao salvar a marca.'
-      );
-
-    }
-
-    setSaving(false);
+  if (loading) {
+    return (
+      <div className="page-container">
+        <div className="table-loading">Carregando...</div>
+      </div>
+    );
   }
-}
 
-if (loading) {
   return (
+    <>
     <div className="page-container">
-      <div className="table-loading">
-        Carregando...
-      </div>
-    </div>
-  );
-}
-return (
-  <div className="page-container">
-
-    <div className="page-header">
-
-      <div className="page-title-area">
-        <Badge
-          size={24}
-          className="page-title-icon"
-        />
-
-        <h1 className="page-title">
-          {isEdit
-            ? 'Editar Marca'
-            : 'Nova Marca'}
-        </h1>
-
+      <div className="page-header">
+        <div className="page-title-area">
+          <Badge size={24} className="page-title-icon" />
+          <h1 className="page-title">{isEdit ? 'Editar Marca' : 'Nova Marca'}</h1>
+        </div>
       </div>
 
-    </div>
+      <div className="form-card">
+        <form onSubmit={handleSave} className="form-page">
+          <div className="form-section">
+            <h2 className="form-section-title">Dados da Marca</h2>
 
-    <div className="form-card">
-
-      <form
-        onSubmit={handleSave}
-        className="form-page"
-      >
-
-        <div className="form-section">
-
-          <h2 className="form-section-title">
-            Dados da Marca
-          </h2>
-
-          <div className="form-group">
-
-            <label>
-              Marca *
-            </label>
-
-            <input
-              type="text"
-              value={form.nomeMarca}
-              onChange={e =>
-                setForm({
-                  ...form,
-                  nomeMarca: e.target.value.toUpperCase()
-                })
-              }
-            />
-
-          </div>
-
-          <div className="form-group">
-
-            <label>
-              Descrição
-            </label>
-
-            <textarea
-              rows={4}
-              value={form.descricao ?? ''}
-              onChange={e =>
-                setForm({
-                  ...form,
-                  descricao: e.target.value.toUpperCase()
-                })
-              }
-            />
-
-          </div>
-
-          <div className="form-group checkbox-group">
-
-            <label>
-
+            <div className="form-group">
+              <label htmlFor="nomeMarca">Marca *</label>
               <input
-                type="checkbox"
-                checked={form.ativo}
-                onChange={e =>
-                  setForm({
-                    ...form,
-                    ativo: e.target.checked
-                  })
-                }
+                id="nomeMarca"
+                type="text"
+                placeholder="Ex: SAMSUNG"
+                value={form.nomeMarca}
+                onChange={e => setForm({ ...form, nomeMarca: e.target.value.toUpperCase() })}
+                autoFocus
               />
-
-              Ativo
-
-            </label>
-
-          </div>
-                    {error && (
-            <div className="form-error">
-              {error}
             </div>
-          )}
 
-        </div>
+            <div className="form-group">
+              <label htmlFor="descricao">Descrição</label>
+              <textarea
+                id="descricao"
+                rows={4}
+                placeholder="Ex: Fabricante de eletrônicos"
+                value={form.descricao ?? ''}
+                onChange={e => setForm({ ...form, descricao: e.target.value.toUpperCase() })}
+              />
+            </div>
 
-        <div className="form-page-footer">
+            <div className="form-group form-check">
+              <label>
+                <input
+                  type="checkbox"
+                  checked={form.ativo}
+                  onChange={e => setForm({ ...form, ativo: e.target.checked })}
+                />
+                Ativo
+              </label>
+            </div>
+          </div>
 
-          <button
-            type="submit"
-            className="btn-primary"
-            disabled={saving}
-          >
-            {saving
-              ? 'Salvando...'
-              : 'Salvar'}
-          </button>
+          {error && <p className="form-error">{error}</p>}
 
-          <button
-            type="button"
-            className="btn-secondary"
-            onClick={() => navigate('/marcas')}
-          >
-            Cancelar
-          </button>
-
-        </div>
-
-      </form>
-
+          <div className="form-page-footer">
+            <button type="submit" className="btn-primary" disabled={saving}>
+              {saving ? 'Salvando...' : 'Salvar'}
+            </button>
+            <button type="button" className="btn-secondary" onClick={() => navigate('/marcas')}>
+              Cancelar
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
-
-  </div>
-);
+    </>
+  );
 }

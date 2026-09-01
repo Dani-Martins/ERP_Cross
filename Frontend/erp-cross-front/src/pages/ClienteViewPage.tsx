@@ -182,20 +182,21 @@ export default function ClienteViewPage() {
           </div>
 
           {/* Dados Comerciais */}
-          <div className="form-section">
-            <h2 className="form-section-title">Dados Comerciais</h2>
-            <div className="view-group">
-              <span className="view-label">Condição de Pagamento</span>
-              <span className="view-value">{cliente.nomeCondicaoPagamento || '—'}</span>
-            </div>
-            {cliente.observacao && (
+          {cliente.observacao && (
+            <div className="form-section">
+              <h2 className="form-section-title">Dados Comerciais</h2>
               <div className="view-group">
                 <span className="view-label">Observação</span>
                 <span className="view-value" style={{ whiteSpace: 'pre-wrap' }}>{cliente.observacao}</span>
               </div>
-            )}
+            </div>
+          )}
+
+          {/* Status */}
+          <div className="form-section">
+            <h2 className="form-section-title">Status</h2>
             <div className="view-group">
-              <span className="view-label">Status</span>
+              <span className="view-label">Situação</span>
               <span className={`status-badge ${cliente.ativo ? 'status-active' : 'status-inactive'}`}>
                 {cliente.ativo ? 'Ativo' : 'Inativo'}
               </span>

@@ -5,7 +5,6 @@ import { ClienteService } from '../services/clienteService';
 import type { ClienteCreate } from '../types/entities';
 import type { AxiosError } from 'axios';
 import CidadeLookupModal from '../components/CidadeLookupModal';
-import CondicaoPagamentoLookupModal from '../components/CondicaoPagamentoLookupModal';
 import { formatCPF, validateCPF, formatCNPJ, validateCNPJ, formatRG, validateRG, formatIE, validateIE, formatPhone, formatCEP } from '../utils/formatting';
 import { CidadeService } from '../services/cidadeService';
 import './PaisesPage.css';
@@ -44,7 +43,7 @@ const EMPTY: ClienteCreate = {
   contato2: '', celular: '', email: '',
   cep: '', endereco: '', numero: '', complemento: '', bairro: '',
   idCidade: 0, pf: true, dataNascimento: '', sexo: '',
-  idCondicaoPagamento: undefined, limiteCredito: 0, funcionalKids: false,
+  limiteCredito: 0, funcionalKids: false,
   nomeResponsavel: '', cpfResponsavel: '', parentescoResponsavel: '', observacao: '', ativo: true,
 };
 
@@ -55,13 +54,11 @@ export default function ClienteFormPage() {
 
   const [form, setForm] = useState<ClienteCreate>(EMPTY);
   const [nomeCidade, setNomeCidade] = useState('');
-  const [nomeCondicao, setNomeCondicao] = useState('');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [buscandoCEP, setBuscandoCEP] = useState(false);
   const [showCidadeModal, setShowCidadeModal] = useState(false);
-  const [showCondicaoModal, setShowCondicaoModal] = useState(false);
 
   useEffect(() => {
     if (isEdit) {
@@ -76,14 +73,12 @@ export default function ClienteFormPage() {
             complemento: c.complemento ?? '', bairro: c.bairro ?? '',
             idCidade: c.idCidade, pf: c.pf,
             dataNascimento: toInputDate(c.dataNascimento), sexo: c.sexo ?? '',
-            idCondicaoPagamento: c.idCondicaoPagamento ?? undefined,
             funcionalKids: c.funcionalKids, ativo: c.ativo,
             limiteCredito: c.limiteCredito ?? 0,
             nomeResponsavel: c.nomeResponsavel ?? '', cpfResponsavel: c.cpfResponsavel ?? '',
             parentescoResponsavel: c.parentescoResponsavel ?? '', observacao: c.observacao ?? '',
           });
           setNomeCidade(c.nomeCidade ?? '');
-          setNomeCondicao(c.nomeCondicaoPagamento ?? '');
         })
         .catch(() => navigate('/clientes'))
         .finally(() => setLoading(false));
@@ -169,7 +164,6 @@ export default function ClienteFormPage() {
     if (!form.numero?.trim()) { setError('Número é obrigatório.'); return; }
     if (!form.bairro?.trim()) { setError('Bairro é obrigatório.'); return; }
     if (!form.idCidade) { setError('Cidade é obrigatória.'); return; }
-    if (!form.idCondicaoPagamento) { setError('Condição de Pagamento é obrigatória.'); return; }
 
     setSaving(true);
     setError('');
@@ -188,7 +182,6 @@ export default function ClienteFormPage() {
         bairro: form.bairro || undefined,
         dataNascimento: form.dataNascimento || undefined,
         sexo: form.sexo || undefined,
-        idCondicaoPagamento: form.idCondicaoPagamento || undefined,
         nomeResponsavel: form.nomeResponsavel || undefined,
         cpfResponsavel: form.cpfResponsavel || undefined,
         parentescoResponsavel: form.parentescoResponsavel || undefined,
@@ -589,35 +582,6 @@ export default function ClienteFormPage() {
           <div className="form-section">
             <h2 className="form-section-title">Dados Comerciais</h2>
               <div className="form-group">
-                <label>Condição de Pagamento *</label>
-                <div className="lookup-field">
-                  <input
-                    type="text"
-                    readOnly
-                    placeholder="Selecione uma condição..."
-                    value={nomeCondicao}
-                    className="lookup-input"
-                  />
-                  <button
-                    type="button"
-                    className="btn-lookup"
-                    onClick={() => setShowCondicaoModal(true)}
-                    title="Pesquisar condição de pagamento"
-                  >
-                    <Search size={16} />
-                  </button>
-                </div>
-                {nomeCondicao && (
-                  <button
-                    type="button"
-                    onClick={() => { setNomeCondicao(''); setForm(prev => ({ ...prev, idCondicaoPagamento: undefined })); }}
-                    style={{ alignSelf: 'flex-start', marginTop: 4, fontSize: '0.75rem', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}
-                  >
-                    ✕ Remover condição
-                  </button>
-                )}
-              </div>
-              <div className="form-group">
                 <label htmlFor="observacao">Observação</label>
                 <textarea
                   id="observacao"
@@ -662,16 +626,6 @@ export default function ClienteFormPage() {
           setShowCidadeModal(false);
         }}
         onClose={() => setShowCidadeModal(false)}
-      />
-    )}
-    {showCondicaoModal && (
-      <CondicaoPagamentoLookupModal
-        onSelect={(condicaoId, condicaoNome) => {
-          setForm(prev => ({ ...prev, idCondicaoPagamento: condicaoId }));
-          setNomeCondicao(condicaoNome);
-          setShowCondicaoModal(false);
-        }}
-        onClose={() => setShowCondicaoModal(false)}
       />
     )}
     </>

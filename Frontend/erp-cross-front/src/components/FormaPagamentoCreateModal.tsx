@@ -1,0 +1,89 @@
+import { useState } from 'react';
+import { X } from 'lucide-react';
+import { FormaPagamentoService } from '../services/formaPagamentoService';
+import type { FormaPagamentoCreate } from '../types/entities';
+import type { AxiosError } from 'axios';
+import '../pages/PaisesPage.css';
+
+interface Props {
+  onCreated: (id: number, nome: string) => void;
+  onClose: () => void;
+  zBase?: number;
+}
+
+export default function FormaPagamentoCreateModal({ onCreated, onClose, zBase = 1100 }: Props) {
+  const [form, setForm] = useState<FormaPagamentoCreate>({ nomeFormaPagamento: '', aceitaParcela: false, ativo: true });
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
+
+  async function handleSave(e: React.FormEvent) {
+    e.preventDefault();
+    if (!form.nomeFormaPagamento.trim()) { setError('Nome da forma de pagamento é obrigatório.'); return; }
+
+    setSaving(true);
+    setError('');
+    try {
+      const res = await FormaPagamentoService.create(form);
+      onCreated(res.data.id, res.data.nomeFormaPagamento);
+    } catch (err) {
+      const axiosErr = err as AxiosError<{ message: string }>;
+      if (axiosErr.response?.status === 409) {
+        setError(axiosErr.response.data?.message ?? 'Forma de pagamento já cadastrada.');
+      } else {
+        setError('Erro ao salvar. Verifique os dados e tente novamente.');
+      }
+      setSaving(false);
+    }
+  }
+
+  return (
+    <div className="modal-overlay" style={{ zIndex: zBase }} onClick={onClose}>
+      <div className="modal modal-sm" onClick={e => e.stopPropagation()}>
+        <div className="modal-header">
+          <h2>Nova Forma de Pagamento</h2>
+          <button className="modal-close" onClick={onClose}><X size={18} /></button>
+        </div>
+        <form onSubmit={handleSave}>
+          <div className="modal-form">
+            <div className="form-group">
+              <label htmlFor="nomeFormaPagamento">Forma de Pagamento *</label>
+              <input
+                id="nomeFormaPagamento"
+                type="text"
+                placeholder="Ex: Cartão de Débito"
+                value={form.nomeFormaPagamento}
+                onChange={e => setForm({ ...form, nomeFormaPagamento: e.target.value })}
+                autoFocus
+              />
+            </div>
+            <div className="form-group form-check">
+              <label>
+                <input
+                  type="checkbox"
+                  checked={form.aceitaParcela}
+                  onChange={e => setForm({ ...form, aceitaParcela: e.target.checked })}
+                />
+                Aceita Parcelamento
+              </label>
+            </div>
+            <div className="form-group form-check">
+              <label>
+                <input
+                  type="checkbox"
+                  checked={form.ativo}
+                  onChange={e => setForm({ ...form, ativo: e.target.checked })}
+                />
+                Ativo
+              </label>
+            </div>
+            {error && <p className="form-error">{error}</p>}
+          </div>
+          <div className="modal-footer">
+            <button type="submit" className="btn-primary" disabled={saving}>{saving ? 'Salvando...' : 'Salvar'}</button>
+            <button type="button" className="btn-secondary" onClick={onClose}>Cancelar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}

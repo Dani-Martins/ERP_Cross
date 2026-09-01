@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
-import { X, Search } from 'lucide-react';
+import { X, Search, Plus } from 'lucide-react';
 import { UnidadeMedidaService } from '../services/unidadeMedidaService';
 import type { UnidadeMedidaView } from '../types/entities';
+import UnidadeMedidaCreateModal from './UnidadeMedidaCreateModal';
 import '../pages/PaisesPage.css';
 
 interface Props {
@@ -14,6 +15,7 @@ export default function UnidadeMedidaLookupModal({ onSelect, onClose, zBase = 10
   const [all, setAll] = useState<UnidadeMedidaView[]>([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
+  const [showCreate, setShowCreate] = useState(false);
 
   useEffect(() => {
     UnidadeMedidaService.getAll()
@@ -28,8 +30,14 @@ export default function UnidadeMedidaLookupModal({ onSelect, onClose, zBase = 10
       )
     : all;
 
+  function handleCreated(id: number, nome: string) {
+    setShowCreate(false);
+    onSelect(id, nome);
+  }
+
   return (
-    <div className="modal-overlay" style={{ zIndex: zBase }} onClick={onClose}>
+    <>
+      <div className="modal-overlay" style={{ zIndex: zBase }} onClick={onClose}>
       <div className="modal modal-lookup" onClick={e => e.stopPropagation()}>
         <div className="modal-header">
           <h2>Selecionar Unidade de Medida</h2>
@@ -78,9 +86,19 @@ export default function UnidadeMedidaLookupModal({ onSelect, onClose, zBase = 10
           )}
         </div>
         <div className="modal-footer">
+          <button className="btn-primary" type="button" onClick={() => setShowCreate(true)}>
+            <Plus size={15} /> Nova Unidade de Medida
+          </button>
           <button className="btn-secondary" type="button" onClick={onClose}>Fechar</button>
         </div>
       </div>
     </div>
-  );
+    {showCreate && (
+      <UnidadeMedidaCreateModal
+        onCreated={handleCreated}
+        onClose={() => setShowCreate(false)}
+        zBase={zBase + 100}
+      />
+    )}
+  </>);
 }

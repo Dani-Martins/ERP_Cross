@@ -200,17 +200,6 @@ export default function ContaReceberFormPage() {
                     </div>
                   </div>
 
-                  {selectedCliente && !selectedCliente.idCondicaoPagamento && (
-                    <p style={{ color: '#d97706', margin: '8px 0' }}>
-                      ⚠️ Este cliente não possui condição de pagamento definida. Cadastre-a no perfil do cliente.
-                    </p>
-                  )}
-                  {selectedCliente && selectedCliente.idCondicaoPagamento && parcelasCondicao.length === 0 && (
-                    <p style={{ color: '#d97706', margin: '8px 0' }}>
-                      ⚠️ A condição de pagamento deste cliente não possui parcelas cadastradas.
-                    </p>
-                  )}
-
                   {selectedCliente && (
                     <div className="form-group">
                       <label>Condição de Pagamento</label>
@@ -477,13 +466,8 @@ export default function ContaReceberFormPage() {
                             setForm(prev => ({ ...prev, clienteId: c.id }));
                             setShowClienteLookup(false);
                             setClienteSearch('');
-                            if (c.idCondicaoPagamento) {
-                              setSelectedCondicaoId(c.idCondicaoPagamento);
-                              await carregarParcelas(c.idCondicaoPagamento);
-                            } else {
-                              setSelectedCondicaoId(undefined);
-                              setParcelasCondicao([]);
-                            }
+                            setSelectedCondicaoId(undefined);
+                            setParcelasCondicao([]);
                           }}>Selecionar</button>
                         </td>
                       </tr>
