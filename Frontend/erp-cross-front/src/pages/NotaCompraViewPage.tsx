@@ -110,6 +110,16 @@ export default function NotaCompraViewPage() {
 
               <div className="view-group">
                 <span className="view-label">
+                  Data de Chegada
+                </span>
+
+                <span className="view-value">
+                  {nota.dataChegada ? formatDate(nota.dataChegada) : '—'}
+                </span>
+              </div>
+
+              <div className="view-group">
+                <span className="view-label">
                   Chave de Acesso
                 </span>
 

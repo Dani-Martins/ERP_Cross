@@ -4,7 +4,8 @@ import { TrendingDown, Search } from 'lucide-react';
 import { ContaPagarService } from '../services/contasService';
 import { FornecedorService } from '../services/fornecedorService';
 import { FormaPagamentoService } from '../services/formaPagamentoService';
-import type { ContaPagarCreate, FornecedorView, FormaPagamentoView } from '../types/entities';
+import type { ContaPagarCreate, FornecedorView, FormaPagamentoView, NotaCompraView } from '../types/entities';
+import NotaCompraLookupModal from '../components/NotaCompraLookupModal';
 import type { AxiosError } from 'axios';
 import CurrencyInput from '../components/CurrencyInput';
 import './PaisesPage.css';
@@ -29,10 +30,12 @@ export default function ContaPagarFormPage() {
   const [form, setForm] = useState<ContaPagarCreate>(EMPTY);
   const [selectedFornecedor, setSelectedFornecedor] = useState<FornecedorView | null>(null);
   const [selectedForma, setSelectedForma] = useState<FormaPagamentoView | null>(null);
+  const [selectedNotaCompra, setSelectedNotaCompra] = useState<NotaCompraView | null>(null);
   const [fornecedores, setFornecedores] = useState<FornecedorView[]>([]);
   const [formas, setFormas] = useState<FormaPagamentoView[]>([]);
   const [showFornecedorLookup, setShowFornecedorLookup] = useState(false);
   const [showFormaLookup, setShowFormaLookup] = useState(false);
+  const [showNotaCompraLookup, setShowNotaCompraLookup] = useState(false);
   const [fornecedorSearch, setFornecedorSearch] = useState('');
   const [formaSearch, setFormaSearch] = useState('');
   const fornecedorSearchRef = useRef<HTMLInputElement>(null);
@@ -87,6 +90,33 @@ export default function ContaPagarFormPage() {
     f.nomeFormaPagamento.toLowerCase().includes(formaSearch.toLowerCase())
   );
 
+  function handleNotaCompraSelected(nota: NotaCompraView) {
+    setSelectedNotaCompra(nota);
+    setSelectedFornecedor({ id: nota.fornecedorId, nome: nota.nomeFornecedor ?? '' } as FornecedorView);
+    setForm(prev => ({
+      ...prev,
+      notaCompraId: nota.id,
+      fornecedorId: nota.fornecedorId,
+      modelo: nota.modelo,
+      serie: nota.serie,
+      numeroNota: nota.numeroNota,
+      dataEmissao: isoDate(nota.dataEmissao),
+    }));
+    setShowNotaCompraLookup(false);
+  }
+
+  function handleLimparNota() {
+    setSelectedNotaCompra(null);
+    setForm(prev => ({
+      ...prev,
+      notaCompraId: undefined,
+      modelo: '',
+      serie: '',
+      numeroNota: '',
+      dataEmissao: today(),
+    }));
+  }
+
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
     if (!form.fornecedorId) { setError('Selecione o Fornecedor.'); return; }
@@ -130,12 +160,32 @@ export default function ContaPagarFormPage() {
               <h2 className="form-section-title">Dados do Documento</h2>
 
               <div className="form-group">
+                <label>Nota de Compra *</label>
+                <div className="lookup-field">
+                  <input type="text" readOnly className="lookup-input"
+                    value={selectedNotaCompra ? `${selectedNotaCompra.numeroNota} - ${selectedNotaCompra.nomeFornecedor ?? ''}` : ''}
+                    placeholder="Selecione uma nota de compra..." />
+                  <button type="button" className="btn-lookup"
+                    onClick={() => setShowNotaCompraLookup(true)}>
+                    <Search size={15} />
+                  </button>
+                </div>
+              </div>
+              {selectedNotaCompra && (
+                <div className="form-group">
+                  <button type="button" className="btn-secondary" onClick={handleLimparNota} style={{ fontSize: '0.85rem', padding: '0.4rem 0.8rem' }}>
+                    Limpar Seleção
+                  </button>
+                </div>
+              )}
+
+              <div className="form-group">
                 <label>Fornecedor *</label>
                 <div className="lookup-field">
                   <input type="text" readOnly className="lookup-input"
                     value={selectedFornecedor?.nome ?? ''}
                     placeholder="Selecione o fornecedor..." />
-                  <button type="button" className="btn-lookup"
+                  <button type="button" className="btn-lookup" disabled={!!selectedNotaCompra}
                     onClick={() => { setShowFornecedorLookup(true); setTimeout(() => fornecedorSearchRef.current?.focus(), 50); }}>
                     <Search size={15} />
                   </button>
@@ -145,21 +195,21 @@ export default function ContaPagarFormPage() {
               <div className="form-row">
                 <div className="form-group">
                   <label htmlFor="numeroNota">Número da Nota *</label>
-                  <input id="numeroNota" type="text" placeholder="Ex: 000001"
+                  <input id="numeroNota" type="text" placeholder="Ex: 000001" readOnly={!!selectedNotaCompra}
                     value={form.numeroNota}
-                    onChange={e => setForm({ ...form, numeroNota: e.target.value.toUpperCase() })} />
+                    onChange={e => !selectedNotaCompra && setForm({ ...form, numeroNota: e.target.value.toUpperCase() })} />
                 </div>
                 <div className="form-group">
                   <label htmlFor="modelo">Modelo</label>
-                  <input id="modelo" type="text" placeholder="Ex: 55"
+                  <input id="modelo" type="text" placeholder="Ex: 55" readOnly={!!selectedNotaCompra}
                     value={form.modelo}
-                    onChange={e => setForm({ ...form, modelo: e.target.value.toUpperCase() })} />
+                    onChange={e => !selectedNotaCompra && setForm({ ...form, modelo: e.target.value.toUpperCase() })} />
                 </div>
                 <div className="form-group">
                   <label htmlFor="serie">Série</label>
-                  <input id="serie" type="text" placeholder="Ex: 1"
+                  <input id="serie" type="text" placeholder="Ex: 1" readOnly={!!selectedNotaCompra}
                     value={form.serie}
-                    onChange={e => setForm({ ...form, serie: e.target.value.toUpperCase() })} />
+                    onChange={e => !selectedNotaCompra && setForm({ ...form, serie: e.target.value.toUpperCase() })} />
                 </div>
               </div>
 
@@ -172,9 +222,9 @@ export default function ContaPagarFormPage() {
                 </div>
                 <div className="form-group">
                   <label htmlFor="dataEmissao">Data de Emissão *</label>
-                  <input id="dataEmissao" type="date"
+                  <input id="dataEmissao" type="date" readOnly={!!selectedNotaCompra}
                     value={form.dataEmissao}
-                    onChange={e => setForm({ ...form, dataEmissao: e.target.value })} />
+                    onChange={e => !selectedNotaCompra && setForm({ ...form, dataEmissao: e.target.value })} />
                 </div>
                 <div className="form-group">
                   <label htmlFor="dataVencimento">Data de Vencimento *</label>
@@ -268,6 +318,15 @@ export default function ContaPagarFormPage() {
           </form>
         </div>
       </div>
+
+      {/* Lookup — Nota de Compra */}
+      {showNotaCompraLookup && (
+        <NotaCompraLookupModal
+          onSelect={handleNotaCompraSelected}
+          onClose={() => setShowNotaCompraLookup(false)}
+          zBase={1000}
+        />
+      )}
 
       {/* Lookup — Fornecedor */}
       {showFornecedorLookup && (

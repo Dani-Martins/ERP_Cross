@@ -3,6 +3,7 @@ import { X } from 'lucide-react';
 import { CargoService } from '../services/cargoService';
 import type { CargoCreate } from '../types/entities';
 import type { AxiosError } from 'axios';
+import CurrencyInput from './CurrencyInput';
 import '../pages/PaisesPage.css';
 
 interface Props {
@@ -19,7 +20,7 @@ export default function CargoCreateModal({ onCreated, onClose, zBase = 1100 }: P
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
     if (!form.nomeCargo.trim()) { setError('Nome do cargo é obrigatório.'); return; }
-    if (form.salarioBase <= 0) { setError('Salário base deve ser maior que zero.'); return; }
+    if (form.salarioBase < 0) { setError('Salário inválido.'); return; }
 
     setSaving(true);
     setError('');
@@ -29,9 +30,9 @@ export default function CargoCreateModal({ onCreated, onClose, zBase = 1100 }: P
     } catch (err) {
       const axiosErr = err as AxiosError<{ message: string }>;
       if (axiosErr.response?.status === 409) {
-        setError(axiosErr.response.data?.message ?? 'Cargo já cadastrado.');
+        setError(axiosErr.response.data?.message ?? 'Já existe um cargo com esse nome.');
       } else {
-        setError('Erro ao salvar. Verifique os dados e tente novamente.');
+        setError('Erro ao salvar cargo.');
       }
       setSaving(false);
     }
@@ -51,9 +52,9 @@ export default function CargoCreateModal({ onCreated, onClose, zBase = 1100 }: P
               <input
                 id="nomeCargo"
                 type="text"
-                placeholder="Ex: Desenvolvedor"
+                placeholder="Ex: GERENTE DE VENDAS"
                 value={form.nomeCargo}
-                onChange={e => setForm({ ...form, nomeCargo: e.target.value })}
+                onChange={e => setForm({ ...form, nomeCargo: e.target.value.toUpperCase() })}
                 autoFocus
               />
             </div>
@@ -61,33 +62,36 @@ export default function CargoCreateModal({ onCreated, onClose, zBase = 1100 }: P
               <label htmlFor="descricao">Descrição</label>
               <textarea
                 id="descricao"
-                placeholder="Descreva as responsabilidades..."
-                rows={3}
+                placeholder="Descrição das responsabilidades do cargo..."
+                rows={4}
                 value={form.descricao ?? ''}
                 onChange={e => setForm({ ...form, descricao: e.target.value })}
                 style={{ resize: 'vertical', fontFamily: 'inherit', fontSize: 'inherit', width: '100%' }}
               />
             </div>
-            <div className="form-group">
-              <label htmlFor="salarioBase">Salário Base *</label>
-              <input
-                id="salarioBase"
-                type="number"
-                step="0.01"
-                placeholder="Ex: 3500.00"
-                value={form.salarioBase || ''}
-                onChange={e => setForm({ ...form, salarioBase: parseFloat(e.target.value) || 0 })}
-              />
-            </div>
-            <div className="form-group form-check">
-              <label>
-                <input
-                  type="checkbox"
-                  checked={form.exigeCnh}
-                  onChange={e => setForm({ ...form, exigeCnh: e.target.checked })}
+            <div className="form-row">
+              <div className="form-group">
+                <label htmlFor="salarioBase">Salário Base *</label>
+                <CurrencyInput
+                  value={form.salarioBase}
+                  onChange={value => setForm({ ...form, salarioBase: value })}
+                  placeholder="R$ 0,00"
                 />
-                Exige CNH
-              </label>
+              </div>
+              <div className="form-group">
+                <label htmlFor="exigeCnh">&nbsp;</label>
+                <div style={{ display: 'flex', alignItems: 'center', height: '100%', paddingTop: '4px' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', margin: 0, cursor: 'pointer' }}>
+                    <input
+                      id="exigeCnh"
+                      type="checkbox"
+                      checked={form.exigeCnh}
+                      onChange={e => setForm({ ...form, exigeCnh: e.target.checked })}
+                    />
+                    Exige CNH
+                  </label>
+                </div>
+              </div>
             </div>
             <div className="form-group form-check">
               <label>

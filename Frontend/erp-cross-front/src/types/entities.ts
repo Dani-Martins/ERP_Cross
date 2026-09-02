@@ -565,6 +565,7 @@ export interface NotaCompraView {
   modelo: string;
   serie: string;
   dataEmissao: string;
+  dataChegada?: string;
   chaveAcesso?: string;
   tipoFrete: string;
   valorFrete: number;
@@ -589,6 +590,7 @@ export interface NotaCompraCreate {
   modelo: string;
   serie: string;
   dataEmissao: string;
+  dataChegada?: string;
   chaveAcesso?: string;
   tipoFrete: string;
   valorFrete: number;

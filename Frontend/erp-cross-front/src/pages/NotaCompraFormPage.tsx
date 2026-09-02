@@ -32,6 +32,7 @@ const EMPTY: NotaCompraCreate = {
   serie: '',
 
   dataEmissao: new Date().toISOString().split('T')[0],
+  dataChegada: '',
 
   chaveAcesso: '',
 
@@ -93,6 +94,7 @@ export default function NotaCompraFormPage() {
           serie: n.serie,
 
           dataEmissao: toInputDate(n.dataEmissao),
+          dataChegada: toInputDate(n.dataChegada),
 
           chaveAcesso: n.chaveAcesso ?? '',
 
@@ -315,6 +317,21 @@ export default function NotaCompraFormPage() {
                       setForm({
                         ...form,
                         dataEmissao: e.target.value
+                      })
+                    }
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>Data de Chegada</label>
+
+                  <input
+                    type="date"
+                    value={form.dataChegada ?? ''}
+                    onChange={e =>
+                      setForm({
+                        ...form,
+                        dataChegada: e.target.value
                       })
                     }
                   />

@@ -9,6 +9,7 @@ public class NotaCompra
     public string Serie { get; set; } = string.Empty;
     public string NumeroNota { get; set; } = string.Empty;
     public DateTime DataEmissao { get; set; }
+    public DateTime? DataChegada { get; set; }
     public string? ChaveAcesso { get; set; }
     public string TipoFrete { get; set; } = "CIF";
     public decimal ValorFrete { get; set; }
