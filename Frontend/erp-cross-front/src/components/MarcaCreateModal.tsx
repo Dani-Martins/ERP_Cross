@@ -52,7 +52,7 @@ export default function MarcaCreateModal({ onCreated, onClose, zBase = 1100 }: P
                 type="text"
                 placeholder="Ex: Samsung"
                 value={form.nomeMarca}
-                onChange={e => setForm({ ...form, nomeMarca: e.target.value })}
+                onChange={e => setForm({ ...form, nomeMarca: e.target.value.toUpperCase() })}
                 autoFocus
               />
             </div>
@@ -63,7 +63,7 @@ export default function MarcaCreateModal({ onCreated, onClose, zBase = 1100 }: P
                 placeholder="Descreva a marca..."
                 rows={3}
                 value={form.descricao ?? ''}
-                onChange={e => setForm({ ...form, descricao: e.target.value })}
+                onChange={e => setForm({ ...form, descricao: e.target.value.toUpperCase() })}
                 style={{ resize: 'vertical', fontFamily: 'inherit', fontSize: 'inherit', width: '100%' }}
               />
             </div>

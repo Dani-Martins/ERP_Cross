@@ -19,6 +19,8 @@ export default function UnidadeMedidaCreateModal({ onCreated, onClose, zBase = 1
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
     if (!form.nomeUnidade.trim()) { setError('Nome da unidade é obrigatório.'); return; }
+    if (!form.sigla || !form.sigla.trim()) { setError('Sigla é obrigatória.'); return; }
+    if (form.sigla.length < 1 || form.sigla.length > 3) { setError('Sigla deve ter entre 1 e 3 caracteres.'); return; }
 
     setSaving(true);
     setError('');
@@ -52,18 +54,19 @@ export default function UnidadeMedidaCreateModal({ onCreated, onClose, zBase = 1
                 type="text"
                 placeholder="Ex: Quilograma"
                 value={form.nomeUnidade}
-                onChange={e => setForm({ ...form, nomeUnidade: e.target.value })}
+                onChange={e => setForm({ ...form, nomeUnidade: e.target.value.toUpperCase() })}
                 autoFocus
               />
             </div>
             <div className="form-group">
-              <label htmlFor="sigla">Sigla</label>
+              <label htmlFor="sigla">Sigla *</label>
               <input
                 id="sigla"
                 type="text"
-                placeholder="Ex: kg"
+                placeholder="Ex: KG"
+                maxLength={3}
                 value={form.sigla ?? ''}
-                onChange={e => setForm({ ...form, sigla: e.target.value })}
+                onChange={e => setForm({ ...form, sigla: e.target.value.toUpperCase() })}
               />
             </div>
             <div className="form-group form-check">

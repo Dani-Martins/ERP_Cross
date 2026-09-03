@@ -18,7 +18,7 @@ export default function FormaPagamentoCreateModal({ onCreated, onClose, zBase = 
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
-    if (!form.nomeFormaPagamento.trim()) { setError('Nome da forma de pagamento é obrigatório.'); return; }
+    if (!form.nomeFormaPagamento.trim()) { setError('Nome é obrigatório.'); return; }
 
     setSaving(true);
     setError('');
@@ -28,7 +28,7 @@ export default function FormaPagamentoCreateModal({ onCreated, onClose, zBase = 
     } catch (err) {
       const axiosErr = err as AxiosError<{ message: string }>;
       if (axiosErr.response?.status === 409) {
-        setError(axiosErr.response.data?.message ?? 'Forma de pagamento já cadastrada.');
+        setError(axiosErr.response.data?.message ?? 'Conflito nos dados informados.');
       } else {
         setError('Erro ao salvar. Verifique os dados e tente novamente.');
       }
@@ -50,9 +50,9 @@ export default function FormaPagamentoCreateModal({ onCreated, onClose, zBase = 
               <input
                 id="nomeFormaPagamento"
                 type="text"
-                placeholder="Ex: Cartão de Débito"
+                placeholder="Ex: CARTÃO DE CRÉDITO"
                 value={form.nomeFormaPagamento}
-                onChange={e => setForm({ ...form, nomeFormaPagamento: e.target.value })}
+                onChange={e => setForm({ ...form, nomeFormaPagamento: e.target.value.toUpperCase() })}
                 autoFocus
               />
             </div>

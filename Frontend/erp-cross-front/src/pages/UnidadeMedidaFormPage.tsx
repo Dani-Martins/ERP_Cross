@@ -49,6 +49,8 @@ export default function UnidadeMedidaFormPage() {
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
     if (!form.nomeUnidade.trim()) { setError('Nome da unidade é obrigatório.'); return; }
+    if (!form.sigla || !form.sigla.trim()) { setError('Sigla é obrigatória.'); return; }
+    if (form.sigla.length < 1 || form.sigla.length > 3) { setError('Sigla deve ter entre 1 e 3 caracteres.'); return; }
 
     setSaving(true);
     setError('');
@@ -106,12 +108,12 @@ export default function UnidadeMedidaFormPage() {
             </div>
 
             <div className="form-group">
-              <label htmlFor="sigla">Sigla</label>
+              <label htmlFor="sigla">Sigla *</label>
               <input
                 id="sigla"
                 type="text"
                 placeholder="Ex: KG"
-                maxLength={10}
+                maxLength={3}
                 value={form.sigla ?? ''}
                 onChange={e => setForm({ ...form, sigla: e.target.value.toUpperCase() })}
               />

@@ -6,6 +6,7 @@ import { ParcelaCondicaoPagamentoService } from '../services/parcelaCondicaoPaga
 import { FormaPagamentoService } from '../services/formaPagamentoService';
 import type { CondicaoPagamentoCreate, FormaPagamentoView } from '../types/entities';
 import type { AxiosError } from 'axios';
+import FormaPagamentoCreateModal from '../components/FormaPagamentoCreateModal';
 import './PaisesPage.css';
 
 interface ParcelaLocal {
@@ -36,6 +37,7 @@ export default function CondicaoPagamentoFormPage() {
   const [formas, setFormas] = useState<FormaPagamentoView[]>([]);
   const [selectedForma, setSelectedForma] = useState<FormaPagamentoView | null>(null);
   const [showFormaLookup, setShowFormaLookup] = useState(false);
+  const [showFormaCreate, setShowFormaCreate] = useState(false);
   const [formaSearch, setFormaSearch] = useState('');
   const formaSearchRef = useRef<HTMLInputElement>(null);
   const [numGerar, setNumGerar] = useState(1);
@@ -438,8 +440,31 @@ export default function CondicaoPagamentoFormPage() {
               </table>
             </div>
           </div>
+          <div className="modal-footer">
+            <button className="btn-primary" type="button" onClick={() => setShowFormaCreate(true)}>
+              <Plus size={15} /> Nova Forma de Pagamento
+            </button>
+            <button className="btn-secondary" type="button" onClick={() => setShowFormaLookup(false)}>Fechar</button>
+          </div>
         </div>
       </div>
+    )}
+
+    {showFormaCreate && (
+      <FormaPagamentoCreateModal
+        onCreated={(id, nome) => {
+          setShowFormaCreate(false);
+          setSelectedForma({ id, nomeFormaPagamento: nome, aceitaParcela: false, ativo: true } as FormaPagamentoView);
+          FormaPagamentoService.getAll().then(r => {
+            const ativas = r.data.filter(f => f.ativo);
+            setFormas(ativas);
+            handleSelectForma({ id, nomeFormaPagamento: nome, aceitaParcela: false, ativo: true } as FormaPagamentoView);
+          });
+          setShowFormaLookup(false);
+        }}
+        onClose={() => setShowFormaCreate(false)}
+        zBase={1100}
+      />
     )}
     </>
   );

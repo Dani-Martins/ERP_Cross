@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { TrendingUp, Search } from 'lucide-react';
+import { TrendingUp, Search, Plus } from 'lucide-react';
 import { ContaReceberService } from '../services/contasService';
 import { ClienteService } from '../services/clienteService';
 import { FormaPagamentoService } from '../services/formaPagamentoService';
@@ -9,6 +9,7 @@ import { CondicaoPagamentoService } from '../services/condicaoPagamentoService';
 import type { ContaReceberCreate, ContaReceberLoteCreate, ClienteView, FormaPagamentoView, ParcelaCondicaoPagamentoView, CondicaoPagamentoView } from '../types/entities';
 import type { AxiosError } from 'axios';
 import CurrencyInput from '../components/CurrencyInput';
+import FormaPagamentoCreateModal from '../components/FormaPagamentoCreateModal';
 import './PaisesPage.css';
 
 const STATUS_OPTIONS = ['ABERTO', 'PAGO', 'CANCELADO'];
@@ -45,6 +46,7 @@ export default function ContaReceberFormPage() {
   const [formas, setFormas] = useState<FormaPagamentoView[]>([]);
   const [showClienteLookup, setShowClienteLookup] = useState(false);
   const [showFormaLookup, setShowFormaLookup] = useState(false);
+  const [showFormaCreate, setShowFormaCreate] = useState(false);
   const [showCondicaoLookup, setShowCondicaoLookup] = useState(false);
   const [clienteSearch, setClienteSearch] = useState('');
   const [formaSearch, setFormaSearch] = useState('');
@@ -524,8 +526,28 @@ export default function ContaReceberFormPage() {
                 </table>
               </div>
             </div>
+            <div className="modal-footer">
+              <button className="btn-primary" type="button" onClick={() => setShowFormaCreate(true)}>
+                <Plus size={15} /> Nova Forma de Pagamento
+              </button>
+              <button className="btn-secondary" type="button" onClick={() => setShowFormaLookup(false)}>Fechar</button>
+            </div>
           </div>
         </div>
+      )}
+
+      {showFormaCreate && (
+        <FormaPagamentoCreateModal
+          onCreated={(id, nome) => {
+            setShowFormaCreate(false);
+            setSelectedForma({ id, nomeFormaPagamento: nome, aceitaParcela: false, ativo: true } as FormaPagamentoView);
+            setForm(prev => ({ ...prev, formaPagamentoId: id }));
+            FormaPagamentoService.getAll().then(r => setFormas(r.data.filter(f => f.ativo)));
+            setShowFormaLookup(false);
+          }}
+          onClose={() => setShowFormaCreate(false)}
+          zBase={1100}
+        />
       )}
 
       {/* Lookup — Condição de Pagamento */}

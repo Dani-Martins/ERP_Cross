@@ -84,6 +84,32 @@ export default function ProdutoFormPage() {
       return;
     }
 
+    if (!form.marcaId) {
+      setError('Marca é obrigatória.');
+      return;
+    }
+
+    if (!form.unidadeId) {
+      setError('Unidade é obrigatória.');
+      return;
+    }
+
+    if (!form.categoriaId) {
+      setError('Categoria é obrigatória.');
+      return;
+    }
+
+    if (!form.custoCompra || form.custoCompra <= 0) {
+      setError('Custo de Compra é obrigatório e deve ser maior que zero.');
+      return;
+    }
+
+    const precoVendaValidacao = form.custoCompra + (form.custoCompra * form.lucroPercentual / 100);
+    if (precoVendaValidacao <= 0) {
+      setError('Preço de Venda é obrigatório e deve ser maior que zero.');
+      return;
+    }
+
     setSaving(true);
     setError('');
 
@@ -209,7 +235,7 @@ export default function ProdutoFormPage() {
             </h2>
 
             <div className="form-group">
-              <label>Categoria</label>
+              <label>Categoria *</label>
 
               <div className="lookup-field">
 
@@ -235,7 +261,7 @@ export default function ProdutoFormPage() {
             </div>
 
             <div className="form-group">
-              <label>Marca</label>
+              <label>Marca *</label>
 
               <div className="lookup-field">
 
@@ -261,7 +287,7 @@ export default function ProdutoFormPage() {
             </div>
 
             <div className="form-group">
-              <label>Unidade</label>
+              <label>Unidade *</label>
 
               <div className="lookup-field">
 
@@ -331,7 +357,7 @@ export default function ProdutoFormPage() {
             <div className="form-row">
 
               <div className="form-group">
-                <label>Preço de Venda</label>
+                <label>Preço de Venda *</label>
                 <input
                   type="text"
                   readOnly

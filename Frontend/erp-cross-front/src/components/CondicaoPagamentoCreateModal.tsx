@@ -1,9 +1,10 @@
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import { X, Search } from 'lucide-react';
 import { CondicaoPagamentoService } from '../services/condicaoPagamentoService';
 import { ParcelaCondicaoPagamentoService } from '../services/parcelaCondicaoPagamentoService';
 import { FormaPagamentoService } from '../services/formaPagamentoService';
 import type { CondicaoPagamentoCreate, FormaPagamentoView } from '../types/entities';
+import FormaPagamentoLookupModal from './FormaPagamentoLookupModal';
 import '../pages/PaisesPage.css';
 
 interface Props {
@@ -28,19 +29,12 @@ export default function CondicaoPagamentoCreateModal({ onCreated, onClose, zBase
   const [form, setForm] = useState<CondicaoPagamentoCreate>({
     nomeCondicao: '', taxaJuros: 0, multa: 0, desconto: 0, ativo: true,
   });
-  const [formas, setFormas] = useState<FormaPagamentoView[]>([]);
   const [selectedForma, setSelectedForma] = useState<FormaPagamentoView | null>(null);
   const [parcelas, setParcelas] = useState<ParcelaLocal[]>([]);
   const [numGerar, setNumGerar] = useState(1);
   const [showFormaLookup, setShowFormaLookup] = useState(false);
-  const [formaSearch, setFormaSearch] = useState('');
-  const formaSearchRef = useRef<HTMLInputElement>(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
-
-  useEffect(() => {
-    FormaPagamentoService.getAll().then(r => setFormas(r.data.filter(f => f.ativo)));
-  }, []);
 
   const aceitaParcela = selectedForma?.aceitaParcela ?? false;
   const somaPercent = parcelas.reduce((acc, p) => acc + (Number(p.percentual) || 0), 0);
@@ -48,14 +42,10 @@ export default function CondicaoPagamentoCreateModal({ onCreated, onClose, zBase
   const nomeCompleto = nomeBase
     ? selectedForma ? `${nomeBase} (${selectedForma.nomeFormaPagamento.toUpperCase()})` : nomeBase
     : '';
-  const formasFiltradas = formas.filter(f =>
-    f.nomeFormaPagamento.toLowerCase().includes(formaSearch.toLowerCase())
-  );
 
   function handleSelectForma(forma: FormaPagamentoView) {
     setSelectedForma(forma);
     setShowFormaLookup(false);
-    setFormaSearch('');
     const derivado = nomeBase ? `${nomeBase} (${forma.nomeFormaPagamento.toUpperCase()})` : '';
     setForm(prev => ({ ...prev, nomeCondicao: derivado }));
     if (!forma.aceitaParcela) {
@@ -103,7 +93,7 @@ export default function CondicaoPagamentoCreateModal({ onCreated, onClose, zBase
   return (
     <>
       <div className="modal-overlay" style={{ zIndex: zBase }} onClick={onClose}>
-        <div className="modal" style={{ maxWidth: 600 }} onClick={e => e.stopPropagation()}>
+        <div className="modal" style={{ maxWidth: 700 }} onClick={e => e.stopPropagation()}>
           <div className="modal-header">
             <h2>Nova Condição de Pagamento</h2>
             <button className="modal-close" onClick={onClose}><X size={18} /></button>
@@ -139,7 +129,7 @@ export default function CondicaoPagamentoCreateModal({ onCreated, onClose, zBase
                     value={selectedForma?.nomeFormaPagamento ?? ''}
                     placeholder="Selecione a forma de pagamento..." />
                   <button type="button" className="btn-lookup"
-                    onClick={() => { setShowFormaLookup(true); setTimeout(() => formaSearchRef.current?.focus(), 50); }}>
+                    onClick={() => setShowFormaLookup(true)}>
                     <Search size={15} />
                   </button>
                 </div>
@@ -236,50 +226,19 @@ export default function CondicaoPagamentoCreateModal({ onCreated, onClose, zBase
 
       {/* Lookup Forma de Pagamento */}
       {showFormaLookup && (
-        <div className="modal-overlay" style={{ zIndex: zBase + 100 }} onClick={() => setShowFormaLookup(false)}>
-          <div className="modal modal-lookup" onClick={e => e.stopPropagation()}>
-            <div className="modal-header">
-              <h2>Selecionar Forma de Pagamento</h2>
-              <button className="modal-close" onClick={() => setShowFormaLookup(false)}><X size={18} /></button>
-            </div>
-            <div className="modal-body lookup-modal-body">
-              <div className="lookup-search-bar">
-                <Search size={15} className="lookup-search-icon" />
-                <input ref={formaSearchRef} type="text" placeholder="Pesquisar por nome..."
-                  value={formaSearch} onChange={e => setFormaSearch(e.target.value)} autoFocus />
-              </div>
-              <div className="lookup-table-wrap">
-                <table className="data-table">
-                  <thead>
-                    <tr>
-                      <th>FORMA DE PAGAMENTO</th>
-                      <th style={{ width: 100 }}>PARCELA</th>
-                      <th style={{ width: 110 }}></th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {formasFiltradas.length === 0 ? (
-                      <tr><td colSpan={3} className="table-empty">Nenhum resultado.</td></tr>
-                    ) : formasFiltradas.map(f => (
-                      <tr key={f.id}>
-                        <td>{f.nomeFormaPagamento}</td>
-                        <td>{f.aceitaParcela ? 'Sim' : 'Não'}</td>
-                        <td>
-                          <button className="btn-select" onClick={() => handleSelectForma(f)}>
-                            Selecionar
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-            <div className="modal-footer">
-              <button className="btn-secondary" type="button" onClick={() => setShowFormaLookup(false)}>Fechar</button>
-            </div>
-          </div>
-        </div>
+        <FormaPagamentoLookupModal
+          onSelect={(id) => {
+            FormaPagamentoService.getAll().then(res => {
+              const formasAtualizadas = res.data.filter(f => f.ativo);
+              const forma = formasAtualizadas.find(f => f.id === id);
+              if (forma) {
+                handleSelectForma(forma);
+              }
+            });
+          }}
+          onClose={() => setShowFormaLookup(false)}
+          zBase={zBase + 100}
+        />
       )}
     </>
   );
