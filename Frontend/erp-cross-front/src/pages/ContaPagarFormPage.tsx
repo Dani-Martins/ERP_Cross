@@ -1,12 +1,13 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { TrendingDown, Search, Plus } from 'lucide-react';
+import { TrendingDown, Search } from 'lucide-react';
 import { ContaPagarService } from '../services/contasService';
 import { FornecedorService } from '../services/fornecedorService';
 import { FormaPagamentoService } from '../services/formaPagamentoService';
 import type { ContaPagarCreate, FornecedorView, FormaPagamentoView, NotaCompraView } from '../types/entities';
 import NotaCompraLookupModal from '../components/NotaCompraLookupModal';
-import FormaPagamentoCreateModal from '../components/FormaPagamentoCreateModal';
+import FornecedorLookupModal from '../components/FornecedorLookupModal';
+import FormaPagamentoLookupModal from '../components/FormaPagamentoLookupModal';
 import type { AxiosError } from 'axios';
 import CurrencyInput from '../components/CurrencyInput';
 import './PaisesPage.css';
@@ -36,12 +37,7 @@ export default function ContaPagarFormPage() {
   const [formas, setFormas] = useState<FormaPagamentoView[]>([]);
   const [showFornecedorLookup, setShowFornecedorLookup] = useState(false);
   const [showFormaLookup, setShowFormaLookup] = useState(false);
-  const [showFormaCreate, setShowFormaCreate] = useState(false);
   const [showNotaCompraLookup, setShowNotaCompraLookup] = useState(false);
-  const [fornecedorSearch, setFornecedorSearch] = useState('');
-  const [formaSearch, setFormaSearch] = useState('');
-  const fornecedorSearchRef = useRef<HTMLInputElement>(null);
-  const formaSearchRef = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
@@ -84,13 +80,6 @@ export default function ContaPagarFormPage() {
     if (parts.length === 3) return `${parts[2]}-${parts[1]}-${parts[0]}`;
     return s.substring(0, 10);
   }
-
-  const fornecedoresFiltrados = fornecedores.filter(f =>
-    f.nome.toLowerCase().includes(fornecedorSearch.toLowerCase())
-  );
-  const formasFiltradas = formas.filter(f =>
-    f.nomeFormaPagamento.toLowerCase().includes(formaSearch.toLowerCase())
-  );
 
   function handleNotaCompraSelected(nota: NotaCompraView) {
     setSelectedNotaCompra(nota);
@@ -188,7 +177,7 @@ export default function ContaPagarFormPage() {
                     value={selectedFornecedor?.nome ?? ''}
                     placeholder="Selecione o fornecedor..." />
                   <button type="button" className="btn-lookup" disabled={!!selectedNotaCompra}
-                    onClick={() => { setShowFornecedorLookup(true); setTimeout(() => fornecedorSearchRef.current?.focus(), 50); }}>
+                    onClick={() => setShowFornecedorLookup(true)}>
                     <Search size={15} />
                   </button>
                 </div>
@@ -248,7 +237,7 @@ export default function ContaPagarFormPage() {
                       value={selectedForma?.nomeFormaPagamento ?? ''}
                       placeholder="Selecione a forma..." />
                     <button type="button" className="btn-lookup"
-                      onClick={() => { setShowFormaLookup(true); setTimeout(() => formaSearchRef.current?.focus(), 50); }}>
+                      onClick={() => setShowFormaLookup(true)}>
                       <Search size={15} />
                     </button>
                   </div>
@@ -332,117 +321,25 @@ export default function ContaPagarFormPage() {
 
       {/* Lookup — Fornecedor */}
       {showFornecedorLookup && (
-        <div className="modal-overlay" onClick={() => setShowFornecedorLookup(false)}>
-          <div className="modal modal-lookup" onClick={e => e.stopPropagation()}>
-            <div className="modal-header">
-              <h2 className="modal-title">Selecionar Fornecedor</h2>
-              <button className="modal-close" onClick={() => setShowFornecedorLookup(false)}>×</button>
-            </div>
-            <div className="modal-body">
-              <div className="lookup-search-bar">
-                <Search size={16} className="lookup-search-icon" />
-                <input ref={fornecedorSearchRef} type="text" placeholder="Buscar fornecedor..."
-                  value={fornecedorSearch} onChange={e => setFornecedorSearch(e.target.value)} />
-              </div>
-              <div className="lookup-table-wrap">
-                <table className="data-table">
-                  <thead>
-                    <tr>
-                      <th style={{ width: 56 }}>#</th>
-                      <th>Fornecedor</th>
-                      <th style={{ width: 80 }}></th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {fornecedoresFiltrados.length === 0 ? (
-                      <tr><td colSpan={3} className="table-empty">Nenhum resultado.</td></tr>
-                    ) : fornecedoresFiltrados.map(f => (
-                      <tr key={f.id}>
-                        <td className="col-id">{f.id}</td>
-                        <td>{f.nome}</td>
-                        <td>
-                          <button className="btn-select" onClick={() => {
-                            setSelectedFornecedor(f);
-                            setForm(prev => ({ ...prev, fornecedorId: f.id }));
-                            setShowFornecedorLookup(false);
-                            setFornecedorSearch('');
-                          }}>Selecionar</button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </div>
+        <FornecedorLookupModal
+          onClose={() => setShowFornecedorLookup(false)}
+          onSelect={(id, _nome) => {
+            setSelectedFornecedor(fornecedores.find(f => f.id === id) || null);
+            setForm(prev => ({ ...prev, fornecedorId: id }));
+            setShowFornecedorLookup(false);
+          }}
+        />
       )}
 
       {/* Lookup — Forma de Pagamento */}
       {showFormaLookup && (
-        <div className="modal-overlay" onClick={() => setShowFormaLookup(false)}>
-          <div className="modal modal-lookup" onClick={e => e.stopPropagation()}>
-            <div className="modal-header">
-              <h2 className="modal-title">Selecionar Forma de Pagamento</h2>
-              <button className="modal-close" onClick={() => setShowFormaLookup(false)}>×</button>
-            </div>
-            <div className="modal-body">
-              <div className="lookup-search-bar">
-                <Search size={16} className="lookup-search-icon" />
-                <input ref={formaSearchRef} type="text" placeholder="Buscar forma de pagamento..."
-                  value={formaSearch} onChange={e => setFormaSearch(e.target.value)} />
-              </div>
-              <div className="lookup-table-wrap">
-                <table className="data-table">
-                  <thead>
-                    <tr>
-                      <th style={{ width: 56 }}>#</th>
-                      <th>Forma de Pagamento</th>
-                      <th style={{ width: 80 }}></th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {formasFiltradas.length === 0 ? (
-                      <tr><td colSpan={3} className="table-empty">Nenhum resultado.</td></tr>
-                    ) : formasFiltradas.map(f => (
-                      <tr key={f.id}>
-                        <td className="col-id">{f.id}</td>
-                        <td>{f.nomeFormaPagamento}</td>
-                        <td>
-                          <button className="btn-select" onClick={() => {
-                            setSelectedForma(f);
-                            setForm(prev => ({ ...prev, formaPagamentoId: f.id }));
-                            setShowFormaLookup(false);
-                            setFormaSearch('');
-                          }}>Selecionar</button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-            <div className="modal-footer">
-              <button className="btn-primary" type="button" onClick={() => setShowFormaCreate(true)}>
-                <Plus size={15} /> Nova Forma de Pagamento
-              </button>
-              <button className="btn-secondary" type="button" onClick={() => setShowFormaLookup(false)}>Fechar</button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {showFormaCreate && (
-        <FormaPagamentoCreateModal
-          onCreated={(id, nome) => {
-            setShowFormaCreate(false);
-            setSelectedForma({ id, nomeFormaPagamento: nome, aceitaParcela: false, ativo: true } as FormaPagamentoView);
+        <FormaPagamentoLookupModal
+          onClose={() => setShowFormaLookup(false)}
+          onSelect={(id, _nome) => {
+            setSelectedForma(formas.find(f => f.id === id) || null);
             setForm(prev => ({ ...prev, formaPagamentoId: id }));
-            FormaPagamentoService.getAll().then(r => setFormas(r.data.filter(f => f.ativo)));
             setShowFormaLookup(false);
           }}
-          onClose={() => setShowFormaCreate(false)}
-          zBase={1100}
         />
       )}
     </>

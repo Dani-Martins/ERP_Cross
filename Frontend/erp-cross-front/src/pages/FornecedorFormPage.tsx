@@ -16,7 +16,7 @@ const EMPTY: FornecedorFormState = {
   nome: '', nomeFantasia: '', cpfCnpj: '', rgIe: '',
   contato2: '', celular: '', email: '',
   cep: '', endereco: '', numero: '', complemento: '', bairro: '',
-  idCidade: 0, idCondicaoPagamento: 0, ativo: true, pf: true,
+  idCidade: 0, idCondicaoPagamento: 0, ativo: true, pf: false,
 };
 
 export default function FornecedorFormPage() {

@@ -284,9 +284,20 @@
   border-radius: 14px;
   width: 100%;
   max-width: 480px;
+  max-height: 90vh;
   box-shadow: var(--shadow-modal);
   animation: modalIn 0.18s ease;
-  overflow: hidden;
+  overflow: clip;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.modal > form {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
 }
 
 .modal-sm { max-width: 500px; }
@@ -301,6 +312,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 20px 24px 0;
+  flex-shrink: 0;
 }
 
 .modal-header h2 {
@@ -441,6 +453,7 @@
   justify-content: flex-end;
   gap: 10px;
   padding: 8px 24px 24px;
+  flex-shrink: 0;
 }
 
 /* ── Página de formulário (criar / editar) ──────────────────────────────────── */
@@ -580,7 +593,7 @@
 .lookup-search-icon { color: var(--text-faint); flex-shrink: 0; }
 
 .lookup-table-wrap {
-  max-height: 280px;
+  max-height: 350px;
   overflow-y: auto;
   border-radius: 8px;
   border: 1px solid var(--border-table-head);
@@ -707,4 +720,33 @@
 .produto-table-input:focus {
   border-color: #D4A017;
   box-shadow: 0 0 0 2px rgba(212, 160, 23, 0.15);
+}
+
+/* ── Modal scrollável (com barra de scroll visível) ────────────────────────── */
+.modal-scrollable {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  scrollbar-width: auto;
+  scrollbar-gutter: stable;
+}
+
+.modal-scrollable::-webkit-scrollbar {
+  width: 8px;
+}
+
+.modal-scrollable::-webkit-scrollbar-track {
+  background: var(--bg-input);
+  border-radius: 8px;
+}
+
+.modal-scrollable::-webkit-scrollbar-thumb {
+  background: #9CA3AF;
+  border-radius: 8px;
+  border: 2px solid var(--bg-input);
+}
+
+.modal-scrollable::-webkit-scrollbar-thumb:hover {
+  background: #6B7280;
 }

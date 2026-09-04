@@ -63,9 +63,15 @@ export default function ContaReceberViewPage() {
           {/* Dados do Documento */}
           <div className="form-section">
             <h2 className="form-section-title">Dados do Documento</h2>
-            <div className="view-group">
-              <span className="view-label">Cliente</span>
-              <span className="view-value">{conta.nomeCliente ?? '—'}</span>
+            <div className="form-row">
+              <div className="view-group">
+                <span className="view-label">Código</span>
+                <span className="view-value">{conta.id}</span>
+              </div>
+              <div className="view-group" style={{ gridColumn: 'span 2' }}>
+                <span className="view-label">Cliente</span>
+                <span className="view-value">{conta.nomeCliente ?? '—'}</span>
+              </div>
             </div>
             <div className="form-row">
               <div className="view-group">
