@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { X, Search } from 'lucide-react';
 import { EstadoService } from '../services/estadoService';
 import type { EstadoCreate } from '../types/entities';
@@ -14,9 +14,19 @@ interface Props {
 export default function EstadoCreateModal({ onCreated, onClose, zBase = 1100 }: Props) {
   const [form, setForm] = useState<EstadoCreate>({ nomeEstado: '', uf: '', idPais: 0, ativo: true });
   const [nomePais, setNomePais] = useState('');
+  const [nextId, setNextId] = useState<string>('');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [showPaisModal, setShowPaisModal] = useState(false);
+
+  useEffect(() => {
+    EstadoService.getAll()
+      .then((res) => {
+        const maxId = res.data.length > 0 ? Math.max(...res.data.map(e => e.id)) : 0;
+        setNextId(String(maxId + 1));
+      })
+      .catch(() => setNextId(''));
+  }, []);
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
@@ -49,6 +59,10 @@ export default function EstadoCreateModal({ onCreated, onClose, zBase = 1100 }: 
           </div>
           <form onSubmit={handleSave}>
             <div className="modal-form">
+              <div className="form-group id-field">
+                <label>Código</label>
+                <input type="text" readOnly value={nextId} />
+              </div>
               <div className="form-group">
                 <label>Estado *</label>
                 <input

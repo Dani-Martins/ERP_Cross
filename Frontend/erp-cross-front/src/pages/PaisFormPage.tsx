@@ -14,19 +14,30 @@ export default function PaisFormPage() {
   const isEdit = Boolean(id);
 
   const [form, setForm] = useState<PaisCreate>(EMPTY_FORM);
-  const [loading, setLoading] = useState(isEdit);
+  const [nextId, setNextId] = useState<string>('');
+  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
 
   useEffect(() => {
-    if (!isEdit) return;
-    PaisService.getById(Number(id))
-      .then((res) => {
-        const p = res.data;
-        setForm({ nomePais: p.nomePais, sigla: p.sigla, ddi: p.ddi, ativo: p.ativo });
-      })
-      .catch(() => navigate('/paises'))
-      .finally(() => setLoading(false));
+    if (isEdit) {
+      PaisService.getById(Number(id))
+        .then((res) => {
+          const p = res.data;
+          setForm({ nomePais: p.nomePais, sigla: p.sigla, ddi: p.ddi, ativo: p.ativo });
+          setNextId(String(p.id));
+        })
+        .catch(() => navigate('/paises'))
+        .finally(() => setLoading(false));
+    } else {
+      PaisService.getAll()
+        .then((res) => {
+          const maxId = res.data.length > 0 ? Math.max(...res.data.map(p => p.id)) : 0;
+          setNextId(String(maxId + 1));
+        })
+        .catch(() => setNextId(''))
+        .finally(() => setLoading(false));
+    }
   }, [id, isEdit, navigate]);
 
   async function handleSave(e: React.FormEvent) {
@@ -79,7 +90,12 @@ export default function PaisFormPage() {
           <div className="form-section">
             <h2 className="form-section-title">Dados do País</h2>
 
-            <div className="form-group">
+            <div className="form-group id-field">
+              <label htmlFor="id">Código</label>
+              <input id="id" type="text" readOnly value={nextId} />
+            </div>
+
+            <div className="form-group country-field">
               <label htmlFor="nomePais">País *</label>
               <input
                 id="nomePais"

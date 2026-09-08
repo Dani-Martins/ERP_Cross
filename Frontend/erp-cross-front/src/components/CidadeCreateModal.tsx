@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { X, Search } from 'lucide-react';
 import { CidadeService } from '../services/cidadeService';
 import type { CidadeCreate } from '../types/entities';
@@ -14,9 +14,19 @@ interface Props {
 export default function CidadeCreateModal({ onCreated, onClose, zBase = 1100 }: Props) {
   const [form, setForm] = useState<CidadeCreate>({ nomeCidade: '', ddd: '', idEstado: 0, ativo: true });
   const [nomeEstado, setNomeEstado] = useState('');
+  const [nextId, setNextId] = useState<string>('');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [showEstadoModal, setShowEstadoModal] = useState(false);
+
+  useEffect(() => {
+    CidadeService.getAll()
+      .then((res) => {
+        const maxId = res.data.length > 0 ? Math.max(...res.data.map(c => c.id)) : 0;
+        setNextId(String(maxId + 1));
+      })
+      .catch(() => setNextId(''));
+  }, []);
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
@@ -45,6 +55,10 @@ export default function CidadeCreateModal({ onCreated, onClose, zBase = 1100 }: 
           </div>
           <form onSubmit={handleSave}>
             <div className="modal-form">
+              <div className="form-group id-field">
+                <label>Código</label>
+                <input type="text" readOnly value={nextId} />
+              </div>
               <div className="form-group">
                 <label>Cidade *</label>
                 <input

@@ -750,3 +750,26 @@
 .modal-scrollable::-webkit-scrollbar-thumb:hover {
   background: #6B7280;
 }
+
+/* ── ID/Código Compact Field ─────────────────────────────────────────────── */
+.form-group.id-field input {
+  width: 120px;
+  padding: 6px 8px;
+  font-size: 0.8rem;
+  text-align: center;
+}
+
+/* ── Country Name Field ───────────────────────────────────────────────────── */
+.form-group.country-field input {
+  max-width: 400px;
+}
+
+/* ── State Name Field ─────────────────────────────────────────────────────── */
+.form-group.state-field input {
+  max-width: 400px;
+}
+
+/* ── City Name Field ──────────────────────────────────────────────────────── */
+.form-group.city-field input {
+  max-width: 400px;
+}

@@ -16,6 +16,7 @@ export default function EstadoFormPage() {
 
   const [form, setForm] = useState<EstadoCreate>(EMPTY_FORM);
   const [nomePais, setNomePais] = useState('');
+  const [nextId, setNextId] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
@@ -28,11 +29,18 @@ export default function EstadoFormPage() {
           const e = res.data;
           setForm({ nomeEstado: e.nomeEstado, uf: e.uf, idPais: e.idPais, ativo: e.ativo });
           setNomePais(e.nomePais ?? '');
+          setNextId(String(e.id));
         })
         .catch(() => navigate('/estados'))
         .finally(() => setLoading(false));
     } else {
-      setLoading(false);
+      EstadoService.getAll()
+        .then(res => {
+          const maxId = res.data.length > 0 ? Math.max(...res.data.map(e => e.id)) : 0;
+          setNextId(String(maxId + 1));
+        })
+        .catch(() => setNextId(''))
+        .finally(() => setLoading(false));
     }
   }, [id, isEdit, navigate]);
 
@@ -85,7 +93,12 @@ export default function EstadoFormPage() {
           <div className="form-section">
             <h2 className="form-section-title">Dados do Estado</h2>
 
-            <div className="form-group">
+            <div className="form-group id-field">
+              <label htmlFor="id">Código</label>
+              <input id="id" type="text" readOnly value={nextId} />
+            </div>
+
+            <div className="form-group state-field">
               <label htmlFor="nomeEstado">Estado *</label>
               <input
                 id="nomeEstado"

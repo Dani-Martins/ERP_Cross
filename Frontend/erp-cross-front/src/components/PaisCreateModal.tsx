@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
 import { PaisService } from '../services/paisService';
 import type { PaisCreate } from '../types/entities';
@@ -13,8 +13,18 @@ interface Props {
 
 export default function PaisCreateModal({ onCreated, onClose, zBase = 1100 }: Props) {
   const [form, setForm] = useState<PaisCreate>({ nomePais: '', sigla: '', ddi: '', ativo: true });
+  const [nextId, setNextId] = useState<string>('');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    PaisService.getAll()
+      .then((res) => {
+        const maxId = res.data.length > 0 ? Math.max(...res.data.map(p => p.id)) : 0;
+        setNextId(String(maxId + 1));
+      })
+      .catch(() => setNextId(''));
+  }, []);
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
@@ -51,6 +61,10 @@ export default function PaisCreateModal({ onCreated, onClose, zBase = 1100 }: Pr
         </div>
         <form onSubmit={handleSave}>
           <div className="modal-form">
+            <div className="form-group id-field">
+              <label>Código</label>
+              <input type="text" readOnly value={nextId} />
+            </div>
             <div className="form-group">
               <label>País *</label>
               <input
