@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { X, Search } from 'lucide-react';
 import { CondicaoPagamentoService } from '../services/condicaoPagamentoService';
 import { ParcelaCondicaoPagamentoService } from '../services/parcelaCondicaoPagamentoService';
@@ -25,6 +25,7 @@ let _key = 1;
 function nextKey() { return _key++; }
 
 export default function CondicaoPagamentoCreateModal({ onCreated, onClose, zBase = 1100 }: Props) {
+  const [nextId, setNextId] = useState<string>('');
   const [nomeBase, setNomeBase] = useState('');
   const [form, setForm] = useState<CondicaoPagamentoCreate>({
     nomeCondicao: '', taxaJuros: 0, multa: 0, desconto: 0, ativo: true,
@@ -35,6 +36,14 @@ export default function CondicaoPagamentoCreateModal({ onCreated, onClose, zBase
   const [showFormaLookup, setShowFormaLookup] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    CondicaoPagamentoService.getAll()
+      .then(res => {
+        const maxId = res.data.length > 0 ? Math.max(...res.data.map(c => c.id)) : 0;
+        setNextId(String(maxId + 1));
+      });
+  }, []);
 
   const aceitaParcela = selectedForma?.aceitaParcela ?? false;
   const somaPercent = parcelas.reduce((acc, p) => acc + (Number(p.percentual) || 0), 0);
@@ -100,6 +109,11 @@ export default function CondicaoPagamentoCreateModal({ onCreated, onClose, zBase
           </div>
           <form onSubmit={handleSave}>
             <div className="modal-form">
+
+              <div className="form-group id-field">
+                <label>Código</label>
+                <input id="id" type="text" readOnly value={nextId} />
+              </div>
 
               <div className="form-group">
                 <label>Condição de Pagamento *</label>

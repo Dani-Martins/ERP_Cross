@@ -58,7 +58,7 @@ export type CidadeUpdate = CidadeCreate;
 export interface CargoView {
   id: number;
   nomeCargo: string;
-  descricao?: string;
+  setor?: string;
   salarioBase: number;
   exigeCnh: boolean;
   ativo: boolean;
@@ -68,7 +68,7 @@ export interface CargoView {
 
 export interface CargoCreate {
   nomeCargo: string;
-  descricao?: string;
+  setor?: string;
   salarioBase: number;
   exigeCnh: boolean;
   ativo: boolean;
@@ -140,6 +140,7 @@ export interface FuncionarioView {
   nomeCargo?: string;
   pis?: string;
   salario?: number;
+  carregaHoraria?: number;
   dataAdmissao?: string;
   dataDemissao?: string;
   sexo?: string;
@@ -163,6 +164,7 @@ export interface FuncionarioCreate {
   idCargo?: number;
   pis?: string;
   salario?: number;
+  carregaHoraria?: number;
   dataAdmissao?: string;
   dataDemissao?: string;
   sexo?: string;
@@ -191,6 +193,8 @@ export interface ClienteView {
   dataNascimento?: string;
   sexo?: string;
   limiteCredito: number;
+  idCondicaoPagamento?: number;
+  nomeCondicaoPagamento?: string;
   funcionalKids: boolean;
   nomeResponsavel?: string;
   cpfResponsavel?: string;
@@ -218,6 +222,7 @@ export interface ClienteCreate {
   dataNascimento?: string;
   sexo?: string;
   limiteCredito: number;
+  idCondicaoPagamento?: number;
   funcionalKids: boolean;
   nomeResponsavel?: string;
   cpfResponsavel?: string;

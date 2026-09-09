@@ -27,6 +27,7 @@ export default function FornecedorFormPage() {
   const [form, setForm] = useState<FornecedorFormState>(EMPTY);
   const [nomeCidade, setNomeCidade] = useState('');
   const [nomeCondicao, setNomeCondicao] = useState('');
+  const [nextId, setNextId] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
@@ -52,11 +53,18 @@ export default function FornecedorFormPage() {
           });
           setNomeCidade(f.nomeCidade ?? '');
           setNomeCondicao(f.nomeCondicaoPagamento ?? '');
+          setNextId(String(f.id));
         })
         .catch(() => navigate('/fornecedores'))
         .finally(() => setLoading(false));
     } else {
-      setLoading(false);
+      FornecedorService.getAll()
+        .then((res) => {
+          const maxId = res.data.length > 0 ? Math.max(...res.data.map(f => f.id)) : 0;
+          setNextId(String(maxId + 1));
+        })
+        .catch(() => setNextId(''))
+        .finally(() => setLoading(false));
     }
   }, [id, isEdit, navigate]);
 
@@ -174,6 +182,11 @@ export default function FornecedorFormPage() {
           {/* Dados Principais */}
           <div className="form-section">
             <h2 className="form-section-title">Dados Principais</h2>
+
+            <div className="form-group id-field">
+              <label htmlFor="id">Código</label>
+              <input id="id" type="text" readOnly value={nextId} />
+            </div>
 
             <div className="form-group">
               <label>Tipo de Pessoa *</label>

@@ -74,6 +74,7 @@ const EMPTY: FuncionarioCreate = {
     pis: '',
 
     salario: undefined,
+    carregaHoraria: 40,
 
     dataAdmissao: '',
     dataDemissao: '',
@@ -110,11 +111,68 @@ export default function FuncionarioFormPage() {
 
     const [nomeCargo, setNomeCargo] = useState('');
 
+    const [nextId, setNextId] = useState<string>('');
+
     useEffect(() => {
 
-        if (!isEdit) {
+        if (isEdit) {
 
-            // Pré-preencher Data de Admissão com a data atual (YYYY-MM-DD)
+            FuncionarioService.getById(Number(id))
+
+                .then(res => {
+
+                    const f = res.data;
+
+                    const dataAdmConvertida = toInputDate(f.dataAdmissao);
+
+                    setForm({
+
+                        nome: f.nome,
+                        cpfCnpj: f.cpfCnpj,
+                        rgIe: f.rgIe ?? '',
+
+                        contato2: f.contato2 ?? '',
+                        celular: f.celular ?? '',
+                        email: f.email ?? '',
+
+                        cep: f.cep ?? '',
+                        endereco: f.endereco ?? '',
+                        numero: f.numero ?? '',
+                        complemento: f.complemento ?? '',
+                        bairro: f.bairro ?? '',
+
+                        idCidade: f.idCidade,
+                        idCargo: f.idCargo,
+
+                        pis: f.pis ?? '',
+
+                        salario: f.salario,
+                        carregaHoraria: f.carregaHoraria,
+
+                        dataAdmissao: dataAdmConvertida,
+
+                        dataDemissao: toInputDate(f.dataDemissao),
+
+                        sexo: f.sexo ?? '',
+
+                        ativo: f.ativo
+
+                    });
+
+                    setNomeCidade(f.nomeCidade ?? '');
+
+                    setNomeCargo(f.nomeCargo ?? '');
+
+                    setNextId(String(f.id));
+
+                })
+
+            .catch(() => navigate('/funcionarios'))
+
+            .finally(() => setLoading(false));
+
+        } else {
+
             const hoje = getHoje();
 
             setForm(prev => ({
@@ -125,64 +183,23 @@ export default function FuncionarioFormPage() {
 
             }));
 
-            setLoading(false);
+            FuncionarioService.getAll()
 
-            return;
+                .then((res) => {
+
+                    const maxId = res.data.length > 0 ? Math.max(...res.data.map(f => f.id)) : 0;
+
+                    setNextId(String(maxId + 1));
+
+                })
+
+                .catch(() => setNextId(''))
+
+                .finally(() => setLoading(false));
 
         }
 
-        FuncionarioService.getById(Number(id))
-
-            .then(res => {
-
-                const f = res.data;
-
-                const dataAdmConvertida = toInputDate(f.dataAdmissao);
-
-                setForm({
-
-                    nome: f.nome,
-                    cpfCnpj: f.cpfCnpj,
-                    rgIe: f.rgIe ?? '',
-
-                    contato2: f.contato2 ?? '',
-                    celular: f.celular ?? '',
-                    email: f.email ?? '',
-
-                    cep: f.cep ?? '',
-                    endereco: f.endereco ?? '',
-                    numero: f.numero ?? '',
-                    complemento: f.complemento ?? '',
-                    bairro: f.bairro ?? '',
-
-                    idCidade: f.idCidade,
-                    idCargo: f.idCargo,
-
-                    pis: f.pis ?? '',
-
-                    salario: f.salario,
-
-                    dataAdmissao: dataAdmConvertida,
-
-                    dataDemissao: toInputDate(f.dataDemissao),
-
-                    sexo: f.sexo ?? '',
-
-                    ativo: f.ativo
-
-                });
-
-                setNomeCidade(f.nomeCidade ?? '');
-
-                setNomeCargo(f.nomeCargo ?? '');
-
-            })
-
-            .catch(() => navigate('/funcionarios'))
-
-            .finally(() => setLoading(false));
-
-    }, [id]);
+    }, [id, isEdit, navigate]);
 
     useEffect(() => {
 
@@ -415,6 +432,14 @@ export default function FuncionarioFormPage() {
 
         }
 
+        if (form.carregaHoraria === undefined || form.carregaHoraria === 0) {
+
+            setError('Carga horária é obrigatória.');
+
+            return;
+
+        }
+
         if (!form.dataAdmissao || !form.dataAdmissao.trim()) {
 
             setError('Data de Admissão é obrigatória.');
@@ -530,6 +555,11 @@ export default function FuncionarioFormPage() {
                             Dados Principais
 
                         </h2>
+
+                        <div className="form-group id-field">
+                          <label htmlFor="id">Código</label>
+                          <input id="id" type="text" readOnly value={nextId} />
+                        </div>
 
                         <div className="form-row">
 
@@ -745,6 +775,26 @@ export default function FuncionarioFormPage() {
                                         })
                                     }
                                     placeholder="R$ 0,00"
+                                />
+
+                            </div>
+
+                            <div className="form-group">
+
+                                <label htmlFor="carregaHoraria">
+
+                                    Carga Horária (horas/semana) *
+
+                                </label>
+
+                                <input
+                                    id="carregaHoraria"
+                                    type="number"
+                                    min="1"
+                                    max="100"
+                                    placeholder="Ex: 40"
+                                    value={form.carregaHoraria ?? 0}
+                                    onChange={e => setForm({ ...form, carregaHoraria: Number(e.target.value) })}
                                 />
 
                             </div>

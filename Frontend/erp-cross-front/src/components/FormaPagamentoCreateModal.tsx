@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { FormaPagamentoService } from '../services/formaPagamentoService';
 import type { FormaPagamentoCreate } from '../types/entities';
@@ -12,9 +12,18 @@ interface Props {
 }
 
 export default function FormaPagamentoCreateModal({ onCreated, onClose, zBase = 1100 }: Props) {
+  const [nextId, setNextId] = useState<string>('');
   const [form, setForm] = useState<FormaPagamentoCreate>({ nomeFormaPagamento: '', aceitaParcela: false, ativo: true });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    FormaPagamentoService.getAll()
+      .then(res => {
+        const maxId = res.data.length > 0 ? Math.max(...res.data.map(f => f.id)) : 0;
+        setNextId(String(maxId + 1));
+      });
+  }, []);
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
@@ -45,6 +54,10 @@ export default function FormaPagamentoCreateModal({ onCreated, onClose, zBase = 
         </div>
         <form onSubmit={handleSave}>
           <div className="modal-form">
+            <div className="form-group id-field">
+              <label>Código</label>
+              <input id="id" type="text" readOnly value={nextId} />
+            </div>
             <div className="form-group">
               <label htmlFor="nomeFormaPagamento">Forma de Pagamento *</label>
               <input

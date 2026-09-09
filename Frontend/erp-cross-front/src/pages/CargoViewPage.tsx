@@ -80,14 +80,11 @@ export default function CargoViewPage() {
 
             <div className="view-group">
               <span className="view-label">
-                Descrição
+                Setor
               </span>
 
-              <span
-                className="view-value"
-                style={{ whiteSpace: 'pre-wrap' }}
-              >
-                {cargo.descricao || '—'}
+              <span className="view-value">
+                {cargo.setor || '—'}
               </span>
             </div>
 

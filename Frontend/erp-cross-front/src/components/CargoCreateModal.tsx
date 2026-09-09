@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { CargoService } from '../services/cargoService';
 import type { CargoCreate } from '../types/entities';
@@ -13,13 +13,23 @@ interface Props {
 }
 
 export default function CargoCreateModal({ onCreated, onClose, zBase = 1100 }: Props) {
-  const [form, setForm] = useState<CargoCreate>({ nomeCargo: '', descricao: '', salarioBase: 0, exigeCnh: false, ativo: true });
+  const [nextId, setNextId] = useState<string>('');
+  const [form, setForm] = useState<CargoCreate>({ nomeCargo: '', setor: '', salarioBase: 0, exigeCnh: false, ativo: true });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    CargoService.getAll()
+      .then(res => {
+        const maxId = res.data.length > 0 ? Math.max(...res.data.map(c => c.id)) : 0;
+        setNextId(String(maxId + 1));
+      });
+  }, []);
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
     if (!form.nomeCargo.trim()) { setError('Nome do cargo é obrigatório.'); return; }
+    if (!form.setor?.trim()) { setError('Setor é obrigatório.'); return; }
     if (form.salarioBase < 0) { setError('Salário inválido.'); return; }
 
     setSaving(true);
@@ -47,6 +57,10 @@ export default function CargoCreateModal({ onCreated, onClose, zBase = 1100 }: P
         </div>
         <form onSubmit={handleSave}>
           <div className="modal-form">
+            <div className="form-group id-field">
+              <label>Código</label>
+              <input id="id" type="text" readOnly value={nextId} />
+            </div>
             <div className="form-group">
               <label htmlFor="nomeCargo">Cargo *</label>
               <input
@@ -59,14 +73,13 @@ export default function CargoCreateModal({ onCreated, onClose, zBase = 1100 }: P
               />
             </div>
             <div className="form-group">
-              <label htmlFor="descricao">Descrição</label>
-              <textarea
-                id="descricao"
-                placeholder="Descrição das responsabilidades do cargo..."
-                rows={4}
-                value={form.descricao ?? ''}
-                onChange={e => setForm({ ...form, descricao: e.target.value })}
-                style={{ resize: 'vertical', fontFamily: 'inherit', fontSize: 'inherit', width: '100%' }}
+              <label htmlFor="setor">Setor *</label>
+              <input
+                id="setor"
+                type="text"
+                placeholder="Ex: VENDAS, FINANCEIRO, TI..."
+                value={form.setor ?? ''}
+                onChange={e => setForm({ ...form, setor: e.target.value.toUpperCase() })}
               />
             </div>
             <div className="form-row">

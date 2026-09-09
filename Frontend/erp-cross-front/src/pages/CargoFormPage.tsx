@@ -9,7 +9,7 @@ import './PaisesPage.css';
 
 const EMPTY: CargoCreate = {
   nomeCargo: '',
-  descricao: '',
+  setor: '',
   salarioBase: 0,
   exigeCnh: false,
   ativo: true,
@@ -24,6 +24,8 @@ export default function CargoFormPage() {
 
   const [form, setForm] = useState<CargoCreate>(EMPTY);
 
+  const [nextId, setNextId] = useState<string>('');
+
   const [loading, setLoading] = useState(true);
 
   const [saving, setSaving] = useState(false);
@@ -31,23 +33,29 @@ export default function CargoFormPage() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    if (!isEdit) {
-      setLoading(false);
-      return;
+    if (isEdit) {
+      CargoService.getById(Number(id))
+        .then(res => {
+          setForm({
+            nomeCargo: res.data.nomeCargo,
+            setor: res.data.setor ?? '',
+            salarioBase: res.data.salarioBase,
+            exigeCnh: res.data.exigeCnh,
+            ativo: res.data.ativo,
+          });
+          setNextId(String(res.data.id));
+        })
+        .catch(() => navigate('/cargos'))
+        .finally(() => setLoading(false));
+    } else {
+      CargoService.getAll()
+        .then((res) => {
+          const maxId = res.data.length > 0 ? Math.max(...res.data.map(c => c.id)) : 0;
+          setNextId(String(maxId + 1));
+        })
+        .catch(() => setNextId(''))
+        .finally(() => setLoading(false));
     }
-
-    CargoService.getById(Number(id))
-      .then(res => {
-        setForm({
-          nomeCargo: res.data.nomeCargo,
-          descricao: res.data.descricao ?? '',
-          salarioBase: res.data.salarioBase,
-          exigeCnh: res.data.exigeCnh,
-          ativo: res.data.ativo,
-        });
-      })
-      .catch(() => navigate('/cargos'))
-      .finally(() => setLoading(false));
 
   }, [id, isEdit, navigate]);
 
@@ -57,6 +65,11 @@ export default function CargoFormPage() {
 
     if (!form.nomeCargo.trim()) {
       setError('Nome do cargo é obrigatório.');
+      return;
+    }
+
+    if (!form.setor?.trim()) {
+      setError('Setor é obrigatório.');
       return;
     }
 
@@ -123,6 +136,11 @@ export default function CargoFormPage() {
               Dados do Cargo
             </h2>
 
+            <div className="form-group id-field">
+              <label htmlFor="id">Código</label>
+              <input id="id" type="text" readOnly value={nextId} />
+            </div>
+
             <div className="form-group">
               <label htmlFor="nomeCargo">Cargo *</label>
               <input
@@ -141,24 +159,18 @@ export default function CargoFormPage() {
             </div>
 
             <div className="form-group">
-              <label htmlFor="descricao">Descrição</label>
-              <textarea
-                id="descricao"
-                rows={4}
-                placeholder="Descrição das responsabilidades do cargo..."
-                value={form.descricao ?? ''}
+              <label htmlFor="setor">Setor *</label>
+              <input
+                id="setor"
+                type="text"
+                placeholder="Ex: VENDAS, FINANCEIRO, TI..."
+                value={form.setor ?? ''}
                 onChange={e =>
                   setForm({
                     ...form,
-                    descricao: e.target.value
+                    setor: e.target.value.toUpperCase()
                   })
                 }
-                style={{
-                  resize: 'vertical',
-                  width: '100%',
-                  fontFamily: 'inherit',
-                  fontSize: 'inherit'
-                }}
               />
             </div>
 

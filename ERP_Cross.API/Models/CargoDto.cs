@@ -7,7 +7,7 @@ public class CreateCargoDto
 {
     [Required]
     public string NomeCargo { get; set; } = string.Empty;
-    public string? Descricao { get; set; }
+    public string? Setor { get; set; }
     public decimal SalarioBase { get; set; }
     public bool ExigeCnh { get; set; }
     public bool Ativo { get; set; } = true;
@@ -17,7 +17,7 @@ public class UpdateCargoDto
 {
     [Required]
     public string NomeCargo { get; set; } = string.Empty;
-    public string? Descricao { get; set; }
+    public string? Setor { get; set; }
     public decimal SalarioBase { get; set; }
     public bool ExigeCnh { get; set; }
     public bool Ativo { get; set; } = true;
@@ -27,7 +27,7 @@ public class CargoView
 {
     public int Id { get; set; }
     public string NomeCargo { get; set; } = string.Empty;
-    public string? Descricao { get; set; }
+    public string? Setor { get; set; }
     public decimal SalarioBase { get; set; }
     public bool ExigeCnh { get; set; }
     public bool Ativo { get; set; }

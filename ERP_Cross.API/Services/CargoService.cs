@@ -22,7 +22,7 @@ public class CargoService
         var cargo = new Cargo
         {
             NomeCargo = dto.NomeCargo,
-            Descricao = dto.Descricao,
+            Setor = dto.Setor,
             SalarioBase = dto.SalarioBase,
             ExigeCnh = dto.ExigeCnh,
             Ativo = dto.Ativo
@@ -37,7 +37,7 @@ public class CargoService
         if (cargo == null) return false;
 
         cargo.NomeCargo = dto.NomeCargo;
-        cargo.Descricao = dto.Descricao;
+        cargo.Setor = dto.Setor;
         cargo.SalarioBase = dto.SalarioBase;
         cargo.ExigeCnh = dto.ExigeCnh;
         cargo.Ativo = dto.Ativo;

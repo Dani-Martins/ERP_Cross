@@ -23,6 +23,7 @@ public class CreateClienteDto
     public bool Pf { get; set; } = true;
     public DateTime? DataNascimento { get; set; }
     public string? Sexo { get; set; }
+    public decimal LimiteCredito { get; set; } = 0;
     public int? IdCondicaoPagamento { get; set; }
     public bool FuncionalKids { get; set; } = false;
     public string? NomeResponsavel { get; set; }
@@ -52,6 +53,7 @@ public class UpdateClienteDto
     public bool Pf { get; set; } = true;
     public DateTime? DataNascimento { get; set; }
     public string? Sexo { get; set; }
+    public decimal LimiteCredito { get; set; } = 0;
     public int? IdCondicaoPagamento { get; set; }
     public bool FuncionalKids { get; set; } = false;
     public string? NomeResponsavel { get; set; }

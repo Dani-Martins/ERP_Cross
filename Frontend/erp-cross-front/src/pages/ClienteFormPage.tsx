@@ -5,6 +5,9 @@ import { ClienteService } from '../services/clienteService';
 import type { ClienteCreate } from '../types/entities';
 import type { AxiosError } from 'axios';
 import CidadeLookupModal from '../components/CidadeLookupModal';
+import CondicaoPagamentoLookupModal from '../components/CondicaoPagamentoLookupModal';
+import CondicaoPagamentoCreateModal from '../components/CondicaoPagamentoCreateModal';
+import CurrencyInput from '../components/CurrencyInput';
 import { formatCPF, validateCPF, formatCNPJ, validateCNPJ, formatRG, validateRG, formatIE, validateIE, formatPhone, formatCEP } from '../utils/formatting';
 import { CidadeService } from '../services/cidadeService';
 import './PaisesPage.css';
@@ -54,11 +57,15 @@ export default function ClienteFormPage() {
 
   const [form, setForm] = useState<ClienteCreate>(EMPTY);
   const [nomeCidade, setNomeCidade] = useState('');
+  const [nomeCondicao, setNomeCondicao] = useState('');
+  const [nextId, setNextId] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [buscandoCEP, setBuscandoCEP] = useState(false);
   const [showCidadeModal, setShowCidadeModal] = useState(false);
+  const [showCondicaoModal, setShowCondicaoModal] = useState(false);
+  const [showCondicaoCriacaoModal, setShowCondicaoCriacaoModal] = useState(false);
 
   useEffect(() => {
     if (isEdit) {
@@ -75,15 +82,24 @@ export default function ClienteFormPage() {
             dataNascimento: toInputDate(c.dataNascimento), sexo: c.sexo ?? '',
             funcionalKids: c.funcionalKids, ativo: c.ativo,
             limiteCredito: c.limiteCredito ?? 0,
+            idCondicaoPagamento: c.idCondicaoPagamento,
             nomeResponsavel: c.nomeResponsavel ?? '', cpfResponsavel: c.cpfResponsavel ?? '',
             parentescoResponsavel: c.parentescoResponsavel ?? '', observacao: c.observacao ?? '',
           });
           setNomeCidade(c.nomeCidade ?? '');
+          setNomeCondicao(c.nomeCondicaoPagamento ?? '');
+          setNextId(String(c.id));
         })
         .catch(() => navigate('/clientes'))
         .finally(() => setLoading(false));
     } else {
-      setLoading(false);
+      ClienteService.getAll()
+        .then((res) => {
+          const maxId = res.data.length > 0 ? Math.max(...res.data.map(c => c.id)) : 0;
+          setNextId(String(maxId + 1));
+        })
+        .catch(() => setNextId(''))
+        .finally(() => setLoading(false));
     }
   }, [id, isEdit, navigate]);
 
@@ -232,6 +248,11 @@ export default function ClienteFormPage() {
           {/* Seção 1: Dados Principais */}
           <div className="form-section">
             <h2 className="form-section-title">Dados Principais</h2>
+
+            <div className="form-group id-field">
+              <label htmlFor="id">Código</label>
+              <input id="id" type="text" readOnly value={nextId} />
+            </div>
 
             <div className="form-group">
               <label>Tipo de Pessoa *</label>
@@ -581,17 +602,50 @@ export default function ClienteFormPage() {
           {/* Seção 4: Dados Comerciais */}
           <div className="form-section">
             <h2 className="form-section-title">Dados Comerciais</h2>
+
+            <div className="form-row">
               <div className="form-group">
-                <label htmlFor="observacao">Observação</label>
-                <textarea
-                  id="observacao"
-                  placeholder="Ex: Prefere aulas pela manhã, possui lesão no joelho..."
-                  rows={3}
-                  value={form.observacao ?? ''}
-                  onChange={e => setForm({ ...form, observacao: e.target.value })}
-                  style={{ resize: 'vertical', fontFamily: 'inherit', fontSize: 'inherit', width: '100%' }}
+                <label htmlFor="limiteCredito">Limite de Crédito</label>
+                <CurrencyInput
+                  id="limiteCredito"
+                  value={form.limiteCredito ?? 0}
+                  onChange={value => setForm({ ...form, limiteCredito: value })}
                 />
               </div>
+              <div className="form-group">
+                <label htmlFor="idCondicao">Condição de Pagamento</label>
+                <div className="lookup-field">
+                  <input
+                    id="idCondicao"
+                    type="text"
+                    readOnly
+                    placeholder="Selecione uma condição..."
+                    value={nomeCondicao}
+                    className="lookup-input"
+                  />
+                  <button
+                    type="button"
+                    className="btn-lookup"
+                    onClick={() => setShowCondicaoModal(true)}
+                    title="Pesquisar condição de pagamento"
+                  >
+                    <Search size={16} />
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="observacao">Observação</label>
+              <textarea
+                id="observacao"
+                placeholder="Ex: Prefere aulas pela manhã, possui lesão no joelho..."
+                rows={3}
+                value={form.observacao ?? ''}
+                onChange={e => setForm({ ...form, observacao: e.target.value })}
+                style={{ resize: 'vertical', fontFamily: 'inherit', fontSize: 'inherit', width: '100%' }}
+              />
+            </div>
             <div className="form-group form-check">
               <label>
                 <input
@@ -626,6 +680,29 @@ export default function ClienteFormPage() {
           setShowCidadeModal(false);
         }}
         onClose={() => setShowCidadeModal(false)}
+      />
+    )}
+
+    {showCondicaoModal && (
+      <CondicaoPagamentoLookupModal
+        onSelect={(condicaoId, condicaoNome) => {
+          setForm(prev => ({ ...prev, idCondicaoPagamento: condicaoId }));
+          setNomeCondicao(condicaoNome);
+          setShowCondicaoModal(false);
+        }}
+        onClose={() => setShowCondicaoModal(false)}
+      />
+    )}
+
+    {showCondicaoCriacaoModal && (
+      <CondicaoPagamentoCreateModal
+        onCreated={(condicaoId, condicaoNome) => {
+          setForm(prev => ({ ...prev, idCondicaoPagamento: condicaoId }));
+          setNomeCondicao(condicaoNome);
+          setShowCondicaoCriacaoModal(false);
+        }}
+        onClose={() => setShowCondicaoCriacaoModal(false)}
+        zBase={1200}
       />
     )}
     </>

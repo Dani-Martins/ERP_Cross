@@ -24,6 +24,7 @@ public class CreateFuncionarioDto
     public int? IdCargo { get; set; }
     public string? Pis { get; set; }
     public decimal? Salario { get; set; }
+    public int? CarregaHoraria { get; set; }
     public DateTime? DataAdmissao { get; set; }
     public DateTime? DataDemissao { get; set; }
     public string? Sexo { get; set; }
@@ -51,6 +52,7 @@ public class UpdateFuncionarioDto
     public int? IdCargo { get; set; }
     public string? Pis { get; set; }
     public decimal? Salario { get; set; }
+    public int? CarregaHoraria { get; set; }
     public DateTime? DataAdmissao { get; set; }
     public DateTime? DataDemissao { get; set; }
     public string? Sexo { get; set; }
@@ -75,6 +77,7 @@ public class FuncionarioView
     public int? IdCargo { get; set; }
     public string? Pis { get; set; }
     public decimal? Salario { get; set; }
+    public int? CarregaHoraria { get; set; }
     public DateTime? DataAdmissao { get; set; }
     public DateTime? DataDemissao { get; set; }
     public string? Sexo { get; set; }
