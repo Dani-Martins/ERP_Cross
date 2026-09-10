@@ -13,13 +13,14 @@ public class FornecedorRepository
     private const string SelectColumns = @"
         f.Id, f.Nome, f.NomeFantasia, f.CpfCnpj, f.RgIe, f.Contato2, f.Celular, f.Email,
         f.Cep, f.Endereco, f.Numero, f.Complemento, f.Bairro, f.IdCidade,
-        f.IdCondicaoPagamento, f.Ativo, f.DataCriacao, f.DataAtualizacao,
-        ci.NomeCidade, cp.NomeCondicao AS NomeCondicaoPagamento";
+        f.IdCondicaoPagamento, f.IdTransportadora, f.Ativo, f.DataCriacao, f.DataAtualizacao,
+        ci.NomeCidade, cp.NomeCondicao AS NomeCondicaoPagamento, t.NomeTransportadora";
 
     private const string FromJoin = @"
         FROM Fornecedores f
         LEFT JOIN Cidades ci ON f.IdCidade = ci.Id
-        LEFT JOIN CondicoesPagamento cp ON f.IdCondicaoPagamento = cp.Id";
+        LEFT JOIN CondicoesPagamento cp ON f.IdCondicaoPagamento = cp.Id
+        LEFT JOIN Transportadoras t ON f.IdTransportadora = t.Id";
 
     public async Task<IEnumerable<Fornecedor>> GetAllAsync(string? q = null)
     {
@@ -37,10 +38,10 @@ public class FornecedorRepository
         const string sql = @"
             INSERT INTO Fornecedores (Nome, NomeFantasia, CpfCnpj, RgIe, Contato2, Celular, Email,
                 Cep, Endereco, Numero, Complemento, Bairro, IdCidade,
-                IdCondicaoPagamento, Ativo, DataCriacao, DataAtualizacao)
+                IdCondicaoPagamento, IdTransportadora, Ativo, DataCriacao, DataAtualizacao)
             VALUES (@Nome, @NomeFantasia, @CpfCnpj, @RgIe, @Contato2, @Celular, @Email,
                 @Cep, @Endereco, @Numero, @Complemento, @Bairro, @IdCidade,
-                @IdCondicaoPagamento, @Ativo, NOW(), NOW());
+                @IdCondicaoPagamento, @IdTransportadora, @Ativo, NOW(), NOW());
             SELECT LAST_INSERT_ID();";
         return await _connection.ExecuteScalarAsync<int>(sql, f);
     }
@@ -52,7 +53,7 @@ public class FornecedorRepository
                 Nome=@Nome, NomeFantasia=@NomeFantasia, CpfCnpj=@CpfCnpj, RgIe=@RgIe,
                 Contato2=@Contato2, Celular=@Celular, Email=@Email,
                 Cep=@Cep, Endereco=@Endereco, Numero=@Numero, Complemento=@Complemento, Bairro=@Bairro, IdCidade=@IdCidade,
-                IdCondicaoPagamento=@IdCondicaoPagamento, Ativo=@Ativo, DataAtualizacao=NOW()
+                IdCondicaoPagamento=@IdCondicaoPagamento, IdTransportadora=@IdTransportadora, Ativo=@Ativo, DataAtualizacao=NOW()
             WHERE Id = @Id";
         return await _connection.ExecuteAsync(sql, f) > 0;
     }

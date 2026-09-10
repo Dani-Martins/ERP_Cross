@@ -1,22 +1,37 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Truck, Search } from 'lucide-react';
+import { Truck, Search, Plus, Trash2 } from 'lucide-react';
 import { FornecedorService } from '../services/fornecedorService';
 import { CidadeService } from '../services/cidadeService';
 import type { FornecedorCreate } from '../types/entities';
 import type { AxiosError } from 'axios';
 import CidadeLookupModal from '../components/CidadeLookupModal';
 import CondicaoPagamentoLookupModal from '../components/CondicaoPagamentoLookupModal';
+import TransportadoraLookupModal from '../components/TransportadoraLookupModal';
+import ProdutoLookupModal from '../components/ProdutoLookupModal';
 import { formatCPF, validateCPF, formatCNPJ, validateCNPJ, formatRG, validateRG, formatIE, validateIE, formatPhone, formatCEP } from '../utils/formatting';
 import './PaisesPage.css';
 
 type FornecedorFormState = FornecedorCreate & { pf: boolean };
 
+interface ProdutoCarrinho {
+  _key: number;
+  produtoId: number;
+  nomeProduto: string;
+  quantidade: number;
+  unidadeId?: number;
+  nomeUnidade?: string;
+  precoVenda?: number;
+}
+
+let _key = 1;
+function nextKey() { return _key++; }
+
 const EMPTY: FornecedorFormState = {
   nome: '', nomeFantasia: '', cpfCnpj: '', rgIe: '',
   contato2: '', celular: '', email: '',
   cep: '', endereco: '', numero: '', complemento: '', bairro: '',
-  idCidade: 0, idCondicaoPagamento: 0, ativo: true, pf: false,
+  idCidade: 0, idCondicaoPagamento: 0, idTransportadora: undefined, ativo: true, pf: false,
 };
 
 export default function FornecedorFormPage() {
@@ -27,6 +42,8 @@ export default function FornecedorFormPage() {
   const [form, setForm] = useState<FornecedorFormState>(EMPTY);
   const [nomeCidade, setNomeCidade] = useState('');
   const [nomeCondicao, setNomeCondicao] = useState('');
+  const [nomeTransportadora, setNomeTransportadora] = useState('');
+  const [produtos, setProdutos] = useState<ProdutoCarrinho[]>([]);
   const [nextId, setNextId] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -34,6 +51,8 @@ export default function FornecedorFormPage() {
   const [buscandoCEP, setBuscandoCEP] = useState(false);
   const [showCidadeModal, setShowCidadeModal] = useState(false);
   const [showCondicaoModal, setShowCondicaoModal] = useState(false);
+  const [showTransportadoraModal, setShowTransportadoraModal] = useState(false);
+  const [showProdutoModal, setShowProdutoModal] = useState(false);
 
   const pessoaFisica = form.pf;
 
@@ -48,11 +67,12 @@ export default function FornecedorFormPage() {
             contato2: f.contato2 ?? '', celular: f.celular ?? '', email: f.email ?? '',
             cep: f.cep ?? '', endereco: f.endereco ?? '', numero: f.numero ?? '',
             complemento: f.complemento ?? '', bairro: f.bairro ?? '',
-            idCidade: f.idCidade, idCondicaoPagamento: f.idCondicaoPagamento ?? 0, ativo: f.ativo,
+            idCidade: f.idCidade, idCondicaoPagamento: f.idCondicaoPagamento ?? 0, idTransportadora: f.idTransportadora, ativo: f.ativo,
             pf: f.cpfCnpj.replace(/\D/g, '').length <= 11,
           });
           setNomeCidade(f.nomeCidade ?? '');
           setNomeCondicao(f.nomeCondicaoPagamento ?? '');
+          setNomeTransportadora(f.nomeTransportadora ?? '');
           setNextId(String(f.id));
         })
         .catch(() => navigate('/fornecedores'))
@@ -139,6 +159,7 @@ export default function FornecedorFormPage() {
         bairro: form.bairro || undefined,
         idCidade: form.idCidade,
         idCondicaoPagamento: form.idCondicaoPagamento as any,
+        idTransportadora: form.idTransportadora,
         ativo: form.ativo,
       };
       if (isEdit) {
@@ -216,7 +237,7 @@ export default function FornecedorFormPage() {
 
             <div className="form-row">
               <div className="form-group" style={{ gridColumn: 'span 2' }}>
-                <label htmlFor="nome">{pessoaFisica ? 'Fornecedor *' : 'Razão Social *'}</label>
+                <label htmlFor="nome">Fornecedor *</label>
                 <input
                   id="nome"
                   type="text"
@@ -433,6 +454,87 @@ export default function FornecedorFormPage() {
               </div>
             </div>
 
+            <div className="form-group">
+              <label>Transportadora</label>
+              <div className="lookup-field">
+                <input
+                  type="text"
+                  readOnly
+                  placeholder="Selecione uma transportadora..."
+                  value={nomeTransportadora}
+                  className="lookup-input"
+                />
+                <button
+                  type="button"
+                  className="btn-lookup"
+                  onClick={() => setShowTransportadoraModal(true)}
+                  title="Pesquisar transportadora"
+                >
+                  <Search size={16} />
+                </button>
+              </div>
+            </div>
+
+            <div className="form-group">
+              <label>Produtos Vinculados</label>
+              <div style={{ marginBottom: 12 }}>
+                <span style={{ fontSize: '0.9rem', color: '#666' }}>
+                  {produtos.length} produto{produtos.length !== 1 ? 's' : ''} vinculado{produtos.length !== 1 ? 's' : ''}
+                </span>
+              </div>
+              {produtos.length > 0 && (
+                <div style={{ marginBottom: 12, overflowX: 'auto' }}>
+                  <table className="data-table" style={{ width: '100%' }}>
+                    <thead>
+                      <tr>
+                        <th style={{ textAlign: 'left' }}>Produto</th>
+                        <th style={{ width: 100, textAlign: 'center' }}>Qtd</th>
+                        <th style={{ width: 80, textAlign: 'center' }}>Ação</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {produtos.map((p) => (
+                        <tr key={p._key}>
+                          <td>{p.nomeProduto}</td>
+                          <td style={{ textAlign: 'center' }}>
+                            <input
+                              type="number"
+                              min="1"
+                              style={{ width: 60, padding: '4px', textAlign: 'center' }}
+                              value={p.quantidade}
+                              onChange={(e) => {
+                                const newQtd = Math.max(1, parseInt(e.target.value) || 1);
+                                setProdutos(prev => prev.map(item => item._key === p._key ? { ...item, quantidade: newQtd } : item));
+                              }}
+                            />
+                          </td>
+                          <td style={{ textAlign: 'center' }}>
+                            <button
+                              type="button"
+                              className="btn-small"
+                              onClick={() => setProdutos(prev => prev.filter(item => item._key !== p._key))}
+                              title="Remover produto"
+                              style={{ padding: '4px 8px', background: '#dc3545', color: 'white', border: 'none', borderRadius: 4, cursor: 'pointer' }}
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+              <button
+                type="button"
+                className="btn-primary"
+                onClick={() => setShowProdutoModal(true)}
+                style={{ display: 'flex', alignItems: 'center', gap: 8 }}
+              >
+                <Plus size={16} /> Adicionar Produto
+              </button>
+            </div>
+
             <div className="form-group form-check">
               <label>
                 <input
@@ -481,6 +583,35 @@ export default function FornecedorFormPage() {
           setShowCondicaoModal(false);
         }}
         onClose={() => setShowCondicaoModal(false)}
+      />
+    )}
+
+    {showTransportadoraModal && (
+      <TransportadoraLookupModal
+        onSelect={(idTransportadora, nomeTransportadoraSelecionada) => {
+          setForm(prev => ({ ...prev, idTransportadora }));
+          setNomeTransportadora(nomeTransportadoraSelecionada);
+          setShowTransportadoraModal(false);
+        }}
+        onClose={() => setShowTransportadoraModal(false)}
+      />
+    )}
+
+    {showProdutoModal && (
+      <ProdutoLookupModal
+        onSelect={(id, nomeProduto, unidadeId, nomeUnidade, precoVenda) => {
+          setProdutos(prev => {
+            const exists = prev.find(p => p.produtoId === id);
+            if (exists) {
+              return prev.map(p => p.produtoId === id ? { ...p, quantidade: p.quantidade + 1 } : p);
+            } else {
+              return [...prev, { _key: nextKey(), produtoId: id, nomeProduto, quantidade: 1, unidadeId, nomeUnidade, precoVenda }];
+            }
+          });
+          setShowProdutoModal(false);
+        }}
+        onClose={() => setShowProdutoModal(false)}
+        zBase={1001}
       />
     )}
 

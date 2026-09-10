@@ -95,6 +95,8 @@ export interface FornecedorView {
   nomeCidade?: string;
   idCondicaoPagamento: number;
   nomeCondicaoPagamento?: string;
+  idTransportadora?: number;
+  nomeTransportadora?: string;
   ativo: boolean;
   dataCriacao: string;
   dataAtualizacao: string;
@@ -115,6 +117,7 @@ export interface FornecedorCreate {
   bairro?: string;
   idCidade: number;
   idCondicaoPagamento: number;
+  idTransportadora?: number;
   ativo: boolean;
 }
 

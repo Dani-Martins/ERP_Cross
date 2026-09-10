@@ -21,6 +21,7 @@ public class CreateFornecedorDto
     public string? Bairro { get; set; }
     public int IdCidade { get; set; }
     public int IdCondicaoPagamento { get; set; }
+    public int? IdTransportadora { get; set; }
     public bool Ativo { get; set; } = true;
 }
 
@@ -42,6 +43,7 @@ public class UpdateFornecedorDto
     public string? Bairro { get; set; }
     public int IdCidade { get; set; }
     public int IdCondicaoPagamento { get; set; }
+    public int? IdTransportadora { get; set; }
     public bool Ativo { get; set; } = true;
 }
 
@@ -62,10 +64,12 @@ public class FornecedorView
     public string? Bairro { get; set; }
     public int IdCidade { get; set; }
     public int IdCondicaoPagamento { get; set; }
+    public int? IdTransportadora { get; set; }
     public bool Ativo { get; set; }
     public DateTime DataCriacao { get; set; }
     public DateTime DataAtualizacao { get; set; }
     public string? NomeCidade { get; set; }
     public string? NomeCondicaoPagamento { get; set; }
+    public string? NomeTransportadora { get; set; }
 }
 
