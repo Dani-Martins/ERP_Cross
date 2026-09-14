@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
-import { X, Search } from 'lucide-react';
+import { X, Search, Plus } from 'lucide-react';
 import { TransportadoraService } from '../services/transportadoraService';
 import type { TransportadoraView } from '../types/entities';
+import TransportadoraCreateModal from './TransportadoraCreateModal';
 import '../pages/PaisesPage.css';
 
 interface Props {
@@ -14,6 +15,7 @@ export default function TransportadoraLookupModal({ onSelect, onClose, zBase = 1
   const [all, setAll] = useState<TransportadoraView[]>([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
+  const [showCreateModal, setShowCreateModal] = useState(false);
 
   function load() {
     setLoading(true);
@@ -76,9 +78,22 @@ export default function TransportadoraLookupModal({ onSelect, onClose, zBase = 1
           )}
         </div>
         <div className="modal-footer">
+          <button type="button" className="btn-primary" onClick={() => setShowCreateModal(true)} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <Plus size={16} /> Nova Transportadora
+          </button>
           <button className="btn-secondary" type="button" onClick={onClose}>Fechar</button>
         </div>
       </div>
+      {showCreateModal && (
+        <TransportadoraCreateModal
+          onCreated={(id, nome) => {
+            onSelect(id, nome);
+            setShowCreateModal(false);
+          }}
+          onClose={() => setShowCreateModal(false)}
+          zBase={zBase + 100}
+        />
+      )}
     </div>
   );
 }

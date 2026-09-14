@@ -239,6 +239,7 @@ export type ClienteUpdate = ClienteCreate;
 export interface ProdutoView {
   id: number;
   nomeProduto: string;
+  referencia?: string;
   unidadeId?: number;
   marcaId?: number;
   categoriaId?: number;
@@ -258,6 +259,7 @@ export interface ProdutoView {
 }
 export interface ProdutoCreate {
   nomeProduto: string;
+  referencia?: string;
   unidadeId?: number;
   marcaId?: number;
   categoriaId?: number;

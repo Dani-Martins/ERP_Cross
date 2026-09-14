@@ -4,6 +4,7 @@ namespace ERP_Cross.API.Entities;
 public class Produto : ModeloBase
 {
     public string NomeProduto { get; set; } = string.Empty;
+    public string? Referencia { get; set; }
     public int? UnidadeId { get; set; }
     public int? MarcaId { get; set; }
     public int? CategoriaId { get; set; }

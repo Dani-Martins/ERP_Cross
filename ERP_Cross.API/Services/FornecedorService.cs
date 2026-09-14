@@ -20,7 +20,7 @@ public class FornecedorService
             Nome = dto.Nome, NomeFantasia = dto.NomeFantasia, CpfCnpj = dto.CpfCnpj, RgIe = dto.RgIe,
             Contato2 = dto.Contato2, Celular = dto.Celular, Email = dto.Email,
             Cep = dto.Cep, Endereco = dto.Endereco, Numero = dto.Numero, Complemento = dto.Complemento, Bairro = dto.Bairro,
-            IdCidade = dto.IdCidade, IdCondicaoPagamento = dto.IdCondicaoPagamento, IdTransportadora = dto.IdTransportadora, Ativo = dto.Ativo
+            IdCidade = dto.IdCidade, IdCondicaoPagamento = dto.IdCondicaoPagamento, IdTransportadora = null, Ativo = dto.Ativo
         };
         f.Id = await _repository.InsertAsync(f);
         return f;
@@ -34,7 +34,7 @@ public class FornecedorService
         f.Nome = dto.Nome; f.NomeFantasia = dto.NomeFantasia; f.CpfCnpj = dto.CpfCnpj; f.RgIe = dto.RgIe;
         f.Contato2 = dto.Contato2; f.Celular = dto.Celular; f.Email = dto.Email;
         f.Cep = dto.Cep; f.Endereco = dto.Endereco; f.Numero = dto.Numero; f.Complemento = dto.Complemento; f.Bairro = dto.Bairro;
-        f.IdCidade = dto.IdCidade; f.IdCondicaoPagamento = dto.IdCondicaoPagamento; f.IdTransportadora = dto.IdTransportadora; f.Ativo = dto.Ativo;
+        f.IdCidade = dto.IdCidade; f.IdCondicaoPagamento = dto.IdCondicaoPagamento; f.IdTransportadora = null; f.Ativo = dto.Ativo;
 
         return await _repository.UpdateAsync(f);
     }

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { UnidadeMedidaService } from '../services/unidadeMedidaService';
 import type { UnidadeMedidaCreate } from '../types/entities';
@@ -15,6 +15,17 @@ export default function UnidadeMedidaCreateModal({ onCreated, onClose, zBase = 1
   const [form, setForm] = useState<UnidadeMedidaCreate>({ nomeUnidade: '', sigla: '', ativo: true });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const [nextId, setNextId] = useState('1');
+
+  useEffect(() => {
+    UnidadeMedidaService.getAll()
+      .then(res => {
+        const maxId = res.data.length > 0
+          ? Math.max(...res.data.map((u: any) => u.id))
+          : 0;
+        setNextId(String(maxId + 1));
+      });
+  }, []);
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
@@ -47,6 +58,21 @@ export default function UnidadeMedidaCreateModal({ onCreated, onClose, zBase = 1
         </div>
         <form onSubmit={handleSave}>
           <div className="modal-form">
+            <div className="form-group">
+              <label htmlFor="id">Código *</label>
+              <input
+                id="id"
+                type="text"
+                readOnly
+                value={nextId}
+                style={{
+                  width: '120px',
+                  padding: '6px',
+                  fontSize: '0.8rem',
+                  textAlign: 'center'
+                }}
+              />
+            </div>
             <div className="form-group">
               <label htmlFor="nomeUnidade">Unidade *</label>
               <input

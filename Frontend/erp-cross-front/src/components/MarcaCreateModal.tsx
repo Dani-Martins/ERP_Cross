@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { MarcaService } from '../services/marcaService';
 import type { MarcaCreate } from '../types/entities';
@@ -15,6 +15,17 @@ export default function MarcaCreateModal({ onCreated, onClose, zBase = 1100 }: P
   const [form, setForm] = useState<MarcaCreate>({ nomeMarca: '', descricao: '', ativo: true });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const [nextId, setNextId] = useState('1');
+
+  useEffect(() => {
+    MarcaService.getAll()
+      .then(res => {
+        const maxId = res.data.length > 0
+          ? Math.max(...res.data.map((m: any) => m.id))
+          : 0;
+        setNextId(String(maxId + 1));
+      });
+  }, []);
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
@@ -45,6 +56,21 @@ export default function MarcaCreateModal({ onCreated, onClose, zBase = 1100 }: P
         </div>
         <form onSubmit={handleSave}>
           <div className="modal-form">
+            <div className="form-group">
+              <label htmlFor="id">Código *</label>
+              <input
+                id="id"
+                type="text"
+                readOnly
+                value={nextId}
+                style={{
+                  width: '120px',
+                  padding: '6px',
+                  fontSize: '0.8rem',
+                  textAlign: 'center'
+                }}
+              />
+            </div>
             <div className="form-group">
               <label htmlFor="nomeMarca">Marca *</label>
               <input

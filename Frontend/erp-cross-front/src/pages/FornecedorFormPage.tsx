@@ -488,7 +488,9 @@ export default function FornecedorFormPage() {
                     <thead>
                       <tr>
                         <th style={{ textAlign: 'left' }}>Produto</th>
-                        <th style={{ width: 100, textAlign: 'center' }}>Qtd</th>
+                        <th style={{ width: 80, textAlign: 'center' }}>Qtd</th>
+                        <th style={{ width: 120, textAlign: 'center' }}>Preço Unit.</th>
+                        <th style={{ width: 120, textAlign: 'center' }}>Subtotal</th>
                         <th style={{ width: 80, textAlign: 'center' }}>Ação</th>
                       </tr>
                     </thead>
@@ -509,6 +511,12 @@ export default function FornecedorFormPage() {
                             />
                           </td>
                           <td style={{ textAlign: 'center' }}>
+                            {p.precoVenda ? `R$ ${Number(p.precoVenda).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '—'}
+                          </td>
+                          <td style={{ textAlign: 'center' }}>
+                            {p.precoVenda ? `R$ ${(p.precoVenda * p.quantidade).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '—'}
+                          </td>
+                          <td style={{ textAlign: 'center' }}>
                             <button
                               type="button"
                               className="btn-small"
@@ -523,6 +531,15 @@ export default function FornecedorFormPage() {
                       ))}
                     </tbody>
                   </table>
+                  <div style={{ marginTop: 12, paddingTop: 12, borderTop: '2px solid #ddd', textAlign: 'right' }}>
+                    <strong style={{ fontSize: '1.1rem' }}>
+                      Total: R$ {
+                        produtos
+                          .reduce((sum, p) => sum + (p.precoVenda ? p.precoVenda * p.quantidade : 0), 0)
+                          .toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                      }
+                    </strong>
+                  </div>
                 </div>
               )}
               <button

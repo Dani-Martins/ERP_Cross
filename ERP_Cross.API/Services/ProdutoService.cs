@@ -17,7 +17,7 @@ public class ProdutoService
     {
         var p = new Produto
         {
-            NomeProduto = dto.NomeProduto, UnidadeId = dto.UnidadeId, MarcaId = dto.MarcaId,
+            NomeProduto = dto.NomeProduto, Referencia = dto.Referencia, UnidadeId = dto.UnidadeId, MarcaId = dto.MarcaId,
             CategoriaId = dto.CategoriaId, Descricao = dto.Descricao, CodigoBarras = dto.CodigoBarras,
             CustoCompra = dto.CustoCompra,
             PrecoVenda = dto.CustoCompra * (1 + dto.LucroPercentual / 100),
@@ -33,7 +33,7 @@ public class ProdutoService
         var p = await _repository.GetByIdAsync(id);
         if (p == null) return false;
 
-        p.NomeProduto = dto.NomeProduto; p.UnidadeId = dto.UnidadeId; p.MarcaId = dto.MarcaId;
+        p.NomeProduto = dto.NomeProduto; p.Referencia = dto.Referencia; p.UnidadeId = dto.UnidadeId; p.MarcaId = dto.MarcaId;
         p.CategoriaId = dto.CategoriaId; p.Descricao = dto.Descricao; p.CodigoBarras = dto.CodigoBarras;
         p.CustoCompra = dto.CustoCompra;
         p.PrecoVenda = dto.CustoCompra * (1 + dto.LucroPercentual / 100);

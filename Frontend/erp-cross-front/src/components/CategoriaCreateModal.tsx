@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { CategoriaService } from '../services/categoriaService';
 import type { CategoriaCreate } from '../types/entities';
@@ -15,6 +15,17 @@ export default function CategoriaCreateModal({ onCreated, onClose, zBase = 1100 
   const [form, setForm] = useState<CategoriaCreate>({ nomeCategoria: '', descricao: '', ativo: true });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const [nextId, setNextId] = useState('1');
+
+  useEffect(() => {
+    CategoriaService.getAll()
+      .then(res => {
+        const maxId = res.data.length > 0
+          ? Math.max(...res.data.map((c: any) => c.id))
+          : 0;
+        setNextId(String(maxId + 1));
+      });
+  }, []);
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
@@ -45,6 +56,21 @@ export default function CategoriaCreateModal({ onCreated, onClose, zBase = 1100 
         </div>
         <form onSubmit={handleSave}>
           <div className="modal-form">
+            <div className="form-group">
+              <label htmlFor="id">Código *</label>
+              <input
+                id="id"
+                type="text"
+                readOnly
+                value={nextId}
+                style={{
+                  width: '120px',
+                  padding: '6px',
+                  fontSize: '0.8rem',
+                  textAlign: 'center'
+                }}
+              />
+            </div>
             <div className="form-group">
               <label htmlFor="nomeCategoria">Categoria *</label>
               <input

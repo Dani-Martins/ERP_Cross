@@ -21,11 +21,19 @@ export default function MarcaFormPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const [nextId, setNextId] = useState('1');
 
   useEffect(() => {
 
     if (!isEdit) {
-      setLoading(false);
+      MarcaService.getAll()
+        .then(res => {
+          const maxId = res.data.length > 0
+            ? Math.max(...res.data.map(m => m.id))
+            : 0;
+          setNextId(String(maxId + 1));
+        })
+        .finally(() => setLoading(false));
       return;
     }
 
@@ -39,6 +47,7 @@ export default function MarcaFormPage() {
           descricao: marca.descricao ?? '',
           ativo: marca.ativo,
         });
+        setNextId(String(marca.id));
 
       })
       .catch(() => navigate('/marcas'))
@@ -92,6 +101,22 @@ export default function MarcaFormPage() {
         <form onSubmit={handleSave} className="form-page">
           <div className="form-section">
             <h2 className="form-section-title">Dados da Marca</h2>
+
+            <div className="form-group">
+              <label htmlFor="id">Código *</label>
+              <input
+                id="id"
+                type="text"
+                readOnly
+                value={nextId}
+                style={{
+                  width: '120px',
+                  padding: '6px',
+                  fontSize: '0.8rem',
+                  textAlign: 'center'
+                }}
+              />
+            </div>
 
             <div className="form-group">
               <label htmlFor="nomeMarca">Marca *</label>

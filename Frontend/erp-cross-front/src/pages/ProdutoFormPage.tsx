@@ -13,6 +13,7 @@ import './PaisesPage.css';
 
 const EMPTY: ProdutoCreate = {
   nomeProduto: '',
+  referencia: '',
   unidadeId: undefined,
   marcaId: undefined,
   categoriaId: undefined,
@@ -43,10 +44,18 @@ export default function ProdutoFormPage() {
   const [showCategoriaModal, setShowCategoriaModal] = useState(false);
   const [showMarcaModal, setShowMarcaModal] = useState(false);
   const [showUnidadeModal, setShowUnidadeModal] = useState(false);
+  const [nextId, setNextId] = useState('1');
 
   useEffect(() => {
     if (!isEdit) {
-      setLoading(false);
+      ProdutoService.getAll()
+        .then(res => {
+          const maxId = res.data.length > 0
+            ? Math.max(...res.data.map(p => p.id))
+            : 0;
+          setNextId(String(maxId + 1));
+        })
+        .finally(() => setLoading(false));
       return;
     }
 
@@ -56,6 +65,7 @@ export default function ProdutoFormPage() {
 
         setForm({
           nomeProduto: p.nomeProduto,
+          referencia: p.referencia ?? '',
           unidadeId: p.unidadeId,
           marcaId: p.marcaId,
           categoriaId: p.categoriaId,
@@ -67,6 +77,7 @@ export default function ProdutoFormPage() {
           estoqueMinimo: p.estoqueMinimo,
           ativo: p.ativo
         });
+        setNextId(String(p.id));
         setNomeCategoria(p.nomeCategoria ?? '');
         setNomeMarca(p.nomeMarca ?? '');
         setNomeUnidade(p.nomeUnidade ?? '');
@@ -170,6 +181,22 @@ export default function ProdutoFormPage() {
             <h2 className="form-section-title">Dados Básicos</h2>
 
             <div className="form-group">
+              <label htmlFor="id">Código *</label>
+              <input
+                id="id"
+                type="text"
+                readOnly
+                value={nextId}
+                style={{
+                  width: '120px',
+                  padding: '6px',
+                  fontSize: '0.8rem',
+                  textAlign: 'center'
+                }}
+              />
+            </div>
+
+            <div className="form-group">
               <label htmlFor="nomeProduto">Produto *</label>
               <input
                 id="nomeProduto"
@@ -208,21 +235,39 @@ export default function ProdutoFormPage() {
               />
             </div>
 
-            <div className="form-group">
-              <label htmlFor="codigoBarras">Código de Barras (EAN-13)</label>
-              <input
-                id="codigoBarras"
-                type="text"
-                placeholder="Ex: 1234567890123"
-                maxLength={13}
-                value={form.codigoBarras}
-                onChange={e =>
-                  setForm({
-                    ...form,
-                    codigoBarras: formatEAN13(e.target.value)
-                  })
-                }
-              />
+            <div className="form-row">
+              <div className="form-group">
+                <label htmlFor="codigoBarras">Código de Barras (EAN-13)</label>
+                <input
+                  id="codigoBarras"
+                  type="text"
+                  placeholder="Ex: 1234567890123"
+                  maxLength={13}
+                  value={form.codigoBarras}
+                  onChange={e =>
+                    setForm({
+                      ...form,
+                      codigoBarras: formatEAN13(e.target.value)
+                    })
+                  }
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="referencia">Referência</label>
+                <input
+                  id="referencia"
+                  type="text"
+                  placeholder="Ex: REF001"
+                  value={form.referencia}
+                  onChange={e =>
+                    setForm({
+                      ...form,
+                      referencia: e.target.value.toUpperCase()
+                    })
+                  }
+                />
+              </div>
             </div>
 
           </div>
@@ -370,6 +415,10 @@ export default function ProdutoFormPage() {
                 />
               </div>
 
+            </div>
+
+            <div className="form-row">
+
               <div className="form-group">
                 <label htmlFor="estoque">Quantidade em Estoque *</label>
                 <input
@@ -382,6 +431,24 @@ export default function ProdutoFormPage() {
                     setForm({
                       ...form,
                       estoque: Number(e.target.value)
+                    })
+                  }
+                  style={{ fontSize: '0.9em' }}
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="estoqueMinimo">Estoque Mínimo *</label>
+                <input
+                  id="estoqueMinimo"
+                  type="number"
+                  min="0"
+                  placeholder="0"
+                  value={form.estoqueMinimo}
+                  onChange={e =>
+                    setForm({
+                      ...form,
+                      estoqueMinimo: Number(e.target.value)
                     })
                   }
                   style={{ fontSize: '0.9em' }}

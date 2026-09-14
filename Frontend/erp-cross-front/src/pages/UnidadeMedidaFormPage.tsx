@@ -21,11 +21,19 @@ export default function UnidadeMedidaFormPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const [nextId, setNextId] = useState('1');
 
   useEffect(() => {
 
     if (!isEdit) {
-      setLoading(false);
+      UnidadeMedidaService.getAll()
+        .then(res => {
+          const maxId = res.data.length > 0
+            ? Math.max(...res.data.map(u => u.id))
+            : 0;
+          setNextId(String(maxId + 1));
+        })
+        .finally(() => setLoading(false));
       return;
     }
 
@@ -39,6 +47,7 @@ export default function UnidadeMedidaFormPage() {
           sigla: unidade.sigla ?? '',
           ativo: unidade.ativo,
         });
+        setNextId(String(unidade.id));
 
       })
       .catch(() => navigate('/unidades'))
@@ -94,6 +103,22 @@ export default function UnidadeMedidaFormPage() {
         <form onSubmit={handleSave} className="form-page">
           <div className="form-section">
             <h2 className="form-section-title">Dados da Unidade</h2>
+
+            <div className="form-group">
+              <label htmlFor="id">Código *</label>
+              <input
+                id="id"
+                type="text"
+                readOnly
+                value={nextId}
+                style={{
+                  width: '120px',
+                  padding: '6px',
+                  fontSize: '0.8rem',
+                  textAlign: 'center'
+                }}
+              />
+            </div>
 
             <div className="form-group">
               <label htmlFor="nomeUnidade">Unidade de Medida *</label>

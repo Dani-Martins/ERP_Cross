@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
-import { X, Search } from 'lucide-react';
+import { X, Search, Plus } from 'lucide-react';
 import { ProdutoService } from '../services/produtoService';
 import type { ProdutoView } from '../types/entities';
+import ProdutoCreateModal from '../pages/ProdutoCreateModal';
 import '../pages/PaisesPage.css';
 
 interface Props {
@@ -14,6 +15,7 @@ export default function ProdutoLookupModal({ onSelect, onClose, zBase = 1000 }: 
   const [all, setAll] = useState<ProdutoView[]>([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
+  const [showCreateModal, setShowCreateModal] = useState(false);
 
   function load() {
     setLoading(true);
@@ -88,9 +90,23 @@ export default function ProdutoLookupModal({ onSelect, onClose, zBase = 1000 }: 
           )}
         </div>
         <div className="modal-footer">
+          <button className="btn-primary" type="button" onClick={() => setShowCreateModal(true)}>
+            <Plus size={16} /> Nova Produto
+          </button>
           <button className="btn-secondary" type="button" onClick={onClose}>Fechar</button>
         </div>
       </div>
+
+      {showCreateModal && (
+        <ProdutoCreateModal
+          onCreated={(id, nomeProduto, unidadeId, nomeUnidade, precoVenda) => {
+            onSelect(id, nomeProduto, unidadeId, nomeUnidade, precoVenda);
+            setShowCreateModal(false);
+          }}
+          onClose={() => setShowCreateModal(false)}
+          zBase={zBase + 100}
+        />
+      )}
     </div>
   );
 }

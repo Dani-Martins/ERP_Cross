@@ -7,6 +7,7 @@ public class CreateProdutoDto
 {
     [Required]
     public string NomeProduto { get; set; } = string.Empty;
+    public string? Referencia { get; set; }
     public int? UnidadeId { get; set; }
     public int? MarcaId { get; set; }
     public int? CategoriaId { get; set; }
@@ -23,6 +24,7 @@ public class UpdateProdutoDto
 {
     [Required]
     public string NomeProduto { get; set; } = string.Empty;
+    public string? Referencia { get; set; }
     public int? UnidadeId { get; set; }
     public int? MarcaId { get; set; }
     public int? CategoriaId { get; set; }
@@ -39,6 +41,7 @@ public class ProdutoView
 {
     public int Id { get; set; }
     public string NomeProduto { get; set; } = string.Empty;
+    public string? Referencia { get; set; }
     public int? UnidadeId { get; set; }
     public int? MarcaId { get; set; }
     public int? CategoriaId { get; set; }

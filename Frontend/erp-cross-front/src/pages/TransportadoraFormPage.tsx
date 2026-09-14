@@ -58,49 +58,52 @@ export default function TransportadoraFormPage() {
   const [nomeCondicao, setNomeCondicao] =
     useState('');
 
+  const [nextId, setNextId] =
+    useState<string>('');
+
   const [showCondicaoModal, setShowCondicaoModal] = useState(false);
   const [showCidadeModal, setShowCidadeModal] = useState(false);
 
   useEffect(() => {
     if (!isEdit) {
-      setLoading(false);
+      TransportadoraService.getAll()
+        .then((res) => {
+          const maxId = res.data.length > 0 ? Math.max(...res.data.map(t => t.id)) : 0;
+          setNextId(String(maxId + 1));
+        })
+        .catch(() => setNextId(''))
+        .finally(() => setLoading(false));
       return;
     }
 
-  TransportadoraService.getById(Number(id))
-    .then(res => {
-
-      const t = res.data;
-
-      setForm({
-
-        nome: t.nome,
-        nomeFantasia: toInput(t.nomeFantasia),
-        cpfCnpj: t.cpfCnpj,
-        rgIe: toInput(t.rgIe),
-        contato2: toInput(t.contato2),
-        celular: toInput(t.celular),
-        email: toInput(t.email),
-        cep: toInput(t.cep),
-        endereco: toInput(t.endereco),
-        numero: toInput(t.numero),
-        complemento: toInput(t.complemento),
-        bairro: toInput(t.bairro),
-        idCidade: t.idCidade,
-        tipoPessoa: t.tipoPessoa ?? 'PJ',
-        idCondicaoPagamento: t.idCondicaoPagamento ?? 0,
-        ativo: t.ativo,
-
-      });
-
-      setNomeCidade(t.nomeCidade ?? '');
-      setNomeCondicao(t.nomeCondicaoPagamento ?? '');
-
-    })
-    .catch(() => navigate('/transportadoras'))
-    .finally(() => setLoading(false));
-
-}, [id, isEdit, navigate]);
+    TransportadoraService.getById(Number(id))
+      .then(res => {
+        const t = res.data;
+        setForm({
+          nome: t.nome,
+          nomeFantasia: toInput(t.nomeFantasia),
+          cpfCnpj: t.cpfCnpj,
+          rgIe: toInput(t.rgIe),
+          contato2: toInput(t.contato2),
+          celular: toInput(t.celular),
+          email: toInput(t.email),
+          cep: toInput(t.cep),
+          endereco: toInput(t.endereco),
+          numero: toInput(t.numero),
+          complemento: toInput(t.complemento),
+          bairro: toInput(t.bairro),
+          idCidade: t.idCidade,
+          tipoPessoa: t.tipoPessoa ?? 'PJ',
+          idCondicaoPagamento: t.idCondicaoPagamento ?? 0,
+          ativo: t.ativo,
+        });
+        setNomeCidade(t.nomeCidade ?? '');
+        setNomeCondicao(t.nomeCondicaoPagamento ?? '');
+        setNextId(String(t.id));
+      })
+      .catch(() => navigate('/transportadoras'))
+      .finally(() => setLoading(false));
+  }, [id, isEdit, navigate]);
 async function handleSave(e: React.FormEvent) {
   e.preventDefault();
 
@@ -271,6 +274,11 @@ return (
               Dados Gerais
             </h2>
 
+            <div className="form-group id-field">
+              <label htmlFor="id">Código</label>
+              <input id="id" type="text" readOnly value={nextId} />
+            </div>
+
             <div className="form-group">
               <label>Tipo de Pessoa *</label>
               <div style={{ display: 'flex', gap: 16, alignItems: 'center', paddingTop: 4 }}>
@@ -301,7 +309,7 @@ return (
 
               <div className="form-group" style={{ gridColumn: 'span 2' }}>
 
-                <label>{form.tipoPessoa === 'PF' ? 'Transportadora *' : 'Razão Social *'}</label>
+                <label>Transportadora *</label>
 
                 <input
                   type="text"
