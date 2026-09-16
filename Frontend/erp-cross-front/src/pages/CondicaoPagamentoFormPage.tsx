@@ -44,6 +44,7 @@ export default function CondicaoPagamentoFormPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const [nextId, setNextId] = useState('1');
 
   // Nome completo derivado: "BASE (FORMA)"
   const nomeCompleto = nomeBase
@@ -51,6 +52,16 @@ export default function CondicaoPagamentoFormPage() {
     : '';
 
   useEffect(() => {
+    if (!isEdit) {
+      CondicaoPagamentoService.getAll()
+        .then(res => {
+          const maxId = res.data.length > 0
+            ? Math.max(...res.data.map(c => c.id))
+            : 0;
+          setNextId(String(maxId + 1));
+        })
+        .catch(() => setNextId('1'));
+    }
     FormaPagamentoService.getAll().then(res => {
       const ativas = res.data.filter(f => f.ativo);
       setFormas(ativas);
@@ -83,6 +94,7 @@ export default function CondicaoPagamentoFormPage() {
           })
           .catch(() => navigate('/condicoes-pagamento'))
           .finally(() => setLoading(false));
+      setNextId(String(id));
       } else {
         setLoading(false);
       }
@@ -213,6 +225,22 @@ export default function CondicaoPagamentoFormPage() {
         <form onSubmit={handleSave} className="form-page">
           <div className="form-section">
             <h2 className="form-section-title">Dados da Condição</h2>
+
+            <div className="form-group">
+              <label htmlFor="id">Código *</label>
+              <input
+                id="id"
+                type="text"
+                readOnly
+                value={nextId}
+                style={{
+                  width: '120px',
+                  padding: '6px',
+                  fontSize: '0.8rem',
+                  textAlign: 'center'
+                }}
+              />
+            </div>
 
             <div className="form-group">
               <label htmlFor="nomeBase">Condição de Pagamento *</label>

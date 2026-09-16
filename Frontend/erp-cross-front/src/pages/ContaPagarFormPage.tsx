@@ -41,8 +41,19 @@ export default function ContaPagarFormPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const [nextId, setNextId] = useState('1');
 
   useEffect(() => {
+    if (!isEdit) {
+      ContaPagarService.getAll()
+        .then(res => {
+          const maxId = res.data.length > 0
+            ? Math.max(...res.data.map(c => c.id))
+            : 0;
+          setNextId(String(maxId + 1));
+        })
+        .catch(() => setNextId('1'));
+    }
     Promise.all([
       FornecedorService.getAll().then(r => setFornecedores(r.data)),
       FormaPagamentoService.getAll().then(r => setFormas(r.data.filter(f => f.ativo))),
@@ -69,6 +80,7 @@ export default function ContaPagarFormPage() {
             if (found) setSelectedForma(found);
             return prev;
           });
+          setNextId(String(c.id));
         }).catch(() => navigate('/contas-pagar'));
       }
     }).finally(() => setLoading(false));
@@ -149,6 +161,22 @@ export default function ContaPagarFormPage() {
             {/* Dados do Documento */}
             <div className="form-section">
               <h2 className="form-section-title">Dados do Documento</h2>
+
+              <div className="form-group">
+                <label htmlFor="id">Código *</label>
+                <input
+                  id="id"
+                  type="text"
+                  readOnly
+                  value={nextId}
+                  style={{
+                    width: '120px',
+                    padding: '6px',
+                    fontSize: '0.8rem',
+                    textAlign: 'center'
+                  }}
+                />
+              </div>
 
               <div className="form-group">
                 <label>Nota de Compra *</label>

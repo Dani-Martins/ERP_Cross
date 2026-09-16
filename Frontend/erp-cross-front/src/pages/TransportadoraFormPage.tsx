@@ -1,13 +1,23 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import type { AxiosError } from 'axios';
-import { Truck, Search } from 'lucide-react';
+import { Truck, Search, Plus, Trash2 } from 'lucide-react';
 import { TransportadoraService } from '../services/transportadoraService';
 import type { TransportadoraCreate } from '../types/entities';
 import { formatCPF, validateCPF, formatCNPJ, validateCNPJ, formatRG, validateRG, formatIE, validateIE, formatPhone, formatCEP } from '../utils/formatting';
 import CidadeLookupModal from '../components/CidadeLookupModal';
 import CondicaoPagamentoLookupModal from '../components/CondicaoPagamentoLookupModal';
+import VeiculoLookupModal from '../components/VeiculoLookupModal';
 import './PaisesPage.css';
+
+interface VeiculoCarrinho {
+  _key: number;
+  veiculoId: number;
+  placa: string;
+}
+
+let _key = 1;
+function nextKey() { return _key++; }
 
 function toInput(value: string | null | undefined) {
   return value ?? '';
@@ -63,6 +73,8 @@ export default function TransportadoraFormPage() {
 
   const [showCondicaoModal, setShowCondicaoModal] = useState(false);
   const [showCidadeModal, setShowCidadeModal] = useState(false);
+  const [showVeiculoModal, setShowVeiculoModal] = useState(false);
+  const [veiculos, setVeiculos] = useState<VeiculoCarrinho[]>([]);
 
   useEffect(() => {
     if (!isEdit) {
@@ -613,7 +625,56 @@ return (
             </div>
 
           </div>
-                    {/* Financeiro */}
+
+          {/* Veículos */}
+          <div className="form-section">
+            <h2 className="form-section-title">Veículos</h2>
+            {veiculos.length > 0 && (
+              <div style={{ marginBottom: '1rem' }}>
+                <small style={{ color: 'var(--text-muted)' }}>
+                  {veiculos.length} veículo(s) vinculado(s)
+                </small>
+                <div style={{ marginTop: '0.8rem' }}>
+                  <table className="data-table">
+                    <thead>
+                      <tr>
+                        <th>Placa</th>
+                        <th style={{ width: 80, textAlign: 'center' }}>Ação</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {veiculos.map((v) => (
+                        <tr key={v._key}>
+                          <td style={{ fontWeight: 'bold' }}>{v.placa}</td>
+                          <td style={{ textAlign: 'center' }}>
+                            <button
+                              type="button"
+                              className="btn-small"
+                              onClick={() => setVeiculos(prev => prev.filter(item => item._key !== v._key))}
+                              title="Remover veículo"
+                              style={{ padding: '4px 8px', background: '#dc3545', color: 'white', border: 'none', borderRadius: 4, cursor: 'pointer' }}
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+            <button
+              type="button"
+              className="btn-primary"
+              onClick={() => setShowVeiculoModal(true)}
+              style={{ display: 'flex', alignItems: 'center', gap: 8 }}
+            >
+              <Plus size={16} /> Adicionar Veículo
+            </button>
+          </div>
+
+          {/* Financeiro */}
 
           <div className="form-section">
 
@@ -749,6 +810,24 @@ return (
           setShowCondicaoModal(false);
 
         }}
+      />
+    )}
+
+    {showVeiculoModal && (
+      <VeiculoLookupModal
+        onSelect={(veiculoId, placa) => {
+          setVeiculos(prev => {
+            const exists = prev.find(v => v.veiculoId === veiculoId);
+            if (exists) {
+              return prev;
+            } else {
+              return [...prev, { _key: nextKey(), veiculoId, placa }];
+            }
+          });
+          setShowVeiculoModal(false);
+        }}
+        onClose={() => setShowVeiculoModal(false)}
+        zBase={1001}
       />
     )}
 

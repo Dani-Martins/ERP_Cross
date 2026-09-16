@@ -17,6 +17,7 @@ export default function FormaPagamentoFormPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const [nextId, setNextId] = useState('1');
 
   useEffect(() => {
     if (isEdit) {
@@ -24,11 +25,20 @@ export default function FormaPagamentoFormPage() {
         .then(res => {
           const f = res.data;
           setForm({ nomeFormaPagamento: f.nomeFormaPagamento, aceitaParcela: f.aceitaParcela, ativo: f.ativo });
+          setNextId(String(f.id));
         })
         .catch(() => navigate('/formas-pagamento'))
         .finally(() => setLoading(false));
     } else {
-      setLoading(false);
+      FormaPagamentoService.getAll()
+        .then(res => {
+          const maxId = res.data.length > 0
+            ? Math.max(...res.data.map(f => f.id))
+            : 0;
+          setNextId(String(maxId + 1));
+        })
+        .catch(() => setNextId('1'))
+        .finally(() => setLoading(false));
     }
   }, [id, isEdit, navigate]);
 
@@ -71,6 +81,22 @@ export default function FormaPagamentoFormPage() {
         <form onSubmit={handleSave} className="form-page">
           <div className="form-section">
             <h2 className="form-section-title">Dados da Forma de Pagamento</h2>
+
+            <div className="form-group">
+              <label htmlFor="id">Código *</label>
+              <input
+                id="id"
+                type="text"
+                readOnly
+                value={nextId}
+                style={{
+                  width: '120px',
+                  padding: '6px',
+                  fontSize: '0.8rem',
+                  textAlign: 'center'
+                }}
+              />
+            </div>
 
             <div className="form-group">
               <label htmlFor="nomeFormaPagamento">Forma de Pagamento *</label>
