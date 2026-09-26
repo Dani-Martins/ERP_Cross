@@ -6,7 +6,7 @@ import VeiculoCreateModal from './VeiculoCreateModal';
 import '../pages/PaisesPage.css';
 
 interface Props {
-  onSelect: (id: number, placa: string) => void;
+  onSelect: (id: number, placa: string, modelo: string, marca: string, ano: number | null) => void;
   onClose: () => void;
   zBase?: number;
 }
@@ -32,9 +32,9 @@ export default function VeiculoLookupModal({ onSelect, onClose, zBase = 1000 }: 
       )
     : all;
 
-  function handleCreated(id: number, placa: string) {
+  function handleCreated(id: number, placa: string, modelo: string, marca: string, ano: number | null) {
     setShowCreate(false);
-    onSelect(id, placa);
+    onSelect(id, placa, modelo, marca, ano);
   }
 
   return (
@@ -80,7 +80,7 @@ export default function VeiculoLookupModal({ onSelect, onClose, zBase = 1000 }: 
                         <td>{v.marca}</td>
                         <td style={{ textAlign: 'center' }}>{v.ano}</td>
                         <td>
-                          <button className="btn-select" onClick={() => onSelect(v.id, v.placa)}>
+                          <button className="btn-select" onClick={() => onSelect(v.id, v.placa, v.modelo, v.marca ?? '', v.ano ?? null)}>
                             Selecionar
                           </button>
                         </td>

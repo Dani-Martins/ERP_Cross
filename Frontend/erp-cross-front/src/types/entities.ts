@@ -543,6 +543,18 @@ export interface ParcelaNotaVenda {
   dataPagamento?: string;
 }
 
+// ── Parcelas de Nota de Compra ────────────────────────────────────────────
+export interface ParcelaNotaCompra {
+  id: number;
+  numParcela: number;
+  formaPagamentoId?: number;
+  nomeFormaPagamento?: string;
+  dataVencimento: string;
+  valorParcela: number;
+  pago: boolean;
+  dataPagamento?: string;
+}
+
 // ── Item de Nota de Venda ─────────────────────────────────────────────────────
 export interface NotaVendaItemView {
   id: number;
@@ -601,7 +613,6 @@ export interface NotaCompraCreate {
   serie: string;
   dataEmissao: string;
   dataChegada?: string;
-  chaveAcesso?: string;
   tipoFrete: string;
   valorFrete: number;
   valorSeguro: number;
@@ -634,9 +645,10 @@ export interface NotaCompraItemView {
 export interface NotaCompraItemCreate {
   quantidade: number;
   precoUnit: number;
-  descontoUnit: number;
+  desconto: number;
   idNotaCompra: number;
   idProduto: number;
+  nomeProduto?: string;
 }
 export type NotaCompraItemUpdate = NotaCompraItemCreate;
 

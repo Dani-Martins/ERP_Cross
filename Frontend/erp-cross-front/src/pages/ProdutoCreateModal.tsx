@@ -10,7 +10,7 @@ import UnidadeMedidaLookupModal from '../components/UnidadeMedidaLookupModal';
 import './PaisesPage.css';
 
 interface Props {
-  onCreated: (id: number, nomeProduto: string, unidadeId?: number, nomeUnidade?: string, precoVenda?: number) => void;
+  onCreated: (id: number, nomeProduto: string, unidadeId?: number, nomeUnidade?: string, precoVenda?: number, custoCompra?: number) => void;
   onClose: () => void;
   zBase?: number;
 }
@@ -93,7 +93,7 @@ export default function ProdutoCreateModal({ onCreated, onClose, zBase = 1000 }:
     try {
       const res = await ProdutoService.create(form);
       const precoVenda = form.custoCompra + (form.custoCompra * form.lucroPercentual / 100);
-      onCreated(res.data.id, form.nomeProduto, form.unidadeId, nomeUnidade, precoVenda);
+      onCreated(res.data.id, form.nomeProduto, form.unidadeId, nomeUnidade, precoVenda, form.custoCompra);
     } catch {
       setError('Erro ao salvar.');
       setSaving(false);

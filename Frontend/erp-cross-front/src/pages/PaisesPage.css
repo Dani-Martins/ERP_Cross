@@ -144,6 +144,23 @@
 .btn-primary:hover { background: #c49010; }
 .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
 
+.nota-compra-form input:disabled,
+.nota-compra-form select:disabled,
+.nota-compra-form textarea:disabled {
+  background-color: #e5e7eb !important;
+  color: #6b7280 !important;
+  border-color: #cbd5e1 !important;
+  cursor: not-allowed;
+  opacity: 0.8;
+}
+
+.nota-compra-form button:disabled {
+  background: #9ca3af !important;
+  color: #f3f4f6 !important;
+  cursor: not-allowed;
+  opacity: 0.75;
+}
+
 .btn-secondary {
   padding: 9px 16px;
   background: var(--btn-secondary-bg);

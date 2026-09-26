@@ -6,7 +6,7 @@ import type { AxiosError } from 'axios';
 import '../pages/PaisesPage.css';
 
 interface Props {
-  onCreated: (id: number, placa: string) => void;
+  onCreated: (id: number, placa: string, modelo: string, marca: string, ano: number | null) => void;
   onClose: () => void;
   zBase?: number;
 }
@@ -42,7 +42,7 @@ export default function VeiculoCreateModal({ onCreated, onClose, zBase = 1100 }:
     setError('');
     try {
       const res = await VeiculoService.create(form);
-      onCreated(res.data.id, res.data.placa);
+      onCreated(res.data.id, res.data.placa, res.data.modelo, res.data.marca, res.data.ano);
     } catch (err) {
       const axiosErr = err as AxiosError<{ message: string }>;
       if (axiosErr.response?.status === 409) {

@@ -24,9 +24,16 @@ export default function VeiculoFormPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const [nextId, setNextId] = useState<string>('');
   useEffect(() => {
     if (!isEdit) {
-      setLoading(false);
+      VeiculoService.getAll()
+        .then((res) => {
+          const maxId = res.data.length > 0 ? Math.max(...res.data.map(v => v.id)) : 0;
+          setNextId(String(maxId + 1));
+        })
+        .catch(() => setNextId(''))
+        .finally(() => setLoading(false));
       return;
     }
 
@@ -41,6 +48,7 @@ export default function VeiculoFormPage() {
           descricao: v.descricao ?? '',
           ativo: v.ativo,
         });
+        setNextId(String(v.id));
       })
       .catch(() => navigate('/veiculos'))
       .finally(() => setLoading(false));
@@ -168,6 +176,11 @@ return (
           <h2 className="form-section-title">
             Dados do Veículo
           </h2>
+
+          <div className="form-group id-field">
+            <label htmlFor="id">Código</label>
+            <input id="id" type="text" readOnly value={nextId} />
+          </div>
 
           <div className="form-row">
 

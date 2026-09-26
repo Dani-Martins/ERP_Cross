@@ -6,7 +6,7 @@ import ProdutoCreateModal from '../pages/ProdutoCreateModal';
 import '../pages/PaisesPage.css';
 
 interface Props {
-  onSelect: (id: number, nomeProduto: string, unidadeId?: number, nomeUnidade?: string, precoVenda?: number) => void;
+  onSelect: (id: number, nomeProduto: string, unidadeId?: number, nomeUnidade?: string, precoVenda?: number, custoCompra?: number) => void;
   onClose: () => void;
   zBase?: number;
 }
@@ -77,7 +77,7 @@ export default function ProdutoLookupModal({ onSelect, onClose, zBase = 1000 }: 
                       <td>
                         <button 
                           className="btn-select" 
-                          onClick={() => onSelect(p.id, p.nomeProduto, p.unidadeId, p.nomeUnidade, p.precoVenda)}
+                          onClick={() => onSelect(p.id, p.nomeProduto, p.unidadeId, p.nomeUnidade, p.precoVenda, p.custoCompra)}
                         >
                           Selecionar
                         </button>
@@ -99,8 +99,8 @@ export default function ProdutoLookupModal({ onSelect, onClose, zBase = 1000 }: 
 
       {showCreateModal && (
         <ProdutoCreateModal
-          onCreated={(id, nomeProduto, unidadeId, nomeUnidade, precoVenda) => {
-            onSelect(id, nomeProduto, unidadeId, nomeUnidade, precoVenda);
+          onCreated={(id, nomeProduto, unidadeId, nomeUnidade, precoVenda, custoCompra) => {
+            onSelect(id, nomeProduto, unidadeId, nomeUnidade, precoVenda, custoCompra);
             setShowCreateModal(false);
           }}
           onClose={() => setShowCreateModal(false)}

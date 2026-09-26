@@ -14,6 +14,9 @@ interface VeiculoCarrinho {
   _key: number;
   veiculoId: number;
   placa: string;
+  modelo: string;
+  marca: string;
+  ano: number | null;
 }
 
 let _key = 1;
@@ -638,14 +641,20 @@ return (
                   <table className="data-table">
                     <thead>
                       <tr>
-                        <th>Placa</th>
-                        <th style={{ width: 80, textAlign: 'center' }}>Ação</th>
+                        <th>PLACA</th>
+                        <th>MODELO</th>
+                        <th>MARCA</th>
+                        <th>ANO</th>
+                        <th style={{ width: 80, textAlign: 'center' }}>AÇÃO</th>
                       </tr>
                     </thead>
                     <tbody>
                       {veiculos.map((v) => (
                         <tr key={v._key}>
                           <td style={{ fontWeight: 'bold' }}>{v.placa}</td>
+                          <td>{v.modelo}</td>
+                          <td>{v.marca}</td>
+                          <td style={{ textAlign: 'center' }}>{v.ano}</td>
                           <td style={{ textAlign: 'center' }}>
                             <button
                               type="button"
@@ -815,13 +824,13 @@ return (
 
     {showVeiculoModal && (
       <VeiculoLookupModal
-        onSelect={(veiculoId, placa) => {
+        onSelect={(veiculoId, placa, modelo, marca, ano) => {
           setVeiculos(prev => {
             const exists = prev.find(v => v.veiculoId === veiculoId);
             if (exists) {
               return prev;
             } else {
-              return [...prev, { _key: nextKey(), veiculoId, placa }];
+              return [...prev, { _key: nextKey(), veiculoId, placa, modelo, marca, ano }];
             }
           });
           setShowVeiculoModal(false);
