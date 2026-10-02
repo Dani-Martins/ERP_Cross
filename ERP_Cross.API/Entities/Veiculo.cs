@@ -8,6 +8,7 @@ public class Veiculo : ModeloBase
     public string? Marca { get; set; }
     public int? Ano { get; set; }
     public string? Descricao { get; set; }
+    public int TransportadoraId { get; set; }
     public bool Ativo { get; set; } = true;
+    public Transportadora? Transportadora { get; set; }
 }
-

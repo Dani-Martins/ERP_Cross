@@ -16,7 +16,7 @@ public class VeiculoRepository
 
     public async Task<IEnumerable<Veiculo>> GetAllAsync(string? q = null)
     {
-        var sql = @"SELECT Id, Placa, Modelo, Marca, Ano, Descricao,
+        var sql = @"SELECT Id, Placa, Modelo, Marca, Ano, Descricao, TransportadoraId,
                            Ativo, DataCriacao, DataAtualizacao
                     FROM Veiculos";
         if (!string.IsNullOrWhiteSpace(q))
@@ -24,9 +24,19 @@ public class VeiculoRepository
         return await _connection.QueryAsync<Veiculo>(sql, new { q = $"%{q}%" });
     }
 
+    public async Task<IEnumerable<Veiculo>> GetByTransportadoraIdAsync(int transportadoraId)
+    {
+        const string sql = @"SELECT Id, Placa, Modelo, Marca, Ano, Descricao, TransportadoraId,
+                                    Ativo, DataCriacao, DataAtualizacao
+                             FROM Veiculos
+                             WHERE TransportadoraId = @TransportadoraId AND Ativo = 1
+                             ORDER BY Placa";
+        return await _connection.QueryAsync<Veiculo>(sql, new { TransportadoraId = transportadoraId });
+    }
+
     public async Task<Veiculo?> GetByIdAsync(int id)
     {
-        const string sql = @"SELECT Id, Placa, Modelo, Marca, Ano, Descricao,
+        const string sql = @"SELECT Id, Placa, Modelo, Marca, Ano, Descricao, TransportadoraId,
                                     Ativo, DataCriacao, DataAtualizacao
                              FROM Veiculos
                              WHERE Id = @Id";
@@ -36,8 +46,8 @@ public class VeiculoRepository
     public async Task<int> InsertAsync(Veiculo veiculo)
     {
         const string sql = @"
-            INSERT INTO Veiculos (Placa, Modelo, Marca, Ano, Descricao, Ativo, DataCriacao, DataAtualizacao)
-            VALUES (@Placa, @Modelo, @Marca, @Ano, @Descricao, @Ativo, NOW(), NOW());
+            INSERT INTO Veiculos (Placa, Modelo, Marca, Ano, Descricao, TransportadoraId, Ativo, DataCriacao, DataAtualizacao)
+            VALUES (@Placa, @Modelo, @Marca, @Ano, @Descricao, @TransportadoraId, @Ativo, NOW(), NOW());
             SELECT LAST_INSERT_ID();";
         return await _connection.ExecuteScalarAsync<int>(sql, veiculo);
     }
@@ -47,7 +57,7 @@ public class VeiculoRepository
         const string sql = @"
             UPDATE Veiculos 
             SET Placa = @Placa, Modelo = @Modelo, Marca = @Marca, Ano = @Ano,
-                Descricao = @Descricao, Ativo = @Ativo, DataAtualizacao = NOW()
+                Descricao = @Descricao, TransportadoraId = @TransportadoraId, Ativo = @Ativo, DataAtualizacao = NOW()
             WHERE Id = @Id";
         var rows = await _connection.ExecuteAsync(sql, veiculo);
         return rows > 0;

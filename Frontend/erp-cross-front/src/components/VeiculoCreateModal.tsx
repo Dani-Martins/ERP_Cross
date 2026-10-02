@@ -8,11 +8,20 @@ import '../pages/PaisesPage.css';
 interface Props {
   onCreated: (id: number, placa: string, modelo: string, marca: string, ano: number | null) => void;
   onClose: () => void;
+  defaultTransportadoraId?: number;
   zBase?: number;
 }
 
-export default function VeiculoCreateModal({ onCreated, onClose, zBase = 1100 }: Props) {
-  const [form, setForm] = useState<VeiculoCreate>({ placa: '', modelo: '', marca: '', ano: new Date().getFullYear(), descricao: '', ativo: true });
+export default function VeiculoCreateModal({ onCreated, onClose, defaultTransportadoraId = 0, zBase = 1100 }: Props) {
+  const [form, setForm] = useState<VeiculoCreate>({
+    placa: '',
+    modelo: '',
+    marca: '',
+    ano: new Date().getFullYear(),
+    descricao: '',
+    transportadoraId: defaultTransportadoraId,
+    ativo: true
+  });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [nextId, setNextId] = useState('1');
@@ -36,6 +45,10 @@ export default function VeiculoCreateModal({ onCreated, onClose, zBase = 1100 }:
     if (!form.ano || form.ano < 1900 || form.ano > new Date().getFullYear() + 1) { 
       setError('Ano deve estar entre 1900 e ' + (new Date().getFullYear() + 1) + '.'); 
       return; 
+    }
+    if (!form.transportadoraId) {
+      setError('Transportadora é obrigatória.');
+      return;
     }
 
     setSaving(true);

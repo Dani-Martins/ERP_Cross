@@ -16,6 +16,7 @@ public class VeiculoService
 
     public async Task<IEnumerable<Veiculo>> GetAllAsync(string? q = null) => await _repository.GetAllAsync(q);
     public async Task<Veiculo?> GetByIdAsync(int id) => await _repository.GetByIdAsync(id);
+    public async Task<IEnumerable<Veiculo>> GetByTransportadoraIdAsync(int transportadoraId) => await _repository.GetByTransportadoraIdAsync(transportadoraId);
 
     public async Task<Veiculo> CreateAsync(CreateVeiculoDto dto)
     {
@@ -26,6 +27,7 @@ public class VeiculoService
             Marca = dto.Marca,
             Ano = dto.Ano,
             Descricao = dto.Descricao,
+            TransportadoraId = dto.TransportadoraId,
             Ativo = dto.Ativo
         };
         veiculo.Id = await _repository.InsertAsync(veiculo);
@@ -42,6 +44,7 @@ public class VeiculoService
         veiculo.Marca = dto.Marca;
         veiculo.Ano = dto.Ano;
         veiculo.Descricao = dto.Descricao;
+        veiculo.TransportadoraId = dto.TransportadoraId;
         veiculo.Ativo = dto.Ativo;
 
         return await _repository.UpdateAsync(veiculo);

@@ -12,6 +12,7 @@ const EMPTY: VeiculoCreate = {
   marca: '',
   ano: new Date().getFullYear(),
   descricao: '',
+  transportadoraId: 0,
   ativo: true,
 };
 
@@ -46,6 +47,7 @@ export default function VeiculoFormPage() {
           marca: v.marca,
           ano: v.ano,
           descricao: v.descricao ?? '',
+          transportadoraId: v.transportadoraId,
           ativo: v.ativo,
         });
         setNextId(String(v.id));

@@ -12,6 +12,8 @@ public class CreateVeiculoDto
     public string? Marca { get; set; }
     public int? Ano { get; set; }
     public string? Descricao { get; set; }
+    [Required]
+    public int TransportadoraId { get; set; }
     public bool Ativo { get; set; } = true;
 }
 
@@ -24,6 +26,8 @@ public class UpdateVeiculoDto
     public string? Marca { get; set; }
     public int? Ano { get; set; }
     public string? Descricao { get; set; }
+    [Required]
+    public int TransportadoraId { get; set; }
     public bool Ativo { get; set; } = true;
 }
 
@@ -35,6 +39,7 @@ public class VeiculoView
     public string? Marca { get; set; }
     public int? Ano { get; set; }
     public string? Descricao { get; set; }
+    public int TransportadoraId { get; set; }
     public bool Ativo { get; set; }
     public DateTime DataCriacao { get; set; }
     public DateTime DataAtualizacao { get; set; }

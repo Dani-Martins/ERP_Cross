@@ -3,12 +3,13 @@ import { useNavigate, useParams } from 'react-router-dom';
 import type { AxiosError } from 'axios';
 import { FileDown, Search, Trash2 } from 'lucide-react';
 import { NotaCompraService } from '../services/notaCompraService';
-import { ParcelaNotaCompraService } from '../services/parcelaNotaCompraService';
+import { ParcelaCondicaoPagamentoService } from '../services/parcelaCondicaoPagamentoService';
 import type { NotaCompraCreate, NotaCompraItemCreate, ParcelaNotaCompra } from '../types/entities';
 import CondicaoPagamentoLookupModal from '../components/CondicaoPagamentoLookupModal';
 import FornecedorLookupModal from '../components/FornecedorLookupModal';
 import TransportadoraLookupModal from '../components/TransportadoraLookupModal';
 import ProdutoLookupModal from '../components/ProdutoLookupModal';
+import VeiculosByTransportadoraLookupModal from '../components/VeiculosByTransportadoraLookupModal';
 import CurrencyInput from '../components/CurrencyInput';
 import './PaisesPage.css';
 
@@ -75,8 +76,8 @@ export default function NotaCompraFormPage() {
   const [showFornecedorModal, setShowFornecedorModal] = useState(false);
   const [showTransportadoraModal, setShowTransportadoraModal] = useState(false);
   const [showProdutoModal, setShowProdutoModal] = useState(false);
+  const [showVeiculoModal, setShowVeiculoModal] = useState(false);
   const [parcelas, setParcelas] = useState<ParcelaNotaCompra[]>([]);
-  const [parcelasEditando, setParcelasEditando] = useState<Map<number, ParcelaNotaCompra>>(new Map());
   useEffect(() => {
     if (!isEdit) {
       setLoading(false);
@@ -112,7 +113,70 @@ export default function NotaCompraFormPage() {
       .catch(() => navigate('/nota-compras'))
       .finally(() => setLoading(false));
   }, [id, isEdit, navigate]);
-    async function handleSave(e: React.FormEvent) {
+
+  // Gera as parcelas a partir da condição de pagamento escolhida e do total da nota
+  useEffect(() => {
+    if (!form.condicaoPagamentoId) {
+      setParcelas([]);
+      return;
+    }
+
+    const calculatedTotalProd = produtos.reduce((sum, p) => {
+      const subtotal = p.quantidade * p.precoUnit;
+      const descontoReais = (subtotal * (p.desconto || 0)) / 100;
+      return sum + (subtotal - descontoReais);
+    }, 0);
+
+    const totalPag =
+      calculatedTotalProd +
+      Number(form.valorFrete) +
+      Number(form.valorSeguro) +
+      Number(form.outrasDespesas);
+
+    if (totalPag <= 0) {
+      setParcelas([]);
+      return;
+    }
+
+    let cancelado = false;
+
+    ParcelaCondicaoPagamentoService.getByCondicaoId(form.condicaoPagamentoId)
+      .then(res => {
+        if (cancelado) return;
+
+        const base = form.dataEmissao ? new Date(form.dataEmissao + 'T00:00:00') : new Date();
+        const defs = [...res.data].sort((a, b) => a.numero - b.numero);
+        let acumulado = 0;
+
+        const geradas: ParcelaNotaCompra[] = defs.map((d, i) => {
+          const ultima = i === defs.length - 1;
+          const valor = ultima
+            ? Math.round((totalPag - acumulado) * 100) / 100
+            : Math.round(totalPag * d.percentual) / 100;
+          acumulado += valor;
+
+          const venc = new Date(base);
+          venc.setDate(venc.getDate() + d.dias);
+
+          return {
+            id: d.id,
+            numParcela: d.numero,
+            formaPagamentoId: d.formaPagamentoId,
+            nomeFormaPagamento: d.nomeFormaPagamento,
+            dataVencimento: toInputDate(venc.toISOString()),
+            valorParcela: valor,
+            pago: false,
+          };
+        });
+
+        setParcelas(geradas);
+      })
+      .catch(() => setParcelas([]));
+
+    return () => { cancelado = true; };
+  }, [form.condicaoPagamentoId, form.dataEmissao, form.valorFrete, form.valorSeguro, form.outrasDespesas, produtos]);
+
+  async function handleSave(e: React.FormEvent) {
     e.preventDefault();
 
     if (!form.numeroNota.trim()) {
@@ -451,17 +515,24 @@ export default function NotaCompraFormPage() {
               <div className="form-row">
                 <div className="form-group">
                   <label>Placa do Veículo</label>
-                  <input
-                    type="text"
-                    value={form.placaVeiculo ?? ''}
-                    disabled={!canFillForm}
-                    onChange={e =>
-                      setForm({
-                        ...form,
-                        placaVeiculo: e.target.value.toUpperCase()
-                      })
-                    }
-                  />
+                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                    <input
+                      type="text"
+                      value={form.placaVeiculo ?? ''}
+                      disabled={true}
+                      placeholder="Selecione um veículo"
+                      style={{ flex: 1 }}
+                    />
+                    <button
+                      type="button"
+                      className="btn-primary"
+                      onClick={() => setShowVeiculoModal(true)}
+                      disabled={!form.transportadoraId}
+                      title={!form.transportadoraId ? 'Selecione uma transportadora primeiro' : 'Selecionar veículo'}
+                    >
+                      <Search size={16} />
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -631,7 +702,7 @@ export default function NotaCompraFormPage() {
               </div>
             </div>
 
-            {isEdit && parcelas.length > 0 && (
+            {parcelas.length > 0 && (
               <div className="form-section">
                 <h2 className="form-section-title">Parcelas</h2>
                 <div className="lookup-table-wrap">
@@ -639,111 +710,20 @@ export default function NotaCompraFormPage() {
                     <thead>
                       <tr>
                         <th>PARCELA</th>
-                        <th style={{ width: 120 }}>DATA VENCIMENTO</th>
-                        <th style={{ width: 120 }}>FORMA PAGAMENTO</th>
-                        <th style={{ width: 100 }}>VALOR</th>
-                        <th style={{ width: 80 }}></th>
+                        <th>FORMA DE PAGAMENTO</th>
+                        <th>DATA VENCIMENTO</th>
+                        <th>VALOR DA PARCELA</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {parcelas.map((p, idx) => {
-                        const editando = parcelasEditando.has(p.id);
-                        const pEditada = parcelasEditando.get(p.id);
-                        return (
-                          <tr key={p.id}>
-                            <td>{p.numParcela || idx + 1}</td>
-                            <td>
-                              {editando ? (
-                                <input
-                                  type="date"
-                                  value={pEditada?.dataVencimento || ''}
-                                  onChange={e =>
-                                    setParcelasEditando(
-                                      new Map(parcelasEditando).set(p.id, {
-                                        ...pEditada!,
-                                        dataVencimento: e.target.value,
-                                      })
-                                    )
-                                  }
-                                  className="produto-table-input"
-                                />
-                              ) : (
-                                new Date(p.dataVencimento).toLocaleDateString('pt-BR')
-                              )}
-                            </td>
-                            <td>{p.nomeFormaPagamento || '—'}</td>
-                            <td>
-                              {editando ? (
-                                <input
-                                  type="number"
-                                  step="0.01"
-                                  value={pEditada?.valorParcela || 0}
-                                  onChange={e =>
-                                    setParcelasEditando(
-                                      new Map(parcelasEditando).set(p.id, {
-                                        ...pEditada!,
-                                        valorParcela: Number(e.target.value),
-                                      })
-                                    )
-                                  }
-                                  className="produto-table-input"
-                                />
-                              ) : (
-                                `R$ ${Number(p.valorParcela).toFixed(2).replace('.', ',')}`
-                              )}
-                            </td>
-                            <td>
-                              {editando ? (
-                                <>
-                                  <button
-                                    type="button"
-                                    className="btn-primary"
-                                    onClick={() => {
-                                      if (pEditada) {
-                                        ParcelaNotaCompraService.update(p.id, {
-                                          formaPagamentoId: pEditada.formaPagamentoId,
-                                          dataVencimento: pEditada.dataVencimento,
-                                          valorParcela: pEditada.valorParcela,
-                                          pago: pEditada.pago,
-                                          dataPagamento: pEditada.dataPagamento,
-                                        })
-                                          .then(() => {
-                                            const novasParcelas = parcelas.map(x =>
-                                              x.id === p.id ? pEditada : x
-                                            );
-                                            setParcelas(novasParcelas);
-                                            setParcelasEditando(new Map());
-                                          })
-                                          .catch(err => console.error('Erro ao salvar parcela:', err));
-                                      }
-                                    }}
-                                    style={{ fontSize: '0.8em', padding: '4px 8px' }}
-                                  >
-                                    Salvar
-                                  </button>
-                                  <button
-                                    type="button"
-                                    className="btn-secondary"
-                                    onClick={() => setParcelasEditando(new Map(parcelasEditando).set(p.id, { ...p }))}
-                                    style={{ fontSize: '0.8em', padding: '4px 8px', marginLeft: '4px' }}
-                                  >
-                                    Cancelar
-                                  </button>
-                                </>
-                              ) : (
-                                <button
-                                  type="button"
-                                  className="btn-icon"
-                                  onClick={() => setParcelasEditando(new Map(parcelasEditando).set(p.id, { ...p }))}
-                                  title="Editar parcela"
-                                >
-                                  ✎
-                                </button>
-                              )}
-                            </td>
-                          </tr>
-                        );
-                      })}
+                      {parcelas.map(p => (
+                        <tr key={p.numParcela}>
+                          <td>{p.numParcela}</td>
+                          <td>{p.nomeFormaPagamento || '—'}</td>
+                          <td>{new Date(p.dataVencimento + 'T00:00:00').toLocaleDateString('pt-BR')}</td>
+                          <td>R$ {Number(p.valorParcela).toFixed(2).replace('.', ',')}</td>
+                        </tr>
+                      ))}
                     </tbody>
                   </table>
                 </div>
@@ -905,28 +885,6 @@ export default function NotaCompraFormPage() {
             setNomeCondicao(nome);
 
             setShowCondicaoModal(false);
-
-            // Calcular parcelas se a nota está em edição e tem os dados necessários
-            if (isEdit && form.numeroNota && form.modelo && form.serie && form.fornecedorId && totalPagar > 0) {
-              ParcelaNotaCompraService.calculateAndSave(
-                form.numeroNota,
-                form.modelo,
-                form.serie,
-                form.fornecedorId,
-                id,
-                totalPagar
-              )
-                .then(() => {
-                  // Recarregar parcelas
-                  return ParcelaNotaCompraService.getByNota(form.numeroNota, form.modelo, form.serie, form.fornecedorId);
-                })
-                .then(res => {
-                  setParcelas(res.data);
-                  setParcelasEditando(new Map());
-                })
-                .catch(err => console.error('Erro ao calcular parcelas:', err));
-            }
-
           }}
         />
       )}
@@ -944,6 +902,17 @@ export default function NotaCompraFormPage() {
               nomeProduto: nomeProduto,
             }]);
             setShowProdutoModal(false);
+          }}
+        />
+      )}
+
+      {showVeiculoModal && (
+        <VeiculosByTransportadoraLookupModal
+          transportadoraId={form.transportadoraId || 0}
+          onClose={() => setShowVeiculoModal(false)}
+          onSelect={(_, placa) => {
+            setForm({ ...form, placaVeiculo: placa });
+            setShowVeiculoModal(false);
           }}
         />
       )}

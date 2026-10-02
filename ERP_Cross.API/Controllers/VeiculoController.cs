@@ -16,6 +16,10 @@ public class VeiculoController(VeiculoService service) : ControllerBase
     public async Task<ActionResult<IEnumerable<VeiculoView>>> GetAll([FromQuery] string? q)
         => Ok(await _service.GetAllAsync(q));
 
+    [HttpGet("transportadora/{transportadoraId:int}")]
+    public async Task<ActionResult<IEnumerable<VeiculoView>>> GetByTransportadora(int transportadoraId)
+        => Ok(await _service.GetByTransportadoraIdAsync(transportadoraId));
+
     [HttpGet("{id:int}")]
     public async Task<ActionResult<VeiculoView>> GetById(int id)
     {

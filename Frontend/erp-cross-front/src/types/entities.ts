@@ -761,6 +761,7 @@ export interface VeiculoView {
   marca: string;
   ano: number;
   descricao?: string;
+  transportadoraId: number;
   ativo: boolean;
   dataCriacao: string;
   dataAtualizacao: string;
@@ -772,6 +773,7 @@ export interface VeiculoCreate {
   marca: string;
   ano: number;
   descricao?: string;
+  transportadoraId: number;
   ativo: boolean;
 }
 
