@@ -24,6 +24,8 @@ export default function ClientesPage() {
   const [search, setSearch] = useState('');
   const [filterStatus, setFilterStatus] = useState<'todos' | 'ativos' | 'inativos'>('ativos');
   const [loading, setLoading] = useState(true);
+  
+  // Estado de ação: qual ID está sendo acionado
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [deleting, setDeleting] = useState(false);
 

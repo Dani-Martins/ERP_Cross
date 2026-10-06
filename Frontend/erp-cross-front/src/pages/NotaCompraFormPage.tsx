@@ -3,13 +3,15 @@ import { useNavigate, useParams } from 'react-router-dom';
 import type { AxiosError } from 'axios';
 import { FileDown, Search, Trash2 } from 'lucide-react';
 import { NotaCompraService } from '../services/notaCompraService';
+import { NotaCompraItemService } from '../services/notaCompraItemService';
 import { ParcelaCondicaoPagamentoService } from '../services/parcelaCondicaoPagamentoService';
-import type { NotaCompraCreate, NotaCompraItemCreate, ParcelaNotaCompra } from '../types/entities';
+import { UnidadeMedidaService } from '../services/unidadeMedidaService';
+import type { NotaCompraCreate, ParcelaNotaCompra, UnidadeMedidaView } from '../types/entities';
 import CondicaoPagamentoLookupModal from '../components/CondicaoPagamentoLookupModal';
 import FornecedorLookupModal from '../components/FornecedorLookupModal';
 import TransportadoraLookupModal from '../components/TransportadoraLookupModal';
 import ProdutoLookupModal from '../components/ProdutoLookupModal';
-import VeiculosByTransportadoraLookupModal from '../components/VeiculosByTransportadoraLookupModal';
+import VeiculoLookupModal from '../components/VeiculoLookupModal';
 import CurrencyInput from '../components/CurrencyInput';
 import './PaisesPage.css';
 
@@ -18,6 +20,10 @@ function toInputDate(value: string | null |undefined): string {
 
   if (/^\d{4}-\d{2}-\d{2}$/.test(value))
     return value;
+
+  const br = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(value);
+  if (br)
+    return `${br[3]}-${br[2]}-${br[1]}`;
 
   if (value.includes('T'))
     return value.split('T')[0];
@@ -29,6 +35,24 @@ function toInputDate(value: string | null |undefined): string {
 
   return d.toISOString().split('T')[0];
 }
+
+// Tipo interno para uso no formulário (diferente do NotaCompraItemCreate)
+interface ProdutoFormulario {
+  idProduto: number;
+  produtoId?: number;
+  quantidade: number;
+  precoUnit: number;
+  desconto: number; // em percentual
+  descontoUnit?: number; // em reais
+  idNotaCompra?: number;
+  notaCompraId?: number;
+  nomeProduto?: string;
+  unidadeMedidaId?: number;
+  unidadeId?: number;
+  nomeUnidade?: string;
+  rateioCusto?: number;
+}
+
 const EMPTY: NotaCompraCreate = {
   fornecedorId: 0,
 
@@ -65,7 +89,7 @@ export default function NotaCompraFormPage() {
   const isEdit = !!id;
 
   const [form, setForm] = useState<NotaCompraCreate>(EMPTY);
-  const [produtos, setProdutos] = useState<NotaCompraItemCreate[]>([]);
+  const [produtos, setProdutos] = useState<ProdutoFormulario[]>([]);
   const [nomeFornecedor, setNomeFornecedor] = useState('');
   const [nomeTransportadora, setNomeTransportadora] = useState('');
   const [nomeCondicao, setNomeCondicao] = useState('');
@@ -77,7 +101,16 @@ export default function NotaCompraFormPage() {
   const [showTransportadoraModal, setShowTransportadoraModal] = useState(false);
   const [showProdutoModal, setShowProdutoModal] = useState(false);
   const [showVeiculoModal, setShowVeiculoModal] = useState(false);
+  const [notaValidada, setNotaValidada] = useState(false);
   const [parcelas, setParcelas] = useState<ParcelaNotaCompra[]>([]);
+  const [unidades, setUnidades] = useState<UnidadeMedidaView[]>([]);
+
+  useEffect(() => {
+    UnidadeMedidaService.getAll()
+      .then(res => setUnidades(res.data))
+      .catch(() => setUnidades([]));
+  }, []);
+
   useEffect(() => {
     if (!isEdit) {
       setLoading(false);
@@ -109,8 +142,30 @@ export default function NotaCompraFormPage() {
         setNomeFornecedor(n.nomeFornecedor ?? '');
         setNomeTransportadora(n.nomeTransportadora ?? '');
         setNomeCondicao(n.nomeCondicaoPagamento ?? '');
+        setNotaValidada(true); // Auto-validate when editing
+        
+        // Carregar produtos
+        return NotaCompraItemService.getByNotaCompraId(Number(id));
       })
-      .catch(() => navigate('/nota-compras'))
+      .then(res => {
+        // Converter do formato backend para o formato interno do frontend
+        setProdutos(res.data.map(item => ({
+          idProduto: item.produtoId,
+          produtoId: item.produtoId,
+          quantidade: item.quantidade,
+          precoUnit: item.precoUnit,
+          descontoUnit: item.descontoUnit,
+          desconto: item.precoUnit > 0 ? Math.round((item.descontoUnit / item.precoUnit) * 10000) / 100 : 0,
+          idNotaCompra: item.notaCompraId,
+          notaCompraId: item.notaCompraId,
+          nomeProduto: item.nomeProduto,
+          unidadeMedidaId: item.unidadeId,
+          unidadeId: item.unidadeId,
+          nomeUnidade: item.nomeUnidade,
+          rateioCusto: item.rateio,
+        })));
+      })
+      .catch(() => navigate('/notas-compra'))
       .finally(() => setLoading(false));
   }, [id, isEdit, navigate]);
 
@@ -174,7 +229,7 @@ export default function NotaCompraFormPage() {
       .catch(() => setParcelas([]));
 
     return () => { cancelado = true; };
-  }, [form.condicaoPagamentoId, form.dataEmissao, form.valorFrete, form.valorSeguro, form.outrasDespesas, produtos]);
+  }, [form.condicaoPagamentoId, form.dataEmissao, form.valorFrete, form.valorSeguro, form.outrasDespesas, form.tipoFrete, produtos]);
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
@@ -211,22 +266,44 @@ export default function NotaCompraFormPage() {
 
     setSaving(true);
     setError('');
-        try {
+    try {
+      const formToSave = { 
+        ...form, 
+        totalProdutos: calculatedTotalProdutos,
+        // Enviar datas como string YYYY-MM-DD (sem hora)
+        dataEmissao: form.dataEmissao || new Date().toISOString().split('T')[0],
+        dataChegada: form.dataChegada || undefined,
+      };
+
+      let notaId: number;
 
       if (isEdit) {
-
-        await NotaCompraService.update(
-          Number(id),
-          form
-        );
-
+        notaId = Number(id);
+        await NotaCompraService.update(notaId, formToSave);
+        
+        // Deletar TODOS os produtos antigos antes de salvar os novos
+        const produtosAtuais = await NotaCompraItemService.getByNotaCompraId(notaId);
+        await Promise.all(produtosAtuais.data.map(prod => NotaCompraItemService.remove(prod.id)));
       } else {
-
-        await NotaCompraService.create(form);
-
+        const response = await NotaCompraService.create(formToSave);
+        notaId = response.data.id;
       }
 
-      navigate('/nota-compras');
+      // Salvar produtos
+      for (const produto of produtos) {
+        const descontoReais = Math.round((produto.precoUnit * (produto.desconto || 0)) / 100 * 100) / 100; // Arredondar para 2 casas
+        await NotaCompraItemService.create({
+          notaCompraId: notaId,
+          produtoId: produto.idProduto,
+          unidadeId: produto.unidadeMedidaId || 0,
+          quantidade: produto.quantidade,
+          precoUnit: produto.precoUnit,
+          descontoUnit: descontoReais,
+          ativo: true,
+        });
+      }
+
+      navigate('/notas-compra');
 
     } catch (err) {
 
@@ -262,13 +339,39 @@ export default function NotaCompraFormPage() {
 
   const totalPagar =
     calculatedTotalProdutos +
-    Number(form.valorFrete) +
+    (form.tipoFrete === 'FOB' ? Number(form.valorFrete) : 0) +
     Number(form.valorSeguro) +
     Number(form.outrasDespesas);
 
   const canFillForm = form.numeroNota.trim() !== '' && 
                       form.modelo.trim() !== '' && 
                       form.serie.trim() !== '';
+
+  const canValidateNota = canFillForm && form.fornecedorId > 0 && !notaValidada;
+
+  const maxDataPermitida = new Date().toISOString().split('T')[0];
+
+  function handleValidateNota() {
+    if (!form.numeroNota.trim()) {
+      setError('Número da nota é obrigatório.');
+      return;
+    }
+    if (!form.modelo.trim()) {
+      setError('Modelo é obrigatório.');
+      return;
+    }
+    if (!form.serie.trim()) {
+      setError('Série é obrigatória.');
+      return;
+    }
+    if (!form.fornecedorId) {
+      setError('Fornecedor é obrigatório.');
+      return;
+    }
+
+    setError('');
+    setNotaValidada(true);
+  }
 
   if (loading) {
 
@@ -319,7 +422,7 @@ export default function NotaCompraFormPage() {
                   <input
                     type="text"
                     value={form.numeroNota}
-                    disabled={isEdit}
+                    disabled={isEdit || notaValidada}
                     onChange={e =>
                       setForm({
                         ...form,
@@ -335,7 +438,7 @@ export default function NotaCompraFormPage() {
                   <input
                     type="text"
                     value={form.modelo}
-                    disabled={isEdit}
+                    disabled={isEdit || notaValidada}
                     onChange={e =>
                       setForm({
                         ...form,
@@ -351,7 +454,7 @@ export default function NotaCompraFormPage() {
                   <input
                     type="text"
                     value={form.serie}
-                    disabled={isEdit}
+                    disabled={isEdit || notaValidada}
                     onChange={e =>
                       setForm({
                         ...form,
@@ -365,12 +468,85 @@ export default function NotaCompraFormPage() {
 
               <div className="form-row">
 
+                <div className="form-group" style={{ flex: '0 0 60px' }}>
+                  <label>Cód.</label>
+                  <div style={{ display: 'flex', gap: '4px' }}>
+                    <input
+                      type="text"
+                      value={form.fornecedorId > 0 ? form.fornecedorId : ''}
+                      placeholder="ID"
+                      readOnly
+                      disabled={notaValidada}
+                      className="lookup-input"
+                      style={{ width: '100%', textAlign: 'center' }}
+                    />
+                    <button
+                      type="button"
+                      className="btn-lookup"
+                      disabled={notaValidada}
+                      onClick={() => setShowFornecedorModal(true)}
+                      title="Pesquisar fornecedor"
+                      style={{ padding: '4px 8px' }}
+                    >
+                      <Search size={16} />
+                    </button>
+                  </div>
+                </div>
+
+                <div className="form-group" style={{ flex: 1 }}>
+                  <label>Fornecedor *</label>
+                  <input
+                    type="text"
+                    value={nomeFornecedor}
+                    placeholder="Selecione um fornecedor..."
+                    readOnly
+                    disabled={notaValidada}
+                    className="lookup-input"
+                  />
+                </div>
+
+              </div>
+
+              {!isEdit && (
+                <div style={{ marginTop: '16px', display: 'flex', gap: '8px', alignItems: 'center' }}>
+                  {!notaValidada ? (
+                    <button
+                      type="button"
+                      className="btn-primary"
+                      onClick={handleValidateNota}
+                      disabled={!canValidateNota}
+                      title={!canValidateNota ? 'Preencha número, modelo, série e fornecedor' : 'Validar e liberar preenchimento dos demais campos'}
+                    >
+                      ✓ Validar Nota
+                    </button>
+                  ) : (
+                    <span style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      padding: '8px 12px',
+                      backgroundColor: '#10b981',
+                      color: 'white',
+                      borderRadius: '4px',
+                      fontSize: '0.9em',
+                      fontWeight: 500
+                    }}>
+                      ✓ Nota Validada
+                    </span>
+                  )}
+                </div>
+              )}
+
+              <div className="form-row">
+
                 <div className="form-group">
                   <label>Data de Emissão *</label>
 
                   <input
                     type="date"
                     value={form.dataEmissao}
+                    max={maxDataPermitida}
+                    disabled={!notaValidada}
                     onChange={e =>
                       setForm({
                         ...form,
@@ -386,6 +562,9 @@ export default function NotaCompraFormPage() {
                   <input
                     type="date"
                     value={form.dataChegada ?? ''}
+                    min={form.dataEmissao}
+                    max={maxDataPermitida}
+                    disabled={!notaValidada}
                     onChange={e =>
                       setForm({
                         ...form,
@@ -399,68 +578,23 @@ export default function NotaCompraFormPage() {
 
             </div>
                         {/* Fornecedor e Pagamento */}
-            <div className="form-section">
-
-              <h2 className="form-section-title">
-                Fornecedor e Pagamento
-              </h2>
-
-              <div className="form-group">
-                <label>Fornecedor *</label>
-                <div className="lookup-field">
-                  <input
-                    type="text"
-                    value={nomeFornecedor}
-                    placeholder="Selecione um fornecedor..."
-                    readOnly
-                    disabled={!canFillForm}
-                    className="lookup-input"
-                  />
-                  <button
-                    type="button"
-                    className="btn-lookup"
-                    disabled={!canFillForm}
-                    onClick={() => setShowFornecedorModal(true)}
-                    title="Pesquisar fornecedor"
-                  >
-                    <Search size={16} />
-                  </button>
-                </div>
+            {!notaValidada && !isEdit && (
+              <div style={{
+                padding: '12px',
+                marginBottom: '16px',
+                backgroundColor: '#fef3c7',
+                border: '1px solid #fcd34d',
+                borderRadius: '4px',
+                color: '#78350f',
+                fontSize: '0.9em',
+                display: 'flex',
+                gap: '8px',
+                alignItems: 'center'
+              }}>
+                <span>⚠️</span>
+                <span><strong>Atenção:</strong> Valide a nota preenchendo número, modelo, série e fornecedor para liberar os demais campos.</span>
               </div>
-
-              <div className="form-group">
-
-                <label>Condição de Pagamento *</label>
-
-                <div className="lookup-field">
-
-                  <input
-                    type="text"
-                    value={nomeCondicao}
-                    placeholder="Selecione uma condição..."
-                    readOnly
-                    disabled={!canFillForm}
-                    className="lookup-input"
-                  />
-
-                  <button
-                    type="button"
-                    className="btn-lookup"
-                    disabled={!canFillForm}
-                    onClick={() =>
-                      setShowCondicaoModal(true)
-                    }
-                    title="Pesquisar condição de pagamento"
-                  >
-                    <Search size={16} />
-                  </button>
-
-                </div>
-
-              </div>
-
-            </div>
-
+            )}
             {/* Transporte */}
             <div className="form-section">
               <h2 className="form-section-title">
@@ -468,47 +602,40 @@ export default function NotaCompraFormPage() {
               </h2>
 
               <div className="form-row">
-                <div className="form-group">
-                  <label>Transportadora</label>
-                  <div className="lookup-field">
+                <div className="form-group" style={{ flex: '0 0 60px' }}>
+                  <label>Cód.</label>
+                  <div style={{ display: 'flex', gap: '4px' }}>
                     <input
                       type="text"
-                      value={nomeTransportadora}
-                      placeholder="Selecione uma transportadora..."
+                      value={form.transportadoraId ?? 0 > 0 ? form.transportadoraId ?? 0 : ''}
+                      placeholder="ID"
                       readOnly
-                      disabled={!canFillForm}
                       className="lookup-input"
+                      style={{ width: '100%', textAlign: 'center' }}
                     />
                     <button
                       type="button"
                       className="btn-lookup"
-                      disabled={!canFillForm}
+                      disabled={!notaValidada}
                       onClick={() => setShowTransportadoraModal(true)}
                       title="Pesquisar transportadora"
+                      style={{ padding: '4px 8px' }}
                     >
                       <Search size={16} />
                     </button>
                   </div>
                 </div>
 
-                <div className="form-group">
-                  <label>Tipo de Frete</label>
-                  <select
-                    value={form.tipoFrete}
-                    disabled={!canFillForm}
-                    onChange={e =>
-                      setForm({
-                        ...form,
-                        tipoFrete: e.target.value
-                      })
-                    }
-                  >
-                    <option value="CIF">CIF</option>
-                    <option value="FOB">FOB</option>
-                    <option value="SEM FRETE">
-                      Sem Frete
-                    </option>
-                  </select>
+                <div className="form-group" style={{ flex: 1 }}>
+                  <label>Transportadora</label>
+                  <input
+                    type="text"
+                    value={nomeTransportadora}
+                    placeholder="Selecione uma transportadora..."
+                    readOnly
+                    disabled={!notaValidada}
+                    className="lookup-input"
+                  />
                 </div>
               </div>
 
@@ -527,8 +654,8 @@ export default function NotaCompraFormPage() {
                       type="button"
                       className="btn-primary"
                       onClick={() => setShowVeiculoModal(true)}
-                      disabled={!form.transportadoraId}
-                      title={!form.transportadoraId ? 'Selecione uma transportadora primeiro' : 'Selecionar veículo'}
+                      disabled={!form.transportadoraId || !notaValidada}
+                      title={!notaValidada ? 'Valide a nota primeiro' : !form.transportadoraId ? 'Selecione uma transportadora primeiro' : 'Selecionar veículo'}
                     >
                       <Search size={16} />
                     </button>
@@ -544,33 +671,48 @@ export default function NotaCompraFormPage() {
                 <table className="data-table">
                   <thead>
                     <tr>
+                      <th style={{ width: 40 }}>CÓDIGO</th>
                       <th>PRODUTO</th>
-                      <th style={{ width: 80 }}>QTD</th>
-                      <th style={{ width: 100 }}>VALOR UN.</th>
-                      <th style={{ width: 100 }}>DESCONTO %</th>
+                      <th style={{ width: 90 }}>QTD</th>
+                      <th style={{ width: 80 }}>VALOR UN.</th>
+                      <th style={{ width: 90 }}>DESC. %</th>
+                      <th style={{ width: 110 }}>UNIDADE</th>
                       <th style={{ width: 100 }}>TOTAL</th>
+                      <th style={{ width: 100 }}>RATEIO</th>
                       <th style={{ width: 50 }}></th>
                     </tr>
                   </thead>
                   <tbody>
                     {produtos.length === 0 ? (
                       <tr>
-                        <td colSpan={6} className="table-empty">Nenhum produto adicionado.</td>
+                        <td colSpan={9} className="table-empty">Nenhum produto adicionado.</td>
                       </tr>
                     ) : (
                       produtos.map((p, idx) => {
                         const subtotal = p.quantidade * p.precoUnit;
                         const descontoReais = (subtotal * (p.desconto || 0)) / 100;
                         const total = subtotal - descontoReais;
+                        
+                        // Calcular rateio por valor total
+                        const totalProdutosCalc = produtos.reduce((sum, prod) => {
+                          const st = prod.quantidade * prod.precoUnit;
+                          const desc = (st * (prod.desconto || 0)) / 100;
+                          return sum + (st - desc);
+                        }, 0);
+                        
+                        const custoAditional = (form.tipoFrete === 'FOB' ? Number(form.valorFrete) : 0) + Number(form.valorSeguro) + Number(form.outrasDespesas);
+                        const rateioProd = totalProdutosCalc > 0 ? (total / totalProdutosCalc) * custoAditional : 0;
+                        
                         return (
                         <tr key={idx}>
+                          <td className="col-code">{p.idProduto}</td>
                           <td className="col-name">{p.nomeProduto || 'Produto ' + (idx + 1)}</td>
                           <td>
                             <input
                               type="number"
                               step="1"
                               min="0"
-                              disabled={!canFillForm}
+                              disabled={!notaValidada}
                               value={p.quantidade}
                               onChange={e => {
                                 const newProdutos = [...produtos];
@@ -589,7 +731,7 @@ export default function NotaCompraFormPage() {
                               step="1"
                               min="0"
                               max="100"
-                              disabled={!canFillForm}
+                              disabled={!notaValidada}
                               value={p.desconto || 0}
                               onChange={e => {
                                 const newProdutos = [...produtos];
@@ -601,13 +743,35 @@ export default function NotaCompraFormPage() {
                             />
                           </td>
                           <td>
+                            <select
+                              disabled={!notaValidada}
+                              value={p.unidadeMedidaId || ''}
+                              onChange={e => {
+                                const newProdutos = [...produtos];
+                                const unidadeSelecionada = unidades.find(u => u.id === Number(e.target.value));
+                                newProdutos[idx].unidadeMedidaId = Number(e.target.value);
+                                newProdutos[idx].nomeUnidade = unidadeSelecionada?.nomeUnidade;
+                                setProdutos(newProdutos);
+                              }}
+                              className="produto-table-select"
+                            >
+                              <option value="">Selecione...</option>
+                              {unidades.map(u => (
+                                <option key={u.id} value={u.id}>{u.nomeUnidade}</option>
+                              ))}
+                            </select>
+                          </td>
+                          <td>
                             R$ {total.toFixed(2).replace('.', ',')}
+                          </td>
+                          <td>
+                            R$ {rateioProd.toFixed(2).replace('.', ',')}
                           </td>
                           <td>
                             <button
                               type="button"
                               className="btn-icon"
-                              disabled={!canFillForm}
+                              disabled={!notaValidada}
                               onClick={() => setProdutos(produtos.filter((_, i) => i !== idx))}
                               title="Remover produto"
                             >
@@ -626,7 +790,7 @@ export default function NotaCompraFormPage() {
                   <button
                     type="button"
                     className="btn-primary"
-                    disabled={!canFillForm}
+                    disabled={!notaValidada}
                     onClick={() => setShowProdutoModal(true)}
                     style={{ fontSize: '0.9em', padding: '6px 12px' }}
                   >
@@ -657,20 +821,44 @@ export default function NotaCompraFormPage() {
                 Valores
               </h2>
 
+              <div className="form-group" style={{ fontSize: '0.9em', marginBottom: '16px' }}>
+                <label style={{ display: 'block', marginBottom: '8px' }}>Tipo Frete</label>
+                <div className="tipo-frete-selector">
+                  <button
+                    type="button"
+                    className={`tipo-frete-btn ${form.tipoFrete === 'CIF' ? 'active' : ''}`}
+                    onClick={() => setForm({ ...form, tipoFrete: 'CIF' })}
+                    disabled={!notaValidada}
+                  >
+                    CIF
+                  </button>
+                  <button
+                    type="button"
+                    className={`tipo-frete-btn ${form.tipoFrete === 'FOB' ? 'active' : ''}`}
+                    onClick={() => setForm({ ...form, tipoFrete: 'FOB' })}
+                    disabled={!notaValidada}
+                  >
+                    FOB
+                  </button>
+                </div>
+              </div>
+
               <div className="form-row">
 
-                <div className="form-group" style={{ fontSize: '0.9em' }}>
-                  <label>Valor do Frete</label>
-                  <CurrencyInput
-                    disabled={!canFillForm}
-                    value={form.valorFrete}
-                    onChange={value => setForm({ ...form, valorFrete: value })}
-                  />
-                </div>
+                {form.tipoFrete === 'FOB' && (
+                  <div className="form-group" style={{ fontSize: '0.9em' }}>
+                    <label>Valor do Frete</label>
+                    <CurrencyInput
+                      disabled={!notaValidada}
+                      value={form.valorFrete}
+                      onChange={value => setForm({ ...form, valorFrete: value })}
+                    />
+                  </div>
+                )}
                 <div className="form-group" style={{ fontSize: '0.9em' }}>
                   <label>Valor Seguro</label>
                   <CurrencyInput
-                    disabled={!canFillForm}
+                    disabled={!notaValidada}
                     value={form.valorSeguro ?? 0}
                     onChange={value => setForm({ ...form, valorSeguro: value })}
                   />
@@ -678,7 +866,7 @@ export default function NotaCompraFormPage() {
                 <div className="form-group" style={{ fontSize: '0.9em' }}>
                   <label>Outras Despesas</label>
                   <CurrencyInput
-                    disabled={!canFillForm}
+                    disabled={!notaValidada}
                     value={form.outrasDespesas ?? 0}
                     onChange={value => setForm({ ...form, outrasDespesas: value })}
                   />
@@ -702,7 +890,58 @@ export default function NotaCompraFormPage() {
               </div>
             </div>
 
-            {parcelas.length > 0 && (
+            {/* Formas de Pagamento */}
+            <div className="form-section">
+
+              <h2 className="form-section-title">
+                Formas de Pagamento
+              </h2>
+
+              <div className="form-row">
+
+                <div className="form-group" style={{ flex: '0 0 60px' }}>
+                  <label>Cód.</label>
+                  <div style={{ display: 'flex', gap: '4px' }}>
+                    <input
+                      type="text"
+                      value={form.condicaoPagamentoId ?? 0 > 0 ? form.condicaoPagamentoId ?? 0 : ''}
+                      placeholder="ID"
+                      readOnly
+                      className="lookup-input"
+                      style={{ width: '100%', textAlign: 'center' }}
+                    />
+                    <button
+                      type="button"
+                      className="btn-lookup"
+                      disabled={!notaValidada}
+                      onClick={() =>
+                        setShowCondicaoModal(true)
+                      }
+                      title="Pesquisar condição de pagamento"
+                      style={{ padding: '4px 8px' }}
+                    >
+                      <Search size={16} />
+                    </button>
+                  </div>
+                </div>
+
+                <div className="form-group" style={{ flex: 1 }}>
+                  <label>Condição de Pagamento *</label>
+                  <input
+                    type="text"
+                    value={nomeCondicao}
+                    placeholder="Selecione uma condição..."
+                    readOnly
+                    disabled={!notaValidada}
+                    className="lookup-input"
+                  />
+                </div>
+
+              </div>
+
+            </div>
+
+            {parcelas.length > 0 && notaValidada && (
               <div className="form-section">
                 <h2 className="form-section-title">Parcelas</h2>
                 <div className="lookup-table-wrap">
@@ -742,7 +981,7 @@ export default function NotaCompraFormPage() {
 
                 <textarea
                   rows={4}
-                  disabled={!canFillForm}
+                  disabled={!notaValidada}
                   value={form.observacao ?? ''}
                   onChange={e =>
                     setForm({
@@ -751,57 +990,6 @@ export default function NotaCompraFormPage() {
                     })
                   }
                 />
-              </div>
-
-              <div className="form-row">
-
-                <div className="form-group">
-                  <label>Status</label>
-
-                  <select
-                    value={form.status ?? ''}
-                    disabled={!canFillForm}
-                    onChange={e =>
-                      setForm({
-                        ...form,
-                        status: e.target.value
-                      })
-                    }
-                  >
-                    <option value="ABERTA">
-                      Aberta
-                    </option>
-
-                    <option value="FINALIZADA">
-                      Finalizada
-                    </option>
-
-                    <option value="CANCELADA">
-                      Cancelada
-                    </option>
-                  </select>
-                </div>
-
-                <div className="form-group checkbox-group">
-                  <label>
-
-                    <input
-                      type="checkbox"
-                      disabled={!canFillForm}
-                      checked={form.ativo}
-                      onChange={e =>
-                        setForm({
-                          ...form,
-                          ativo: e.target.checked
-                        })
-                      }
-                    />
-
-                    Ativo
-
-                  </label>
-                </div>
-
               </div>
 
               {error && (
@@ -828,7 +1016,7 @@ export default function NotaCompraFormPage() {
                 type="button"
                 className="btn-secondary"
                 onClick={() =>
-                  navigate('/nota-compras')
+                  navigate('/notas-compra')
                 }
               >
                 Cancelar
@@ -900,6 +1088,9 @@ export default function NotaCompraFormPage() {
               desconto: 0,
               idNotaCompra: 0,
               nomeProduto: nomeProduto,
+              unidadeMedidaId: unidades.length > 0 ? unidades[0].id : undefined,
+              nomeUnidade: unidades.length > 0 ? unidades[0].nomeUnidade : undefined,
+              rateioCusto: 0,
             }]);
             setShowProdutoModal(false);
           }}
@@ -907,8 +1098,7 @@ export default function NotaCompraFormPage() {
       )}
 
       {showVeiculoModal && (
-        <VeiculosByTransportadoraLookupModal
-          transportadoraId={form.transportadoraId || 0}
+        <VeiculoLookupModal
           onClose={() => setShowVeiculoModal(false)}
           onSelect={(_, placa) => {
             setForm({ ...form, placaVeiculo: placa });

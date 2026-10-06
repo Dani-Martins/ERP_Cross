@@ -638,17 +638,24 @@ export interface NotaCompraItemView {
   rateio: number;
   custoFinalUnit: number;
   custoFinal: number;
-  idNotaCompra: number;
-  idProduto: number;
+  notaCompraId: number;
+  produtoId: number;
+  unidadeId: number;
   nomeProduto?: string;
+  nomeUnidade?: string;
+  ativo: boolean;
 }
 export interface NotaCompraItemCreate {
+  notaCompraId: number;
+  produtoId: number;
+  unidadeId: number;
   quantidade: number;
   precoUnit: number;
-  desconto: number;
-  idNotaCompra: number;
-  idProduto: number;
+  descontoUnit: number;
+  ativo?: boolean;
+  // campos auxiliares para exibição
   nomeProduto?: string;
+  nomeUnidade?: string;
 }
 export type NotaCompraItemUpdate = NotaCompraItemCreate;
 

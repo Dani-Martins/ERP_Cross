@@ -18,6 +18,7 @@ export default function NotaVendaPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
 
+  // Estado de ação: qual item está sendo acionado
   const [deleteId, setDeleteId] = useState<DeleteKey>(null);
   const [deleting, setDeleting] = useState(false);
 

@@ -598,31 +598,38 @@ return (
 
             <div className="form-row">
 
-              <div className="form-group">
-
-                <label>Cidade *</label>
-
-                <div className="lookup-field">
-
+              <div className="form-group" style={{ flex: '0 0 60px' }}>
+                <label>Cód.</label>
+                <div style={{ display: 'flex', gap: '4px' }}>
                   <input
                     type="text"
-                    value={nomeCidade}
-                    placeholder="Selecione uma cidade..."
+                    value={form.idCidade > 0 ? form.idCidade : ''}
+                    placeholder="ID"
                     readOnly
                     className="lookup-input"
+                    style={{ width: '100%', textAlign: 'center' }}
                   />
-
                   <button
                     type="button"
                     className="btn-lookup"
                     onClick={() => setShowCidadeModal(true)}
                     title="Pesquisar cidade"
+                    style={{ padding: '4px 8px' }}
                   >
                     <Search size={16} />
                   </button>
-
                 </div>
+              </div>
 
+              <div className="form-group" style={{ flex: 1 }}>
+                <label>Cidade *</label>
+                <input
+                  type="text"
+                  value={nomeCidade}
+                  placeholder="Selecione uma cidade..."
+                  readOnly
+                  className="lookup-input"
+                />
               </div>
 
             </div>
@@ -693,18 +700,19 @@ return (
 
             <div className="form-row">
 
-              <div className="form-group">
+              <div className="form-group" style={{ flex: '0 0 60px' }}>
 
-                <label>Condição de Pagamento *</label>
+                <label>Cód.</label>
 
-                <div className="lookup-field">
+                <div style={{ display: 'flex', gap: '4px' }}>
 
                   <input
                     type="text"
-                    value={nomeCondicao}
-                    placeholder="Selecione uma condição..."
+                    value={form.idCondicaoPagamento > 0 ? form.idCondicaoPagamento : ''}
+                    placeholder="ID"
                     readOnly
                     className="lookup-input"
+                    style={{ width: '100%', textAlign: 'center' }}
                   />
 
                   <button
@@ -714,11 +722,26 @@ return (
                       setShowCondicaoModal(true)
                     }
                     title="Pesquisar condição de pagamento"
+                    style={{ padding: '4px 8px' }}
                   >
                     <Search size={16} />
                   </button>
 
                 </div>
+
+              </div>
+
+              <div className="form-group" style={{ flex: 1 }}>
+
+                <label>Condição de Pagamento *</label>
+
+                <input
+                  type="text"
+                  value={nomeCondicao}
+                  placeholder="Selecione uma condição..."
+                  readOnly
+                  className="lookup-input"
+                />
 
               </div>
 

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X, Search } from 'lucide-react';
+import { X, Search, Trash2 } from 'lucide-react';
 import { CondicaoPagamentoService } from '../services/condicaoPagamentoService';
 import { ParcelaCondicaoPagamentoService } from '../services/parcelaCondicaoPagamentoService';
 import { FormaPagamentoService } from '../services/formaPagamentoService';
@@ -75,11 +75,33 @@ export default function CondicaoPagamentoCreateModal({ onCreated, onClose, zBase
     })));
   }
 
+  function handleAdicionar() {
+    if (!selectedForma) return;
+    setParcelas(prev => [...prev, {
+      _key: nextKey(),
+      numero: prev.length + 1,
+      dias: 0,
+      percentual: 0,
+      formaPagamentoId: selectedForma.id,
+    }]);
+  }
+
+  function handleRemover(key: number) {
+    setParcelas(prev => prev.filter(p => p._key !== key).map((p, i) => ({ ...p, numero: i + 1 })));
+  }
+
+  function updateParcela(key: number, field: 'dias' | 'percentual', value: number) {
+    setParcelas(prev => prev.map(p => p._key === key ? { ...p, [field]: value } : p));
+  }
+
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
     if (!nomeBase.trim()) { setError('Condição de Pagamento é obrigatória.'); return; }
     if (!selectedForma) { setError('Selecione a Forma de Pagamento.'); return; }
-    if (aceitaParcela && !somaOk) { setError(`Soma dos percentuais deve ser 100%. Atual: ${somaPercent.toFixed(2)}%`); return; }
+    if (aceitaParcela) {
+      if (parcelas.length === 0) { setError('Adicione pelo menos uma parcela.'); return; }
+      if (!somaOk) { setError(`Soma dos percentuais deve ser 100%. Atual: ${somaPercent.toFixed(2)}%`); return; }
+    }
 
     setSaving(true);
     setError('');
@@ -102,7 +124,7 @@ export default function CondicaoPagamentoCreateModal({ onCreated, onClose, zBase
   return (
     <>
       <div className="modal-overlay" style={{ zIndex: zBase }} onClick={onClose}>
-        <div className="modal" style={{ maxWidth: 700 }} onClick={e => e.stopPropagation()}>
+        <div className="modal modal-condicao-create" style={{ maxWidth: 700 }} onClick={e => e.stopPropagation()}>
           <div className="modal-header">
             <h2>Nova Condição de Pagamento</h2>
             <button className="modal-close" onClick={onClose}><X size={18} /></button>
@@ -176,18 +198,30 @@ export default function CondicaoPagamentoCreateModal({ onCreated, onClose, zBase
               </div>
 
               {aceitaParcela && (
-                <>
+                <div style={{ marginTop: 18 }}>
                   <div style={{ borderTop: '1px solid var(--border-color)', margin: '8px 0 16px' }} />
                   <h3 className="form-section-title" style={{ marginBottom: 12 }}>Parcelas</h3>
+
                   <div className="parcelas-toolbar" style={{ marginTop: 8 }}>
                     <div className="parcelas-gerar-group">
-                      <input type="number" min={1} max={99} value={numGerar}
+                      <input
+                        type="number"
+                        min={1}
+                        max={99}
+                        value={numGerar}
                         onChange={e => setNumGerar(Math.max(1, Number(e.target.value)))}
-                        className="parcelas-num-input" placeholder="Nº Parcelas" />
+                        className="parcelas-num-input"
+                        placeholder="Nº Parcelas"
+                      />
                       <button type="button" className="btn-primary" onClick={handleGerar}>
                         Gerar Parcelas
                       </button>
                     </div>
+
+                    <button type="button" className="btn-secondary" onClick={handleAdicionar}>
+                      + Adicionar Parcela
+                    </button>
+
                     <div className={`parcelas-soma ${somaOk ? 'soma-ok' : 'soma-err'}`}>
                       Soma: {somaPercent.toFixed(2)}%
                       <span className={`soma-badge ${somaOk ? 'soma-badge-ok' : ''}`}>
@@ -195,14 +229,20 @@ export default function CondicaoPagamentoCreateModal({ onCreated, onClose, zBase
                       </span>
                     </div>
                   </div>
-                  {parcelas.length > 0 && (
+
+                  {parcelas.length === 0 ? (
+                    <div className="table-empty" style={{ padding: '24px' }}>
+                      Nenhuma parcela. Use "Gerar Parcelas" ou "Adicionar Parcela".
+                    </div>
+                  ) : (
                     <div className="lookup-table-wrap" style={{ maxHeight: 'none', marginTop: 8 }}>
                       <table className="data-table">
                         <thead>
                           <tr>
                             <th style={{ width: 48 }}>Nº</th>
-                            <th>Dias</th>
+                            <th style={{ width: 170 }}>Dias até vencimento</th>
                             <th>Percentual (%)</th>
+                            <th style={{ width: 48 }}></th>
                           </tr>
                         </thead>
                         <tbody>
@@ -210,12 +250,29 @@ export default function CondicaoPagamentoCreateModal({ onCreated, onClose, zBase
                             <tr key={p._key}>
                               <td className="col-id">{p.numero}</td>
                               <td>
-                                <input type="number" min={0} value={p.dias} className="parcela-cell-input"
-                                  onChange={e => setParcelas(prev => prev.map(x => x._key === p._key ? { ...x, dias: Number(e.target.value) } : x))} />
+                                <input
+                                  type="number"
+                                  min={0}
+                                  value={p.dias}
+                                  className="parcela-cell-input"
+                                  onChange={e => updateParcela(p._key, 'dias', Number(e.target.value))}
+                                />
                               </td>
                               <td>
-                                <input type="number" min={0} max={100} step={0.01} value={p.percentual} className="parcela-cell-input"
-                                  onChange={e => setParcelas(prev => prev.map(x => x._key === p._key ? { ...x, percentual: Number(e.target.value) } : x))} />
+                                <input
+                                  type="number"
+                                  min={0}
+                                  max={100}
+                                  step={0.01}
+                                  value={p.percentual}
+                                  className="parcela-cell-input"
+                                  onChange={e => updateParcela(p._key, 'percentual', Number(e.target.value))}
+                                />
+                              </td>
+                              <td>
+                                <button type="button" className="btn-icon btn-delete" onClick={() => handleRemover(p._key)} title="Remover">
+                                  <Trash2 size={15} />
+                                </button>
                               </td>
                             </tr>
                           ))}
@@ -223,7 +280,7 @@ export default function CondicaoPagamentoCreateModal({ onCreated, onClose, zBase
                       </table>
                     </div>
                   )}
-                </>
+                </div>
               )}
 
               {error && <p className="form-error">{error}</p>}

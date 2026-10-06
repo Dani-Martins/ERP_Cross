@@ -1,0 +1,43 @@
+/* Status badges */
+.badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.badge-aberta {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.badge-finalizado {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.badge-cancelado {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+/* Icon button colors */
+.btn-icon.btn-success {
+  color: var(--text-muted);
+}
+
+.btn-icon.btn-success:hover {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.btn-icon.btn-danger {
+  color: var(--text-muted);
+}
+
+.btn-icon.btn-danger:hover {
+  background: #fee2e2;
+  color: #dc2626;
+}

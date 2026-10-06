@@ -25,7 +25,7 @@ public class NotaCompraItemRepository
 
     public async Task<IEnumerable<NotaCompraItem>> GetByNotaCompraIdAsync(long notaCompraId)
         => await _db.QueryAsync<NotaCompraItem>(
-            $"SELECT {SelectColumns} {FromJoin} WHERE nci.NotaCompraId = @NotaCompraId",
+            $"SELECT {SelectColumns} {FromJoin} WHERE nci.NotaCompraId = @NotaCompraId AND nci.Ativo = 1",
             new { NotaCompraId = notaCompraId });
 
     public async Task<NotaCompraItem?> GetByIdAsync(long id)

@@ -7,6 +7,7 @@ import './PaisesPage.css';
 
 function formatDate(value: string | null | undefined): string {
   if (!value) return '—';
+  if (/^\d{2}\/\d{2}\/\d{4}$/.test(value)) return value;
   const d = new Date(value);
   return isNaN(d.getTime()) ? '—' : d.toLocaleDateString('pt-BR');
 }

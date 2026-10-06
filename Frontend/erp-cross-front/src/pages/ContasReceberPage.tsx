@@ -37,8 +37,12 @@ export default function ContasReceberPage() {
   const [busca, setBusca] = useState('');
   const [filterStatus, setFilterStatus] = useState<'todos' | 'abertos' | 'pagos'>('todos');
   const [loading, setLoading] = useState(true);
+  
+  // Estado de ações: exclusão
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [deleting, setDeleting] = useState(false);
+  
+  // Estado de ações: baixa em lote
   const [selecionados, setSelecionados] = useState<Set<number>>(new Set());
   const [showBaixaModal, setShowBaixaModal] = useState(false);
   const [dataBaixa, setDataBaixa] = useState(new Date().toISOString().substring(0, 10));

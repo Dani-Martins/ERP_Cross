@@ -257,6 +257,13 @@
 .data-table tbody tr:hover { background: var(--bg-card-hover); }
 
 .col-id { color: var(--text-faint) !important; width: 60px; }
+.lookup-table-wrap .col-id {
+  width: 36px;
+  min-width: 36px;
+  text-align: center;
+  padding-left: 0;
+  padding-right: 0;
+}
 .col-name { font-weight: 500; }
 .col-actions { text-align: right !important; width: 120px; white-space: nowrap; }
 .col-actions .btn-icon { display: inline-flex; }
@@ -315,6 +322,17 @@
   flex-direction: column;
   flex: 1 1 auto;
   min-height: 0;
+}
+
+.modal-condicao-create > form {
+  overflow: hidden;
+}
+
+.modal-condicao-create .modal-form {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 .modal-sm { max-width: 500px; }
@@ -724,10 +742,10 @@
 /* ── Inputs da tabela de produtos ──────────────────────────────────────────── */
 .produto-table-input {
   width: 100%;
-  padding: 6px 8px;
+  padding: 8px 10px;
   border: 1px solid var(--border-color);
   border-radius: 6px;
-  font-size: 0.875rem;
+  font-size: 1rem;
   background: var(--bg-input);
   color: var(--text-secondary);
   outline: none;
@@ -737,6 +755,77 @@
 .produto-table-input:focus {
   border-color: #D4A017;
   box-shadow: 0 0 0 2px rgba(212, 160, 23, 0.15);
+}
+
+.col-code {
+  text-align: center;
+  vertical-align: middle;
+  font-weight: 600;
+  color: var(--text-secondary);
+  width: 40px;
+  min-width: 40px;
+  padding: 0 4px;
+}
+
+.produto-table-select {
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  font-size: 0.875rem;
+  background: var(--bg-input);
+  color: var(--text-secondary);
+  outline: none;
+}
+
+.produto-table-select:focus {
+  border-color: #D4A017;
+  box-shadow: 0 0 0 2px rgba(212, 160, 23, 0.15);
+}
+
+.produto-table-select:disabled {
+  background: var(--bg-secondary);
+  color: var(--text-tertiary);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.tipo-frete-selector {
+  display: flex;
+  gap: 0;
+  margin-bottom: 16px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  overflow: hidden;
+  width: fit-content;
+}
+
+.tipo-frete-btn {
+  padding: 6px 14px;
+  border: none;
+  background: var(--bg-input);
+  color: var(--text-tertiary);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.tipo-frete-btn:hover {
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+}
+
+.tipo-frete-btn.active {
+  background: #D4A017;
+  color: #000;
+  font-weight: 600;
+}
+
+.tipo-frete-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 
 /* ── Modal scrollável (com barra de scroll visível) ────────────────────────── */

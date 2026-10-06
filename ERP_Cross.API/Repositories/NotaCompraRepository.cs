@@ -11,7 +11,7 @@ public class NotaCompraRepository
     public NotaCompraRepository(IDbConnection db) { _db = db; }
 
     private const string SelectColumns =
-        "nc.Id, nc.FornecedorId, nc.Modelo, nc.Serie, nc.NumeroNota, nc.DataEmissao, nc.ChaveAcesso, nc.TipoFrete, " +
+        "nc.Id, nc.FornecedorId, nc.Modelo, nc.Serie, nc.NumeroNota, nc.DataEmissao, nc.DataChegada, nc.ChaveAcesso, nc.TipoFrete, " +
         "nc.ValorFrete, nc.ValorSeguro, nc.OutrasDespesas, nc.TotalProdutos, nc.TotalPagar, nc.CondicaoPagamentoId, " +
         "nc.TransportadoraId, nc.PlacaVeiculo, nc.Observacao, nc.Status, nc.Ativo, nc.CriadoEm, nc.AtualizadoEm, " +
         "f.Nome AS NomeFornecedor, cp.NomeCondicao AS NomeCondicaoPagamento, t.Nome AS NomeTransportadora";
@@ -30,10 +30,10 @@ public class NotaCompraRepository
 
     public async Task<long> InsertAsync(NotaCompra n)
         => await _db.ExecuteScalarAsync<long>(
-            @"INSERT INTO NotaCompra (FornecedorId, Modelo, Serie, NumeroNota, DataEmissao, ChaveAcesso, TipoFrete,
+            @"INSERT INTO NotaCompra (FornecedorId, Modelo, Serie, NumeroNota, DataEmissao, DataChegada, ChaveAcesso, TipoFrete,
               ValorFrete, ValorSeguro, OutrasDespesas, TotalProdutos, TotalPagar, CondicaoPagamentoId,
               TransportadoraId, PlacaVeiculo, Observacao, Status, Ativo, CriadoEm)
-              VALUES (@FornecedorId, @Modelo, @Serie, @NumeroNota, @DataEmissao, @ChaveAcesso, @TipoFrete,
+              VALUES (@FornecedorId, @Modelo, @Serie, @NumeroNota, @DataEmissao, @DataChegada, @ChaveAcesso, @TipoFrete,
               @ValorFrete, @ValorSeguro, @OutrasDespesas, @TotalProdutos, @TotalPagar, @CondicaoPagamentoId,
               @TransportadoraId, @PlacaVeiculo, @Observacao, @Status, @Ativo, NOW());
               SELECT LAST_INSERT_ID();", n);
@@ -41,7 +41,7 @@ public class NotaCompraRepository
     public async Task<bool> UpdateAsync(NotaCompra n)
         => await _db.ExecuteAsync(
             @"UPDATE NotaCompra SET FornecedorId=@FornecedorId, Modelo=@Modelo, Serie=@Serie, NumeroNota=@NumeroNota,
-              DataEmissao=@DataEmissao, ChaveAcesso=@ChaveAcesso, TipoFrete=@TipoFrete, ValorFrete=@ValorFrete,
+              DataEmissao=@DataEmissao, DataChegada=@DataChegada, ChaveAcesso=@ChaveAcesso, TipoFrete=@TipoFrete, ValorFrete=@ValorFrete,
               ValorSeguro=@ValorSeguro, OutrasDespesas=@OutrasDespesas, TotalProdutos=@TotalProdutos,
               TotalPagar=@TotalPagar, CondicaoPagamentoId=@CondicaoPagamentoId, TransportadoraId=@TransportadoraId,
               PlacaVeiculo=@PlacaVeiculo, Observacao=@Observacao, Status=@Status, Ativo=@Ativo, AtualizadoEm=NOW()

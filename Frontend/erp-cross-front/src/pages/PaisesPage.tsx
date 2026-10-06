@@ -12,7 +12,7 @@ export default function PaisesPage() {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<'ativos' | 'inativos' | 'todos'>('ativos');
 
-  // Confirmação de exclusão inline
+  // Estado de ação: qual ID está sendo acionado
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [deleting, setDeleting] = useState(false);
 

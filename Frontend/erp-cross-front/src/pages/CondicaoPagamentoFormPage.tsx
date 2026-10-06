@@ -264,10 +264,33 @@ export default function CondicaoPagamentoFormPage() {
               )}
             </div>
 
-            {/* Forma de Pagamento — lookup */}
-            <div className="form-group">
-              <label>Forma de Pagamento *</label>
-              <div className="lookup-field">
+            {/* Forma de Pagamento — lookup com padrão ID + Nome */}
+            <div className="form-row">
+              <div className="form-group" style={{ flex: '0 0 60px' }}>
+                <label>Cód.</label>
+                <div style={{ display: 'flex', gap: '4px' }}>
+                  <input
+                    type="text"
+                    value={selectedForma?.id ?? ''}
+                    placeholder="ID"
+                    readOnly
+                    className="lookup-input"
+                    style={{ width: '100%', textAlign: 'center' }}
+                  />
+                  <button
+                    type="button"
+                    className="btn-lookup"
+                    onClick={() => { setShowFormaLookup(true); setTimeout(() => formaSearchRef.current?.focus(), 50); }}
+                    title="Pesquisar forma de pagamento"
+                    style={{ padding: '4px 8px' }}
+                  >
+                    <Search size={16} />
+                  </button>
+                </div>
+              </div>
+
+              <div className="form-group" style={{ flex: 1 }}>
+                <label>Forma de Pagamento *</label>
                 <input
                   type="text"
                   readOnly
@@ -275,20 +298,13 @@ export default function CondicaoPagamentoFormPage() {
                   value={selectedForma?.nomeFormaPagamento ?? ''}
                   placeholder="Selecione a forma de pagamento..."
                 />
-                <button
-                  type="button"
-                  className="btn-lookup"
-                  onClick={() => { setShowFormaLookup(true); setTimeout(() => formaSearchRef.current?.focus(), 50); }}
-                >
-                  <Search size={15} />
-                </button>
               </div>
-              {selectedForma && (
-                <small style={{ color: 'var(--text-muted)', marginTop: 4, display: 'block' }}>
-                  {selectedForma.aceitaParcela ? '✓ Aceita parcelamento' : '— Pagamento à vista (sem parcelas)'}
-                </small>
-              )}
             </div>
+            {selectedForma && (
+              <small style={{ color: 'var(--text-muted)', marginTop: 4, display: 'block', marginBottom: '12px' }}>
+                {selectedForma.aceitaParcela ? '✓ Aceita parcelamento' : '— Pagamento à vista (sem parcelas)'}
+              </small>
+            )}
 
             <div className="form-row">
               <div className="form-group">

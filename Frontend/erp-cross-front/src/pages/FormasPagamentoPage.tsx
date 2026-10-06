@@ -11,6 +11,8 @@ export default function FormasPagamentoPage() {
   const [search, setSearch] = useState('');
   const [filterStatus, setFilterStatus] = useState<'todos' | 'ativos' | 'inativos'>('ativos');
   const [loading, setLoading] = useState(true);
+  
+  // Estado de ação: qual ID está sendo acionado
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [deleting, setDeleting] = useState(false);
 
@@ -35,10 +37,15 @@ export default function FormasPagamentoPage() {
   async function handleDelete() {
     if (deleteId == null) return;
     setDeleting(true);
-    await FormaPagamentoService.remove(deleteId);
-    setDeleteId(null);
-    setDeleting(false);
-    load();
+    try {
+      await FormaPagamentoService.remove(deleteId);
+      setDeleteId(null);
+      load();
+    } catch {
+      setDeleteId(null);
+    } finally {
+      setDeleting(false);
+    }
   }
 
   return (

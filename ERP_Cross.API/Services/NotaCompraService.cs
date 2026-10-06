@@ -18,7 +18,7 @@ public class NotaCompraService
         var n = new NotaCompra
         {
             FornecedorId = dto.FornecedorId, Modelo = dto.Modelo, Serie = dto.Serie, NumeroNota = dto.NumeroNota,
-            DataEmissao = dto.DataEmissao, ChaveAcesso = dto.ChaveAcesso, TipoFrete = dto.TipoFrete,
+            DataEmissao = dto.DataEmissao, DataChegada = dto.DataChegada, ChaveAcesso = dto.ChaveAcesso, TipoFrete = dto.TipoFrete,
             ValorFrete = dto.ValorFrete, ValorSeguro = dto.ValorSeguro, OutrasDespesas = dto.OutrasDespesas,
             TotalProdutos = dto.TotalProdutos,
             TotalPagar = dto.TotalProdutos + dto.ValorFrete + dto.ValorSeguro + dto.OutrasDespesas,
@@ -36,7 +36,7 @@ public class NotaCompraService
         if (n == null) return false;
 
         n.FornecedorId = dto.FornecedorId; n.Modelo = dto.Modelo; n.Serie = dto.Serie; n.NumeroNota = dto.NumeroNota;
-        n.DataEmissao = dto.DataEmissao; n.ChaveAcesso = dto.ChaveAcesso; n.TipoFrete = dto.TipoFrete;
+        n.DataEmissao = dto.DataEmissao; n.DataChegada = dto.DataChegada; n.ChaveAcesso = dto.ChaveAcesso; n.TipoFrete = dto.TipoFrete;
         n.ValorFrete = dto.ValorFrete; n.ValorSeguro = dto.ValorSeguro; n.OutrasDespesas = dto.OutrasDespesas;
         n.TotalProdutos = dto.TotalProdutos;
         n.TotalPagar = dto.TotalProdutos + dto.ValorFrete + dto.ValorSeguro + dto.OutrasDespesas;
