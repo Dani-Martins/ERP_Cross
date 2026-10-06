@@ -64,6 +64,7 @@ export default function CidadeLookupModal({ onSelect, onClose, zBase = 1000 }: P
                 <table className="data-table">
                   <thead>
                     <tr>
+                      <th style={{ width: 60, textAlign: 'center' }}>CÓD.</th>
                       <th>CIDADE</th>
                       <th>DDD</th>
                       <th>ESTADO</th>
@@ -73,6 +74,7 @@ export default function CidadeLookupModal({ onSelect, onClose, zBase = 1000 }: P
                   <tbody>
                     {filtered.map(c => (
                       <tr key={c.id}>
+                        <td style={{ textAlign: 'center', fontWeight: 'bold' }}>{c.id}</td>
                         <td className="col-name">{c.nomeCidade}</td>
                         <td><span className="tag">{c.ddd}</span></td>
                         <td>{c.nomeEstado ?? '—'}</td>

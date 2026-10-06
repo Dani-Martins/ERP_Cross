@@ -82,6 +82,7 @@ export default function CondicaoPagamentoLookupModal({ onSelect, onClose, zBase 
                     <table className="data-table">
                       <thead>
                         <tr>
+                          <th style={{ width: 60, textAlign: 'center' }}>CÓD.</th>
                           <th>CONDIÇÃO</th>
                           <th>JUROS</th>
                           <th>DESCONTO</th>
@@ -91,6 +92,7 @@ export default function CondicaoPagamentoLookupModal({ onSelect, onClose, zBase 
                       <tbody>
                         {filtered.map(c => (
                           <tr key={c.id}>
+                            <td style={{ textAlign: 'center', fontWeight: 'bold' }}>{c.id}</td>
                             <td className="col-name">{c.nomeCondicao}</td>
                             <td>{c.taxaJuros > 0 ? `${c.taxaJuros}%` : '—'}</td>
                             <td>{c.desconto > 0 ? `${c.desconto}%` : '—'}</td>

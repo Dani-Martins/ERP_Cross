@@ -279,81 +279,111 @@ export default function ProdutoFormPage() {
               Classificação
             </h2>
 
-            <div className="form-group">
-              <label>Categoria *</label>
+            <div className="form-row">
+              <div className="form-group lookup-code-group">
+                <label>Cód.</label>
+                <div style={{ display: 'flex', gap: '4px' }}>
+                  <input
+                    type="text"
+                    value={(form.categoriaId ?? 0) > 0 ? form.categoriaId ?? 0 : ''}
+                    placeholder="ID"
+                    readOnly
+                    className="lookup-input"
+                    style={{ width: '100%', textAlign: 'center' }}
+                  />
+                  <button
+                    type="button"
+                    className="btn-lookup"
+                    onClick={() => setShowCategoriaModal(true)}
+                    title="Pesquisar categoria"
+                    style={{ padding: '4px 8px' }}
+                  >
+                    <Search size={16} />
+                  </button>
+                </div>
+              </div>
 
-              <div className="lookup-field">
-
+              <div className="form-group" style={{ flex: 1 }}>
+                <label>Categoria *</label>
                 <input
                   readOnly
                   type="text"
                   value={nomeCategoria}
-                  placeholder="Categoria"
+                  placeholder="Selecione uma categoria..."
                   className="lookup-input"
-                  title="Pesquisar Categoria"
                 />
-
-                <button
-                  type="button"
-                  className="btn-lookup"
-                  onClick={() => setShowCategoriaModal(true)}
-                  title="Pesquisar Categoria"
-                >
-                  <Search size={16}/>
-                </button>
-
               </div>
             </div>
 
-            <div className="form-group">
-              <label>Marca *</label>
+            <div className="form-row">
+              <div className="form-group lookup-code-group">
+                <label>Cód.</label>
+                <div style={{ display: 'flex', gap: '4px' }}>
+                  <input
+                    type="text"
+                    value={(form.marcaId ?? 0) > 0 ? form.marcaId ?? 0 : ''}
+                    placeholder="ID"
+                    readOnly
+                    className="lookup-input"
+                    style={{ width: '100%', textAlign: 'center' }}
+                  />
+                  <button
+                    type="button"
+                    className="btn-lookup"
+                    onClick={() => setShowMarcaModal(true)}
+                    title="Pesquisar marca"
+                    style={{ padding: '4px 8px' }}
+                  >
+                    <Search size={16} />
+                  </button>
+                </div>
+              </div>
 
-              <div className="lookup-field">
-
+              <div className="form-group" style={{ flex: 1 }}>
+                <label>Marca *</label>
                 <input
                   readOnly
                   type="text"
                   value={nomeMarca}
-                  placeholder="Marca"
+                  placeholder="Selecione uma marca..."
                   className="lookup-input"
-                  title="Pesquisar Marca"
                 />
-
-                <button
-                  type="button"
-                  className="btn-lookup"
-                  onClick={() => setShowMarcaModal(true)}
-                  title="Pesquisar Marca"
-                >
-                  <Search size={16}/>
-                </button>
-
               </div>
             </div>
 
-            <div className="form-group">
-              <label>Unidade *</label>
+            <div className="form-row">
+              <div className="form-group lookup-code-group">
+                <label>Cód.</label>
+                <div style={{ display: 'flex', gap: '4px' }}>
+                  <input
+                    type="text"
+                    value={(form.unidadeId ?? 0) > 0 ? form.unidadeId ?? 0 : ''}
+                    placeholder="ID"
+                    readOnly
+                    className="lookup-input"
+                    style={{ width: '100%', textAlign: 'center' }}
+                  />
+                  <button
+                    type="button"
+                    className="btn-lookup"
+                    onClick={() => setShowUnidadeModal(true)}
+                    title="Pesquisar unidade"
+                    style={{ padding: '4px 8px' }}
+                  >
+                    <Search size={16} />
+                  </button>
+                </div>
+              </div>
 
-              <div className="lookup-field">
-
+              <div className="form-group" style={{ flex: 1 }}>
+                <label>Unidade *</label>
                 <input
                   readOnly
                   type="text"
                   value={nomeUnidade}
-                  placeholder="Unidade de Medida"
+                  placeholder="Selecione uma unidade..."
                   className="lookup-input"
-                  title="Pesquisar Unidade"
                 />
-
-                <button
-                  type="button"
-                  className="btn-lookup"
-                  onClick={() => setShowUnidadeModal(true)}
-                  title="Pesquisar Unidade"
-                >
-                  <Search size={16}/>
-                </button>
-
               </div>
             </div>
 
@@ -365,7 +395,7 @@ export default function ProdutoFormPage() {
 
             <div className="form-row">
 
-              <div className="form-group">
+              <div className="form-group" style={{ flex: '1 1 35%' }}>
                 <label htmlFor="custoCompra">Custo de Compra *</label>
                 <CurrencyInput
                   id="custoCompra"
@@ -379,7 +409,7 @@ export default function ProdutoFormPage() {
                 />
               </div>
 
-              <div className="form-group">
+              <div className="form-group" style={{ flex: '1 1 20%' }}>
                 <label htmlFor="lucroPercentual">Lucro (%) *</label>
                 <input
                   id="lucroPercentual"
@@ -397,11 +427,7 @@ export default function ProdutoFormPage() {
                 />
               </div>
 
-            </div>
-
-            <div className="form-row">
-
-              <div className="form-group">
+              <div className="form-group" style={{ flex: '1 1 35%' }}>
                 <label>Preço de Venda *</label>
                 <input
                   type="text"

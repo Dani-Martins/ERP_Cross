@@ -598,7 +598,7 @@ return (
 
             <div className="form-row">
 
-              <div className="form-group" style={{ flex: '0 0 60px' }}>
+              <div className="form-group lookup-code-group">
                 <label>Cód.</label>
                 <div style={{ display: 'flex', gap: '4px' }}>
                   <input
@@ -700,7 +700,7 @@ return (
 
             <div className="form-row">
 
-              <div className="form-group" style={{ flex: '0 0 60px' }}>
+              <div className="form-group lookup-code-group">
 
                 <label>Cód.</label>
 

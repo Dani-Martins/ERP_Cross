@@ -266,7 +266,7 @@ export default function CondicaoPagamentoFormPage() {
 
             {/* Forma de Pagamento — lookup com padrão ID + Nome */}
             <div className="form-row">
-              <div className="form-group" style={{ flex: '0 0 60px' }}>
+              <div className="form-group lookup-code-group">
                 <label>Cód.</label>
                 <div style={{ display: 'flex', gap: '4px' }}>
                   <input

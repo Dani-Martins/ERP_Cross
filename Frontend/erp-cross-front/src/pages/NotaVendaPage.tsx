@@ -1,26 +1,34 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Search, X, Eye, Pencil, Trash2, FileText } from 'lucide-react';
+import { Plus, Search, X, Eye, CheckCircle, XCircle, FileText } from 'lucide-react';
 import { NotaVendaService } from '../services/notaVendaService';
 import type { NotaVendaView } from '../types/entities';
 import './PaisesPage.css';
-
-type DeleteKey = {
-  numeroNota: string;
-  modelo: string;
-  serie: string;
-  clienteId: number;
-} | null;
+import './NotaCompraPage.css';
 
 export default function NotaVendaPage() {
   const navigate = useNavigate();
   const [notas, setNotas] = useState<NotaVendaView[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState<'aberta' | 'finalizado' | 'cancelado' | 'todos'>('todos');
 
-  // Estado de ação: qual item está sendo acionado
-  const [deleteId, setDeleteId] = useState<DeleteKey>(null);
+  const [deleteId, setDeleteId] = useState<{
+    numeroNota: string;
+    modelo: string;
+    serie: string;
+    clienteId: number;
+  } | null>(null);
   const [deleting, setDeleting] = useState(false);
+  
+  const [statusActionId, setStatusActionId] = useState<{
+    numeroNota: string;
+    modelo: string;
+    serie: string;
+    clienteId: number;
+  } | null>(null);
+  const [statusActionType, setStatusActionType] = useState<'finalizar' | 'cancelar' | null>(null);
+  const [statusActioning, setStatusActioning] = useState(false);
 
   async function load() {
     setLoading(true);
@@ -38,9 +46,17 @@ export default function NotaVendaPage() {
 
   const filtered = notas.filter((n) => {
     const matchSearch =
-      n.numeroNota.toLowerCase().includes(search.toLowerCase()) ||
+      (n.numeroNota ?? '').toLowerCase().includes(search.toLowerCase()) ||
       (n.nomeCliente ?? '').toLowerCase().includes(search.toLowerCase());
-    return matchSearch;
+    
+    const notaStatus = (n.status || 'ABERTA').toUpperCase();
+    const matchStatus =
+      statusFilter === 'todos' ||
+      (statusFilter === 'aberta' && notaStatus === 'ABERTA') ||
+      (statusFilter === 'finalizado' && (notaStatus === 'FINALIZADO' || notaStatus === 'FINALIZADA')) ||
+      (statusFilter === 'cancelado' && notaStatus === 'CANCELADO');
+    
+    return matchSearch && matchStatus;
   });
 
   async function handleDelete() {
@@ -62,6 +78,50 @@ export default function NotaVendaPage() {
     }
   }
 
+  async function handleStatusChange() {
+    if (statusActionId === null || statusActionType === null) return;
+    setStatusActioning(true);
+    try {
+      const nota = notas.find(n => 
+        n.numeroNota === statusActionId.numeroNota &&
+        n.modelo === statusActionId.modelo &&
+        n.serie === statusActionId.serie &&
+        n.clienteId === statusActionId.clienteId
+      );
+      if (!nota) return;
+      
+      const novoStatus = statusActionType === 'finalizar' ? 'FINALIZADO' : 'CANCELADO';
+      const formToUpdate = {
+        ...nota,
+        status: novoStatus,
+      };
+      
+      await NotaVendaService.update(
+        statusActionId.numeroNota,
+        statusActionId.modelo,
+        statusActionId.serie,
+        statusActionId.clienteId,
+        formToUpdate
+      );
+      setStatusActionId(null);
+      setStatusActionType(null);
+      load();
+    } catch {
+      setStatusActionId(null);
+      setStatusActionType(null);
+    } finally {
+      setStatusActioning(false);
+    }
+  }
+
+  function getStatusBadgeClass(status: string | null | undefined): string {
+    const normalizedStatus = (status || 'ABERTA').toUpperCase();
+    if (normalizedStatus === 'ABERTA') return 'badge-aberta';
+    if (normalizedStatus === 'FINALIZADO' || normalizedStatus === 'FINALIZADA') return 'badge-finalizado';
+    if (normalizedStatus === 'CANCELADO') return 'badge-cancelado';
+    return 'badge-aberta';
+  }
+
   return (
     <div className="page-container">
       <div className="page-header">
@@ -71,6 +131,19 @@ export default function NotaVendaPage() {
           <span className="page-badge">{filtered.length}</span>
         </div>
         <div className="page-actions">
+          <div className="filter-select-group">
+            <label htmlFor="statusFilter">Status</label>
+            <select
+              id="statusFilter"
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value as 'aberta' | 'finalizado' | 'cancelado' | 'todos')}
+            >
+              <option value="aberta">Aberta</option>
+              <option value="finalizado">Finalizado</option>
+              <option value="cancelado">Cancelado</option>
+              <option value="todos">Todos</option>
+            </select>
+          </div>
           <div className="search-box">
             <Search size={16} className="search-icon" />
             <input
@@ -118,7 +191,9 @@ export default function NotaVendaPage() {
                   <td className="col-name">{nota.numeroNota}</td>
                   <td>{nota.nomeCliente ?? '—'}</td>
                   <td>
-                    {new Date(nota.dataEmissao).toLocaleDateString('pt-BR')}
+                    {/^\d{2}\/\d{2}\/\d{4}$/.test(nota.dataEmissao)
+                      ? nota.dataEmissao
+                      : new Date(nota.dataEmissao).toLocaleDateString('pt-BR')}
                   </td>
                   <td>
                     {nota.totalPagar.toLocaleString('pt-BR', {
@@ -127,45 +202,52 @@ export default function NotaVendaPage() {
                     })}
                   </td>
                   <td>
-                    <span className={`status-badge ${nota.ativo ? 'status-active' : 'status-inactive'}`}>
-                      {nota.status ?? (nota.ativo ? 'Ativa' : 'Inativa')}
+                    <span className={`badge ${getStatusBadgeClass(nota.status)}`}>
+                      {nota.status || 'EM ANDAMENTO'}
                     </span>
                   </td>
                   <td className="col-actions">
                     <button
                       className="btn-icon btn-view"
                       title="Visualizar"
-                      onClick={() =>
-                        navigate(
-                          `/notas-venda/visualizar/${nota.numeroNota}/${nota.modelo}/${nota.serie}/${nota.clienteId}`
-                        )
-                      }
+                      onClick={() => navigate(`/notas-venda/visualizar/${nota.numeroNota}/${nota.modelo}/${nota.serie}/${nota.clienteId}`)}
                     >
                       <Eye size={15} />
                     </button>
-                    <button
-                      className="btn-icon btn-edit"
-                      title="Editar"
-                      onClick={() =>
-                        navigate(
-                          `/notas-venda/editar/${nota.numeroNota}/${nota.modelo}/${nota.serie}/${nota.clienteId}`
-                        )
-                      }
-                    >
-                      <Pencil size={15} />
-                    </button>
-                    <button
-                      className="btn-icon btn-delete"
-                      title="Excluir"
-                      onClick={() => setDeleteId({
-                        numeroNota: nota.numeroNota,
-                        modelo: nota.modelo,
-                        serie: nota.serie,
-                        clienteId: nota.clienteId
-                      })}
-                    >
-                      <Trash2 size={15} />
-                    </button>
+                    {(nota.status === 'ABERTA' || !nota.status) && (
+                      <>
+                        <button
+                          className="btn-icon btn-success"
+                          title="Finalizar"
+                          onClick={() => {
+                            setStatusActionId({
+                              numeroNota: nota.numeroNota,
+                              modelo: nota.modelo,
+                              serie: nota.serie,
+                              clienteId: nota.clienteId
+                            });
+                            setStatusActionType('finalizar');
+                          }}
+                        >
+                          <CheckCircle size={15} />
+                        </button>
+                        <button
+                          className="btn-icon btn-danger"
+                          title="Cancelar"
+                          onClick={() => {
+                            setStatusActionId({
+                              numeroNota: nota.numeroNota,
+                              modelo: nota.modelo,
+                              serie: nota.serie,
+                              clienteId: nota.clienteId
+                            });
+                            setStatusActionType('cancelar');
+                          }}
+                        >
+                          <XCircle size={15} />
+                        </button>
+                      </>
+                    )}
                   </td>
                 </tr>
               ))}
@@ -189,6 +271,38 @@ export default function NotaVendaPage() {
                 {deleting ? 'Excluindo...' : 'Excluir'}
               </button>
               <button className="btn-secondary" onClick={() => setDeleteId(null)}>Cancelar</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {statusActionId !== null && statusActionType !== null && (
+        <div className="modal-overlay" onClick={() => setStatusActionId(null)}>
+          <div className="modal modal-sm" onClick={(ev) => ev.stopPropagation()}>
+            <div className="modal-header">
+              <h2>Confirmar Ação</h2>
+              <button className="modal-close" onClick={() => setStatusActionId(null)}><X size={20} /></button>
+            </div>
+            <div className="modal-body">
+              <p>
+                {statusActionType === 'finalizar'
+                  ? 'Tem certeza que deseja finalizar esta nota de venda?'
+                  : 'Tem certeza que deseja cancelar esta nota de venda?'}
+              </p>
+            </div>
+            <div className="modal-footer">
+              <button
+                className={statusActionType === 'finalizar' ? 'btn-success' : 'btn-danger'}
+                onClick={handleStatusChange}
+                disabled={statusActioning}
+              >
+                {statusActioning
+                  ? 'Processando...'
+                  : statusActionType === 'finalizar'
+                    ? 'Finalizar'
+                    : 'Cancelar'}
+              </button>
+              <button className="btn-secondary" onClick={() => setStatusActionId(null)}>Voltar</button>
             </div>
           </div>
         </div>

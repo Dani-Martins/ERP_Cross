@@ -879,3 +879,24 @@
 .form-group.city-field input {
   max-width: 400px;
 }
+
+/* ── Lookup: campo de código (mesmo tamanho do Código do topo) + nome ─────── */
+.form-row:has(> .lookup-code-group) {
+  display: flex;
+  align-items: flex-start;
+}
+
+.form-row:has(> .lookup-code-group) > .form-group {
+  flex: 1;
+  min-width: 0;
+}
+
+.form-row:has(> .lookup-code-group) > .form-group.lookup-code-group {
+  flex: 0 0 auto;
+}
+
+.form-group.lookup-code-group .lookup-input {
+  flex: none;
+  width: 120px !important;
+  text-align: center;
+}

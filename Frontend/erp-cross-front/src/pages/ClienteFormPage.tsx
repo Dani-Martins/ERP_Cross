@@ -576,9 +576,32 @@ export default function ClienteFormPage() {
                 />
               </div>
             </div>
-            <div className="form-group">
-              <label htmlFor="idCidade">Cidade *</label>
-              <div className="lookup-field">
+            <div className="form-row">
+              <div className="form-group lookup-code-group">
+                <label>Cód.</label>
+                <div style={{ display: 'flex', gap: '4px' }}>
+                  <input
+                    type="text"
+                    value={(form.idCidade ?? 0) > 0 ? form.idCidade ?? 0 : ''}
+                    placeholder="ID"
+                    readOnly
+                    className="lookup-input"
+                    style={{ width: '100%', textAlign: 'center' }}
+                  />
+                  <button
+                    type="button"
+                    className="btn-lookup"
+                    onClick={() => setShowCidadeModal(true)}
+                    title="Pesquisar cidade"
+                    style={{ padding: '4px 8px' }}
+                  >
+                    <Search size={16} />
+                  </button>
+                </div>
+              </div>
+
+              <div className="form-group" style={{ flex: 1 }}>
+                <label htmlFor="idCidade">Cidade *</label>
                 <input
                   id="idCidade"
                   type="text"
@@ -587,14 +610,6 @@ export default function ClienteFormPage() {
                   value={nomeCidade}
                   className="lookup-input"
                 />
-                <button
-                  type="button"
-                  className="btn-lookup"
-                  onClick={() => setShowCidadeModal(true)}
-                  title="Pesquisar cidade"
-                >
-                  <Search size={16} />
-                </button>
               </div>
             </div>
           </div>
@@ -612,26 +627,38 @@ export default function ClienteFormPage() {
                   onChange={value => setForm({ ...form, limiteCredito: value })}
                 />
               </div>
-              <div className="form-group">
-                <label htmlFor="idCondicao">Condição de Pagamento</label>
-                <div className="lookup-field">
+              <div className="form-group lookup-code-group">
+                <label>Cód.</label>
+                <div style={{ display: 'flex', gap: '4px' }}>
                   <input
-                    id="idCondicao"
                     type="text"
+                    value={(form.idCondicaoPagamento ?? 0) > 0 ? form.idCondicaoPagamento ?? 0 : ''}
+                    placeholder="ID"
                     readOnly
-                    placeholder="Selecione uma condição..."
-                    value={nomeCondicao}
                     className="lookup-input"
+                    style={{ width: '100%', textAlign: 'center' }}
                   />
                   <button
                     type="button"
                     className="btn-lookup"
                     onClick={() => setShowCondicaoModal(true)}
                     title="Pesquisar condição de pagamento"
+                    style={{ padding: '4px 8px' }}
                   >
                     <Search size={16} />
                   </button>
                 </div>
+              </div>
+              <div className="form-group" style={{ flex: 1 }}>
+                <label htmlFor="idCondicao">Condição de Pagamento</label>
+                <input
+                  id="idCondicao"
+                  type="text"
+                  readOnly
+                  placeholder="Selecione uma condição..."
+                  value={nomeCondicao}
+                  className="lookup-input"
+                />
               </div>
             </div>
 

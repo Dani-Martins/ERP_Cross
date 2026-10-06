@@ -264,6 +264,16 @@ export default function NotaCompraFormPage() {
       return;
     }
 
+    if (!form.transportadoraId) {
+      setError('Transportadora é obrigatória.');
+      return;
+    }
+
+    if (!form.placaVeiculo?.trim()) {
+      setError('Placa do veículo é obrigatória.');
+      return;
+    }
+
     setSaving(true);
     setError('');
     try {
@@ -468,7 +478,7 @@ export default function NotaCompraFormPage() {
 
               <div className="form-row">
 
-                <div className="form-group" style={{ flex: '0 0 60px' }}>
+                <div className="form-group lookup-code-group">
                   <label>Cód.</label>
                   <div style={{ display: 'flex', gap: '4px' }}>
                     <input
@@ -602,7 +612,7 @@ export default function NotaCompraFormPage() {
               </h2>
 
               <div className="form-row">
-                <div className="form-group" style={{ flex: '0 0 60px' }}>
+                <div className="form-group lookup-code-group">
                   <label>Cód.</label>
                   <div style={{ display: 'flex', gap: '4px' }}>
                     <input
@@ -627,7 +637,7 @@ export default function NotaCompraFormPage() {
                 </div>
 
                 <div className="form-group" style={{ flex: 1 }}>
-                  <label>Transportadora</label>
+                  <label>Transportadora *</label>
                   <input
                     type="text"
                     value={nomeTransportadora}
@@ -641,7 +651,7 @@ export default function NotaCompraFormPage() {
 
               <div className="form-row">
                 <div className="form-group">
-                  <label>Placa do Veículo</label>
+                  <label>Placa do Veículo *</label>
                   <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                     <input
                       type="text"
@@ -676,6 +686,7 @@ export default function NotaCompraFormPage() {
                       <th style={{ width: 90 }}>QTD</th>
                       <th style={{ width: 80 }}>VALOR UN.</th>
                       <th style={{ width: 90 }}>DESC. %</th>
+                      <th style={{ width: 120 }}>PREÇO LÍQ. UN.</th>
                       <th style={{ width: 110 }}>UNIDADE</th>
                       <th style={{ width: 100 }}>TOTAL</th>
                       <th style={{ width: 100 }}>RATEIO</th>
@@ -685,7 +696,7 @@ export default function NotaCompraFormPage() {
                   <tbody>
                     {produtos.length === 0 ? (
                       <tr>
-                        <td colSpan={9} className="table-empty">Nenhum produto adicionado.</td>
+                        <td colSpan={10} className="table-empty">Nenhum produto adicionado.</td>
                       </tr>
                     ) : (
                       produtos.map((p, idx) => {
@@ -741,6 +752,9 @@ export default function NotaCompraFormPage() {
                               className="produto-table-input"
                               title="Porcentagem de desconto (0-100%)"
                             />
+                          </td>
+                          <td>
+                            R$ {(p.precoUnit * (1 - (p.desconto || 0) / 100)).toFixed(2).replace('.', ',')}
                           </td>
                           <td>
                             <select
@@ -899,7 +913,7 @@ export default function NotaCompraFormPage() {
 
               <div className="form-row">
 
-                <div className="form-group" style={{ flex: '0 0 60px' }}>
+                <div className="form-group lookup-code-group">
                   <label>Cód.</label>
                   <div style={{ display: 'flex', gap: '4px' }}>
                     <input
