@@ -984,11 +984,11 @@ export default function NotaVendaFormPage() {
       {showProdutoModal && (
         <ProdutoLookupModal
           onClose={() => setShowProdutoModal(false)}
-          onSelect={(id, nomeProduto, _, __, ___, custoCompra) => {
+          onSelect={(id, nomeProduto, _, __, precoVenda) => {
             setProdutos([...produtos, {
               idProduto: id,
               quantidade: 1,
-              precoUnit: custoCompra || 0,
+              precoUnit: precoVenda || 0,
               desconto: 0,
               idNotaVenda: 0,
               nomeProduto: nomeProduto,

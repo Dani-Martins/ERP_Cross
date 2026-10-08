@@ -434,7 +434,12 @@ export interface ContaPagarView {
   serie: string;
   numeroNota: string;
   numParcela: number;
+  parcelasPagas: number;
+  valorTotal: number;
   valorParcela: number;
+  proximaParcelaId?: number;
+  valorProximaParcela?: number;
+  proximoVencimento?: string;
   dataEmissao: string;
   dataVencimento: string;
   dataPagamento?: string;
@@ -450,18 +455,19 @@ export interface ContaPagarView {
   criadoEm: string;
   atualizadoEm?: string;
 }
+export interface ContaPagarParcelaInput {
+  dataVencimento: string;
+  valorParcela: number;
+  dataPagamento?: string;
+}
 export interface ContaPagarCreate {
   notaCompraId?: number;
   fornecedorId: number;
   modelo: string;
   serie: string;
   numeroNota: string;
-  numParcela: number;
-  valorParcela: number;
   dataEmissao: string;
-  dataVencimento: string;
-  dataPagamento?: string;
-  valorPago?: number;
+  parcelas: ContaPagarParcelaInput[];
   juros: number;
   multa: number;
   desconto: number;
@@ -472,9 +478,15 @@ export interface ContaPagarCreate {
 }
 export type ContaPagarUpdate = ContaPagarCreate;
 
-export interface ContaPagarPagamentoLote {
-  ids: number[];
-  dataPagamento: string;
+export interface ContaPagarParcela {
+  id: number;
+  contaPagarId: number;
+  numParcela: number;
+  dataVencimento: string;
+  valorParcela: number;
+  pago: boolean;
+  dataPagamento?: string;
+  valorPago?: number;
 }
 
 // ── Nota de Venda ─────────────────────────────────────────────────────────────

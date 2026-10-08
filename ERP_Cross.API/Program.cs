@@ -76,6 +76,7 @@ builder.Services.AddScoped<NotaVendaProdutoRepository>();
 builder.Services.AddScoped<ParcelaNotaVendaRepository>();
 builder.Services.AddScoped<ParcelaNotaCompraRepository>();
 builder.Services.AddScoped<ContaPagarRepository>();
+builder.Services.AddScoped<ContaPagarParcelaRepository>();
 builder.Services.AddScoped<ContaReceberRepository>();
 
 // === Registrar Services ===

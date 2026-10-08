@@ -31,8 +31,8 @@ public class CondicaoPagamentoRepository
     public async Task<IEnumerable<ParcelaCondicaoPagamento>> GetParcelasAsync(int condicaoPagamentoId)
     {
         const string sql = @"
-            SELECT pcp.Numero, pcp.Dias, pcp.Percentual, pcp.FormaPagamentoId, fp.Nome AS NomeFormaPagamento
-            FROM ParcelasCondicaoPagamento pcp
+            SELECT pcp.Numero, pcp.Dias, pcp.Percentual, pcp.FormaPagamentoId, fp.NomeFormaPagamento
+            FROM ParcelaCondicaoPagamento pcp
             LEFT JOIN FormasPagamento fp ON pcp.FormaPagamentoId = fp.Id
             WHERE pcp.CondicaoPagamentoId = @CondicaoPagamentoId AND pcp.Ativo = 1
             ORDER BY pcp.Numero";

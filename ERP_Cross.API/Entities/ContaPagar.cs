@@ -10,7 +10,7 @@ public class ContaPagar
     public string Serie { get; set; } = string.Empty;
     public string NumeroNota { get; set; } = string.Empty;
     public int NumParcela { get; set; }
-    public decimal ValorParcela { get; set; }
+    public decimal ValorTotal { get; set; }
     public DateTime DataEmissao { get; set; }
     public DateTime DataVencimento { get; set; }
     public DateTime? DataPagamento { get; set; }
@@ -26,5 +26,11 @@ public class ContaPagar
     public DateTime? AtualizadoEm { get; set; }
     public string? NomeFornecedor { get; set; }
     public string? NomeFormaPagamento { get; set; }
+
+    // Calculados a partir de ContaPagarParcela (não são colunas da tabela)
+    public int ParcelasPagas { get; set; }
+    public long? ProximaParcelaId { get; set; }
+    public decimal? ValorProximaParcela { get; set; }
+    public DateTime? ProximoVencimento { get; set; }
 }
 

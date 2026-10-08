@@ -8,10 +8,14 @@ namespace ERP_Cross.API.Middleware;
 public class ExceptionMiddleware
 {
     private readonly RequestDelegate _next;
+    private readonly ILogger<ExceptionMiddleware> _logger;
+    private readonly IHostEnvironment _env;
 
-    public ExceptionMiddleware(RequestDelegate next)
+    public ExceptionMiddleware(RequestDelegate next, ILogger<ExceptionMiddleware> logger, IHostEnvironment env)
     {
         _next = next;
+        _logger = logger;
+        _env = env;
     }
 
     public async Task InvokeAsync(HttpContext context)
@@ -24,9 +28,13 @@ public class ExceptionMiddleware
         {
             await WriteErrorAsync(context, HttpStatusCode.BadRequest, "BUSINESS_RULE", ex.Message);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            await WriteErrorAsync(context, HttpStatusCode.InternalServerError, "INTERNAL_ERROR", "Ocorreu um erro interno no servidor.");
+            _logger.LogError(ex, "Erro não tratado em {Method} {Path}", context.Request.Method, context.Request.Path);
+            var message = _env.IsDevelopment()
+                ? $"Ocorreu um erro interno no servidor: {ex.Message}"
+                : "Ocorreu um erro interno no servidor.";
+            await WriteErrorAsync(context, HttpStatusCode.InternalServerError, "INTERNAL_ERROR", message);
         }
     }
 

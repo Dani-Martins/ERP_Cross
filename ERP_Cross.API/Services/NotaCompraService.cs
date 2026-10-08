@@ -8,7 +8,12 @@ namespace ERP_Cross.API.Services;
 public class NotaCompraService
 {
     private readonly NotaCompraRepository _repository;
-    public NotaCompraService(NotaCompraRepository repository) { _repository = repository; }
+    private readonly ContaPagarService _contasPagar;
+    public NotaCompraService(NotaCompraRepository repository, ContaPagarService contasPagar)
+    {
+        _repository = repository;
+        _contasPagar = contasPagar;
+    }
 
     public async Task<IEnumerable<NotaCompra>> GetAllAsync() => await _repository.GetAllAsync();
     public async Task<NotaCompra?> GetByIdAsync(long id) => await _repository.GetByIdAsync(id);
@@ -27,6 +32,7 @@ public class NotaCompraService
             Ativo = dto.Ativo
         };
         n.Id = await _repository.InsertAsync(n);
+        await _contasPagar.SincronizarDaNotaAsync(n);
         return n;
     }
 
@@ -47,6 +53,16 @@ public class NotaCompraService
         return await _repository.UpdateAsync(n);
     }
 
-    public async Task<bool> DeleteAsync(long id) => await _repository.DeleteAsync(id);
+    public async Task<bool> DeleteAsync(long id)
+    {
+        var n = await _repository.GetByIdAsync(id);
+        if (!await _repository.DeleteAsync(id)) return false;
+        if (n != null)
+        {
+            n.Ativo = false;
+            await _contasPagar.SincronizarDaNotaAsync(n);
+        }
+        return true;
+    }
 }
 

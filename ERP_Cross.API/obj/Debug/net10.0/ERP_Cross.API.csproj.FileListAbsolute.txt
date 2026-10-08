@@ -74,3 +74,11 @@ D:\DOCUMENTOS\Documents\ERP_Cross\ERP_Cross.API\bin\Debug\net10.0\ERP_Cross.API.
 D:\DOCUMENTOS\Documents\ERP_Cross\ERP_Cross.API\bin\Debug\net10.0\ERP_Cross.API.pdb
 D:\DOCUMENTOS\Documents\ERP_Cross\ERP_Cross.API\obj\Debug\net10.0\ERP_Cross.API.genruntimeconfig.cache
 D:\DOCUMENTOS\Documents\ERP_Cross\ERP_Cross.API\obj\Debug\net10.0\ref\ERP_Cross.API.dll
+C:\Users\USUARIO\AppData\Local\Temp\erp_build_check\appsettings.Development.json
+C:\Users\USUARIO\AppData\Local\Temp\erp_build_check\appsettings.json
+C:\Users\USUARIO\AppData\Local\Temp\erp_build_check\ERP_Cross.API.staticwebassets.endpoints.json
+C:\Users\USUARIO\AppData\Local\Temp\erp_build_check\ERP_Cross.API.exe
+C:\Users\USUARIO\AppData\Local\Temp\erp_build_check\ERP_Cross.API.deps.json
+C:\Users\USUARIO\AppData\Local\Temp\erp_build_check\ERP_Cross.API.runtimeconfig.json
+C:\Users\USUARIO\AppData\Local\Temp\erp_build_check\ERP_Cross.API.dll
+C:\Users\USUARIO\AppData\Local\Temp\erp_build_check\ERP_Cross.API.pdb

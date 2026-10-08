@@ -36,6 +36,10 @@ function toInputDate(value: string | null |undefined): string {
   return d.toISOString().split('T')[0];
 }
 
+function today(): string {
+  return new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().split('T')[0];
+}
+
 // Tipo interno para uso no formulário (diferente do NotaCompraItemCreate)
 interface ProdutoFormulario {
   idProduto: number;
@@ -60,7 +64,7 @@ const EMPTY: NotaCompraCreate = {
   modelo: '',
   serie: '',
 
-  dataEmissao: new Date().toISOString().split('T')[0],
+  dataEmissao: today(),
   dataChegada: '',
 
   tipoFrete: 'CIF',
@@ -259,6 +263,11 @@ export default function NotaCompraFormPage() {
       return;
     }
 
+    if (form.dataChegada && form.dataChegada > maxDataPermitida) {
+      setError('A data de chegada não pode ser posterior à data atual.');
+      return;
+    }
+
     if (!form.condicaoPagamentoId) {
       setError('Condição de pagamento é obrigatória.');
       return;
@@ -330,6 +339,7 @@ export default function NotaCompraFormPage() {
       } else {
 
         setError(
+          axiosErr.response?.data?.message ??
           'Erro ao salvar a nota de compra.'
         );
 
@@ -359,7 +369,7 @@ export default function NotaCompraFormPage() {
 
   const canValidateNota = canFillForm && form.fornecedorId > 0 && !notaValidada;
 
-  const maxDataPermitida = new Date().toISOString().split('T')[0];
+  const maxDataPermitida = today();
 
   function handleValidateNota() {
     if (!form.numeroNota.trim()) {
@@ -572,7 +582,6 @@ export default function NotaCompraFormPage() {
                   <input
                     type="date"
                     value={form.dataChegada ?? ''}
-                    min={form.dataEmissao}
                     max={maxDataPermitida}
                     disabled={!notaValidada}
                     onChange={e =>
@@ -1094,11 +1103,11 @@ export default function NotaCompraFormPage() {
       {showProdutoModal && (
         <ProdutoLookupModal
           onClose={() => setShowProdutoModal(false)}
-          onSelect={(id, nomeProduto, _, __, ___, custoCompra) => {
+          onSelect={(id, nomeProduto, _, __, precoVenda) => {
             setProdutos([...produtos, {
               idProduto: id,
               quantidade: 1,
-              precoUnit: custoCompra || 0,
+              precoUnit: precoVenda || 0,
               desconto: 0,
               idNotaCompra: 0,
               nomeProduto: nomeProduto,

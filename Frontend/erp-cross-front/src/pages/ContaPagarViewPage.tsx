@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { TrendingDown, Pencil } from 'lucide-react';
+import { TrendingDown, Pencil, CheckCircle } from 'lucide-react';
 import { ContaPagarService } from '../services/contasService';
-import type { ContaPagarView } from '../types/entities';
+import type { ContaPagarView, ContaPagarParcela } from '../types/entities';
 import './PaisesPage.css';
 
 function fmtData(s?: string | null) {
@@ -18,11 +18,11 @@ function fmtMoeda(v?: number | null) {
 }
 
 const STATUS_LABEL: Record<string, string> = {
-  ABERTO: 'Aberto', PAGO: 'Pago', CANCELADO: 'Cancelado', VENCIDO: 'Vencido',
+  ABERTO: 'Aberto', PAGO: 'Pago', FINALIZADO: 'Finalizado', CANCELADO: 'Cancelado', VENCIDO: 'Vencido',
 };
 
 function statusClass(s: string) {
-  if (s === 'PAGO') return 'status-badge status-active';
+  if (s === 'PAGO' || s === 'FINALIZADO') return 'status-badge status-active';
   if (s === 'CANCELADO' || s === 'VENCIDO') return 'status-badge status-inactive';
   return 'status-badge';
 }
@@ -31,19 +31,40 @@ export default function ContaPagarViewPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [conta, setConta] = useState<ContaPagarView | null>(null);
+  const [parcelas, setParcelas] = useState<ContaPagarParcela[]>([]);
   const [loading, setLoading] = useState(true);
+  const [paying, setPaying] = useState<number | null>(null);
+
+  async function carregar() {
+    const [c, p] = await Promise.all([
+      ContaPagarService.getById(Number(id)),
+      ContaPagarService.getParcelas(Number(id)),
+    ]);
+    setConta(c.data);
+    setParcelas(p.data);
+  }
 
   useEffect(() => {
-    ContaPagarService.getById(Number(id))
-      .then(r => setConta(r.data))
+    carregar()
       .catch(() => navigate('/contas-pagar'))
       .finally(() => setLoading(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, navigate]);
+
+  async function pagar(parcelaId: number) {
+    setPaying(parcelaId);
+    try {
+      await ContaPagarService.pagarParcela(parcelaId, new Date().toISOString().substring(0, 10));
+      await carregar();
+    } catch (err) {
+      console.error('Erro ao pagar parcela:', err);
+    } finally {
+      setPaying(null);
+    }
+  }
 
   if (loading) return <div className="page-container"><div className="table-loading">Carregando...</div></div>;
   if (!conta) return null;
-
-  const totalComEncargos = (conta.valorParcela ?? 0) + (conta.juros ?? 0) + (conta.multa ?? 0) - (conta.desconto ?? 0);
 
   return (
     <div className="page-container">
@@ -89,23 +110,19 @@ export default function ContaPagarViewPage() {
             </div>
             <div className="form-row">
               <div className="view-group">
-                <span className="view-label">Nº Parcela</span>
-                <span className="view-value">{conta.numParcela}</span>
+                <span className="view-label">Parcelas Pagas</span>
+                <span className="view-value">{conta.parcelasPagas} de {conta.numParcela}</span>
               </div>
               <div className="view-group">
                 <span className="view-label">Data de Emissão</span>
                 <span className="view-value">{fmtData(conta.dataEmissao)}</span>
               </div>
               <div className="view-group">
-                <span className="view-label">Data de Vencimento</span>
-                <span className="view-value">{fmtData(conta.dataVencimento)}</span>
+                <span className="view-label">Valor Total</span>
+                <span className="view-value"><strong>{fmtMoeda(conta.valorTotal)}</strong></span>
               </div>
             </div>
             <div className="form-row">
-              <div className="view-group">
-                <span className="view-label">Valor da Parcela</span>
-                <span className="view-value"><strong>{fmtMoeda(conta.valorParcela)}</strong></span>
-              </div>
               <div className="view-group">
                 <span className="view-label">Forma de Pagamento</span>
                 <span className="view-value">{conta.nomeFormaPagamento ?? '—'}</span>
@@ -117,45 +134,53 @@ export default function ContaPagarViewPage() {
             </div>
           </div>
 
-          {/* Pagamento */}
+          {/* Parcelas */}
           <div className="form-section">
-            <h2 className="form-section-title">Pagamento</h2>
+            <h2 className="form-section-title">Parcelas</h2>
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Parcela</th><th>Vencimento</th><th>Valor</th><th>Situação</th><th>Pago em</th><th className="col-actions">Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                {parcelas.map(p => (
+                  <tr key={p.id}>
+                    <td>{p.numParcela}/{conta.numParcela}</td>
+                    <td>{fmtData(p.dataVencimento)}</td>
+                    <td>{fmtMoeda(p.valorParcela)}</td>
+                    <td>{p.pago ? 'Paga' : 'Em aberto'}</td>
+                    <td>{fmtData(p.dataPagamento)}</td>
+                    <td className="col-actions">
+                      {!p.pago && conta.status === 'ABERTO' && (
+                        <button className="btn-icon btn-success" title="Pagar parcela" disabled={paying !== null} onClick={() => pagar(p.id)}>
+                          <CheckCircle size={15} />
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Encargos */}
+          <div className="form-section">
+            <h2 className="form-section-title">Taxas</h2>
             <div className="form-row">
               <div className="view-group">
-                <span className="view-label">Data de Pagamento</span>
-                <span className="view-value">{fmtData(conta.dataPagamento)}</span>
+                <span className="view-label">Juros por parcela (%)</span>
+                <span className="view-value">{conta.juros}%</span>
               </div>
               <div className="view-group">
-                <span className="view-label">Valor Pago</span>
-                <span className="view-value">{fmtMoeda(conta.valorPago)}</span>
+                <span className="view-label">Multa (%)</span>
+                <span className="view-value">{conta.multa}%</span>
+              </div>
+              <div className="view-group">
+                <span className="view-label">Desconto (%)</span>
+                <span className="view-value">{conta.desconto}%</span>
               </div>
             </div>
-            <div className="form-row">
-              <div className="view-group">
-                <span className="view-label">Juros</span>
-                <span className="view-value" style={{ color: conta.juros > 0 ? '#dc2626' : undefined }}>
-                  {fmtMoeda(conta.juros)}
-                </span>
-              </div>
-              <div className="view-group">
-                <span className="view-label">Multa</span>
-                <span className="view-value" style={{ color: conta.multa > 0 ? '#dc2626' : undefined }}>
-                  {fmtMoeda(conta.multa)}
-                </span>
-              </div>
-              <div className="view-group">
-                <span className="view-label">Desconto</span>
-                <span className="view-value" style={{ color: conta.desconto > 0 ? '#16a34a' : undefined }}>
-                  {fmtMoeda(conta.desconto)}
-                </span>
-              </div>
-            </div>
-            {(conta.juros > 0 || conta.multa > 0 || conta.desconto > 0) && (
-              <div className="view-group">
-                <span className="view-label">Total com Encargos</span>
-                <span className="view-value"><strong>{fmtMoeda(totalComEncargos)}</strong></span>
-              </div>
-            )}
           </div>
 
           {conta.observacao && (

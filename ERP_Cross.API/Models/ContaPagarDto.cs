@@ -13,12 +13,9 @@ public class CreateContaPagarDto
     public string Serie { get; set; } = string.Empty;
     [Required]
     public string NumeroNota { get; set; } = string.Empty;
-    public int NumParcela { get; set; }
-    public decimal ValorParcela { get; set; }
     public DateTime DataEmissao { get; set; }
-    public DateTime DataVencimento { get; set; }
-    public DateTime? DataPagamento { get; set; }
-    public decimal? ValorPago { get; set; }
+    [Required, MinLength(1)]
+    public List<ContaPagarParcelaInput> Parcelas { get; set; } = new();
     public decimal Juros { get; set; }
     public decimal Multa { get; set; }
     public decimal Desconto { get; set; }
@@ -38,12 +35,9 @@ public class UpdateContaPagarDto
     public string Serie { get; set; } = string.Empty;
     [Required]
     public string NumeroNota { get; set; } = string.Empty;
-    public int NumParcela { get; set; }
-    public decimal ValorParcela { get; set; }
     public DateTime DataEmissao { get; set; }
-    public DateTime DataVencimento { get; set; }
-    public DateTime? DataPagamento { get; set; }
-    public decimal? ValorPago { get; set; }
+    [Required, MinLength(1)]
+    public List<ContaPagarParcelaInput> Parcelas { get; set; } = new();
     public decimal Juros { get; set; }
     public decimal Multa { get; set; }
     public decimal Desconto { get; set; }
@@ -62,6 +56,7 @@ public class ContaPagarView
     public string Serie { get; set; } = string.Empty;
     public string NumeroNota { get; set; } = string.Empty;
     public int NumParcela { get; set; }
+    public int ParcelasPagas { get; set; } = 0;
     public decimal ValorParcela { get; set; }
     public DateTime DataEmissao { get; set; }
     public DateTime DataVencimento { get; set; }
@@ -78,5 +73,19 @@ public class ContaPagarView
     public DateTime? AtualizadoEm { get; set; }
     public string? NomeFornecedor { get; set; }
     public string? NomeFormaPagamento { get; set; }
+}
+
+public class ContaPagarParcelaInput
+{
+    public DateTime DataVencimento { get; set; }
+    [Range(0.01, double.MaxValue)]
+    public decimal ValorParcela { get; set; }
+    // Preenchida = parcela já paga
+    public DateTime? DataPagamento { get; set; }
+}
+
+public class PagarParcelaDto
+{
+    public DateTime DataPagamento { get; set; }
 }
 
