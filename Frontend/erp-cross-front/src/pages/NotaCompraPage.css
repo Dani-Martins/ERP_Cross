@@ -41,3 +41,169 @@
   background: #fee2e2;
   color: #dc2626;
 }
+
+.nota-create-modal-overlay {
+  padding: 2vh 2vw;
+}
+
+.nota-create-modal {
+  width: 96vw;
+  max-width: 1600px;
+  height: 96vh;
+  max-height: 96vh;
+  overflow: hidden;
+}
+
+.nota-create-modal > .modal-header {
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border-card);
+}
+
+.nota-create-modal-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.nota-create-modal-body > .page-container {
+  height: auto;
+  min-height: 100%;
+  padding: 20px 24px 24px;
+}
+
+.nota-create-modal-body .page-header {
+  display: none;
+}
+
+.nota-compra-produtos-wrap {
+  overflow-x: hidden;
+}
+
+.nota-compra-produtos-table th,
+.nota-compra-produtos-table td {
+  padding: 10px 7px;
+  text-align: center;
+}
+
+.nota-compra-produtos-table th {
+  font-size: 0.68rem;
+}
+
+.nota-compra-produtos-table td {
+  white-space: nowrap;
+}
+
+.nota-compra-produtos-table th:nth-child(1) { width: 88px !important; }
+.nota-compra-produtos-table th:nth-child(3) { width: 82px !important; }
+.nota-compra-produtos-table th:nth-child(4) { width: 128px !important; }
+.nota-compra-produtos-table th:nth-child(5) { width: 84px !important; }
+.nota-compra-produtos-table th:nth-child(6) { width: 130px !important; }
+.nota-compra-produtos-table th:nth-child(7) { width: 100px !important; }
+.nota-compra-produtos-table th:nth-child(8) { width: 110px !important; }
+.nota-compra-produtos-table th:nth-child(9) { width: 110px !important; }
+.nota-compra-produtos-table th:nth-child(10) { width: 48px !important; }
+
+.nota-compra-produtos-table td.col-name {
+  padding-left: 16px;
+  padding-right: 16px;
+  white-space: normal;
+}
+
+.nota-compra-produtos-table .produto-table-input {
+  min-width: 0;
+  padding: 8px 5px;
+  text-align: center;
+}
+
+.nota-compra-produtos-table .produto-table-select {
+  min-width: 0;
+  width: 100%;
+  padding-right: 20px;
+  text-align: center;
+  text-align-last: center;
+}
+
+@media (max-width: 820px) {
+  .nota-compra-produtos-wrap {
+    max-height: none;
+    border: 0;
+    overflow: visible;
+  }
+
+  .nota-compra-produtos-table,
+  .nota-compra-produtos-table tbody {
+    display: block;
+    width: 100%;
+  }
+
+  .nota-compra-produtos-table thead {
+    display: none;
+  }
+
+  .nota-compra-produtos-table tbody tr:not(:has(td[colspan])) {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    margin-bottom: 12px;
+    padding: 14px;
+    border: 1px solid var(--border-table-head);
+    border-radius: 8px;
+    background: var(--bg-card);
+  }
+
+  .nota-compra-produtos-table tbody tr:not(:has(td[colspan])) td {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    padding: 0;
+    border: 0;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .nota-compra-produtos-table tbody tr:not(:has(td[colspan])) td::before {
+    content: attr(data-label);
+    color: var(--text-muted);
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+
+  .nota-compra-produtos-table tbody tr:not(:has(td[colspan])) td:nth-child(2) {
+    grid-column: 1 / -1;
+  }
+
+  .nota-compra-produtos-table tbody tr:not(:has(td[colspan])) td.nota-produto-actions {
+    grid-column: 1 / -1;
+    align-items: flex-end;
+  }
+
+  .nota-compra-produtos-table tbody tr:not(:has(td[colspan])) td.nota-produto-actions::before {
+    content: none;
+  }
+
+  .nota-compra-produtos-table tbody tr:has(td[colspan]) td {
+    display: block;
+    padding: 20px 8px;
+  }
+}
+
+@media (max-width: 700px) {
+  .nota-create-modal-overlay {
+    padding: 0;
+  }
+
+  .nota-create-modal {
+    width: 100vw;
+    height: 100dvh;
+    max-height: 100dvh;
+    border-radius: 0;
+  }
+
+  .nota-create-modal-body > .page-container {
+    padding: 16px 12px 20px;
+  }
+}

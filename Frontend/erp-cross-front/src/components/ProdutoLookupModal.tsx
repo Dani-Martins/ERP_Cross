@@ -8,10 +8,11 @@ import '../pages/PaisesPage.css';
 interface Props {
   onSelect: (id: number, nomeProduto: string, unidadeId?: number, nomeUnidade?: string, precoVenda?: number, custoCompra?: number) => void;
   onClose: () => void;
+  tipo?: 'compra' | 'venda'; // 'compra' para mostrar custoCompra, 'venda' para mostrar precoVenda
   zBase?: number;
 }
 
-export default function ProdutoLookupModal({ onSelect, onClose, zBase = 1000 }: Props) {
+export default function ProdutoLookupModal({ onSelect, onClose, tipo = 'venda', zBase = 1000 }: Props) {
   const [all, setAll] = useState<ProdutoView[]>([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
@@ -63,7 +64,6 @@ export default function ProdutoLookupModal({ onSelect, onClose, zBase = 1000 }: 
                     <th>PRODUTO</th>
                     <th style={{ width: 100 }}>COD. BARRAS</th>
                     <th style={{ width: 100 }}>PREÇO</th>
-                    <th style={{ width: 80 }}>ESTOQUE</th>
                     <th style={{ width: 110 }}></th>
                   </tr>
                 </thead>
@@ -72,8 +72,7 @@ export default function ProdutoLookupModal({ onSelect, onClose, zBase = 1000 }: 
                     <tr key={p.id}>
                       <td className="col-name">{p.nomeProduto}</td>
                       <td>{p.codigoBarras || '—'}</td>
-                      <td>R$ {Number(p.precoVenda).toFixed(2).replace('.', ',')}</td>
-                      <td>{p.estoque}</td>
+                      <td>R$ {Number(tipo === 'compra' ? p.custoCompra : p.precoVenda).toFixed(2).replace('.', ',')}</td>
                       <td>
                         <button 
                           className="btn-select" 

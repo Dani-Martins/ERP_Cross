@@ -10,6 +10,7 @@ import CondicaoPagamentoLookupModal from '../components/CondicaoPagamentoLookupM
 import ClienteLookupModal from '../components/ClienteLookupModal';
 import TransportadoraLookupModal from '../components/TransportadoraLookupModal';
 import ProdutoLookupModal from '../components/ProdutoLookupModal';
+import CurrencyInput from '../components/CurrencyInput';
 import VeiculoLookupModal from '../components/VeiculoLookupModal';
 import './PaisesPage.css';
 
@@ -81,7 +82,7 @@ const EMPTY: NotaVendaCreate = {
 
   ativo: true,
 };
-export default function NotaVendaFormPage() {
+export default function NotaVendaFormPage({ onClose }: { onClose?: () => void } = {}) {
   const { numeroNota, modelo, serie, clienteId } = useParams<{
     numeroNota: string;
     modelo: string;
@@ -121,7 +122,7 @@ export default function NotaVendaFormPage() {
       return;
     }
 
-    NotaVendaService.getByKey(numeroNota!, modelo!, serie!, Number(clienteId))
+    NotaVendaService.getByKey(numeroNota!, modelo!, serie!)
       .then(res => {
         const n = res.data;
         setForm({
@@ -267,6 +268,19 @@ export default function NotaVendaFormPage() {
       return;
     }
 
+    // Validação de duplicação: verificar se já existe uma nota com esses dados
+    if (!isEdit) {
+      try {
+        const existing = await NotaVendaService.getByKey(form.numeroNota, form.modelo, form.serie);
+        if (existing && existing.data) {
+          setError(`Já existe uma nota de venda com Número '${form.numeroNota}', Modelo '${form.modelo}' e Série '${form.serie}' para este cliente.`);
+          return;
+        }
+      } catch (err) {
+        // Se retorna erro 404, é ok - não existe nota duplicada
+      }
+    }
+
     setSaving(true);
     setError('');
     try {
@@ -289,7 +303,8 @@ export default function NotaVendaFormPage() {
         await NotaVendaService.create(formToSave);
       }
 
-      navigate('/notas-venda');
+      if (onClose) onClose();
+      else navigate('/notas-venda');
 
     } catch (err) {
 
@@ -339,7 +354,7 @@ export default function NotaVendaFormPage() {
 
   const maxDataPermitida = new Date().toISOString().split('T')[0];
 
-  function handleValidateNota() {
+  async function handleValidateNota() {
     if (!form.numeroNota.trim()) {
       setError('Número da nota é obrigatório.');
       return;
@@ -355,6 +370,17 @@ export default function NotaVendaFormPage() {
     if (!form.clienteId) {
       setError('Cliente é obrigatório.');
       return;
+    }
+
+    // Validação de duplicação: verificar se já existe uma nota com esses dados
+    try {
+      const existing = await NotaVendaService.getByKey(form.numeroNota, form.modelo, form.serie);
+      if (existing && existing.data) {
+        setError(`Já existe uma nota de venda com Número '${form.numeroNota}', Modelo '${form.modelo}' e Série '${form.serie}'.`);
+        return;
+      }
+    } catch (err) {
+      // Se retorna erro 404, é ok - não existe nota duplicada
     }
 
     setError('');
@@ -496,17 +522,31 @@ export default function NotaVendaFormPage() {
               </div>
 
               {!isEdit && (
-                <div style={{ marginTop: '16px', display: 'flex', gap: '8px', alignItems: 'center' }}>
+                <div style={{ marginTop: '16px', display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
                   {!notaValidada ? (
-                    <button
-                      type="button"
-                      className="btn-primary"
-                      onClick={handleValidateNota}
-                      disabled={!canValidateNota}
-                      title={!canValidateNota ? 'Preencha número, modelo, série e cliente' : 'Validar e liberar preenchimento dos demais campos'}
-                    >
-                      ✓ Validar Nota
-                    </button>
+                    <>
+                      <button
+                        type="button"
+                        className="btn-primary"
+                        onClick={handleValidateNota}
+                        disabled={!canValidateNota}
+                        title={!canValidateNota ? 'Preencha número, modelo, série e cliente' : 'Validar e liberar preenchimento dos demais campos'}
+                      >
+                        ✓ Validar Nota
+                      </button>
+                      {error && (
+                        <div style={{
+                          width: '100%',
+                          padding: '8px 12px',
+                          backgroundColor: '#dc2626',
+                          color: 'white',
+                          borderRadius: '4px',
+                          fontSize: '0.9em',
+                        }}>
+                          {error}
+                        </div>
+                      )}
+                    </>
                   ) : (
                     <span style={{
                       display: 'flex',
@@ -637,14 +677,14 @@ export default function NotaVendaFormPage() {
             {/* Produtos */}
             <div className="form-section">
               <h2 className="form-section-title">Produtos</h2>
-              <div className="lookup-table-wrap">
-                <table className="data-table">
+              <div className="lookup-table-wrap nota-venda-produtos-wrap">
+                <table className="data-table nota-venda-produtos-table">
                   <thead>
                     <tr>
                       <th style={{ width: 40 }}>CÓDIGO</th>
                       <th>PRODUTO</th>
-                      <th style={{ width: 90 }}>QTD</th>
-                      <th style={{ width: 80 }}>VALOR UN.</th>
+                      <th style={{ width: 100 }}>QTD</th>
+                      <th style={{ width: 140 }}>VALOR UN.</th>
                       <th style={{ width: 90 }}>DESC. %</th>
                       <th style={{ width: 120 }}>PREÇO LÍQ. UN.</th>
                       <th style={{ width: 110 }}>UNIDADE</th>
@@ -683,7 +723,16 @@ export default function NotaVendaFormPage() {
                             />
                           </td>
                           <td>
-                            R$ {Number(p.precoUnit).toFixed(2).replace('.', ',')}
+                            <CurrencyInput
+                              disabled={!notaValidada}
+                              value={p.precoUnit}
+                              onChange={value => {
+                                const newProdutos = [...produtos];
+                                newProdutos[idx].precoUnit = value;
+                                setProdutos(newProdutos);
+                              }}
+                              className="produto-table-input"
+                            />
                           </td>
                           <td>
                             <input
@@ -919,9 +968,7 @@ export default function NotaVendaFormPage() {
               <button
                 type="button"
                 className="btn-secondary"
-                onClick={() =>
-                  navigate('/notas-venda')
-                }
+                onClick={() => onClose ? onClose() : navigate('/notas-venda')}
               >
                 Cancelar
               </button>
@@ -983,12 +1030,13 @@ export default function NotaVendaFormPage() {
 
       {showProdutoModal && (
         <ProdutoLookupModal
+          tipo="venda"
           onClose={() => setShowProdutoModal(false)}
-          onSelect={(id, nomeProduto, _, __, precoVenda) => {
+          onSelect={(id, nomeProduto) => {
             setProdutos([...produtos, {
               idProduto: id,
               quantidade: 1,
-              precoUnit: precoVenda || 0,
+              precoUnit: 0,
               desconto: 0,
               idNotaVenda: 0,
               nomeProduto: nomeProduto,

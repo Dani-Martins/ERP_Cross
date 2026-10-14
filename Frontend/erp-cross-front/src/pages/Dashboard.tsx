@@ -29,7 +29,6 @@ export default function Dashboard() {
     contasReceber: 0,
     contasPagar: 0,
     fornecedores: 0,
-    estoqueTotal: 0,
   });
   const [loading, setLoading] = useState(true);
 
@@ -55,8 +54,6 @@ export default function Dashboard() {
           contasPagar: pagar.status === 'fulfilled'
             ? pagar.value.data.filter((c) => c.status !== 'Pago').length : 0,
           fornecedores: fornecedores.status === 'fulfilled' ? fornecedores.value.data.length : 0,
-          estoqueTotal: produtos.status === 'fulfilled'
-            ? produtos.value.data.reduce((sum, p) => sum + p.estoque, 0) : 0,
         });
       } finally {
         setLoading(false);
@@ -70,7 +67,6 @@ export default function Dashboard() {
     { label: 'Funcionários', value: stats.funcionarios, icon: <UserCog size={28} />, color: 'dark', to: '/funcionarios' },
     { label: 'Fornecedores', value: stats.fornecedores, icon: <Truck size={28} />, color: 'gold', to: '/fornecedores' },
     { label: 'Produtos', value: stats.produtos, icon: <Box size={28} />, color: 'dark', to: '/produtos' },
-    { label: 'Itens em Estoque', value: stats.estoqueTotal, icon: <Dumbbell size={28} />, color: 'gold', to: '/produtos' },
     { label: 'Contas a Receber', value: stats.contasReceber, icon: <TrendingUp size={28} />, color: 'green', to: '/contas-receber' },
     { label: 'Contas a Pagar', value: stats.contasPagar, icon: <TrendingDown size={28} />, color: 'red', to: '/contas-pagar' },
   ];

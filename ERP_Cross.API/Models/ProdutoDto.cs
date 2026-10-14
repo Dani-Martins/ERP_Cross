@@ -15,8 +15,6 @@ public class CreateProdutoDto
     public string? CodigoBarras { get; set; }
     public decimal CustoCompra { get; set; }
     public decimal LucroPercentual { get; set; }
-    public decimal Estoque { get; set; }
-    public decimal EstoqueMinimo { get; set; }
     public bool Ativo { get; set; } = true;
 }
 
@@ -32,8 +30,6 @@ public class UpdateProdutoDto
     public string? CodigoBarras { get; set; }
     public decimal CustoCompra { get; set; }
     public decimal LucroPercentual { get; set; }
-    public decimal Estoque { get; set; }
-    public decimal EstoqueMinimo { get; set; }
     public bool Ativo { get; set; } = true;
 }
 

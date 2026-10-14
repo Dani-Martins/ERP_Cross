@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { TrendingDown, Pencil, CheckCircle } from 'lucide-react';
+import { TrendingDown, Pencil } from 'lucide-react';
 import { ContaPagarService } from '../services/contasService';
 import type { ContaPagarView, ContaPagarParcela } from '../types/entities';
 import './PaisesPage.css';
@@ -27,13 +27,13 @@ function statusClass(s: string) {
   return 'status-badge';
 }
 
-export default function ContaPagarViewPage() {
-  const { id } = useParams<{ id: string }>();
+export default function ContaPagarViewPage({ contaId, onClose, onEdit }: { contaId?: number; onClose?: () => void; onEdit?: (id: number) => void } = {}) {
+  const routeParams = useParams<{ id: string }>();
+  const id = contaId?.toString() ?? routeParams.id;
   const navigate = useNavigate();
   const [conta, setConta] = useState<ContaPagarView | null>(null);
   const [parcelas, setParcelas] = useState<ContaPagarParcela[]>([]);
   const [loading, setLoading] = useState(true);
-  const [paying, setPaying] = useState<number | null>(null);
 
   async function carregar() {
     const [c, p] = await Promise.all([
@@ -46,22 +46,10 @@ export default function ContaPagarViewPage() {
 
   useEffect(() => {
     carregar()
-      .catch(() => navigate('/contas-pagar'))
+      .catch(() => onClose ? onClose() : navigate('/contas-pagar'))
       .finally(() => setLoading(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, navigate]);
-
-  async function pagar(parcelaId: number) {
-    setPaying(parcelaId);
-    try {
-      await ContaPagarService.pagarParcela(parcelaId, new Date().toISOString().substring(0, 10));
-      await carregar();
-    } catch (err) {
-      console.error('Erro ao pagar parcela:', err);
-    } finally {
-      setPaying(null);
-    }
-  }
 
   if (loading) return <div className="page-container"><div className="table-loading">Carregando...</div></div>;
   if (!conta) return null;
@@ -73,9 +61,11 @@ export default function ContaPagarViewPage() {
           <TrendingDown size={24} className="page-title-icon" />
           <h1 className="page-title">Visualizar Conta a Pagar</h1>
         </div>
-        <button className="btn-secondary" onClick={() => navigate(`/contas-pagar/editar/${conta.id}`)}>
-          <Pencil size={16} /> Editar
-        </button>
+        {(!onClose || (conta.status === 'ABERTO' && parcelas.every(parcela => !parcela.pago && !parcela.cancelada))) && (
+          <button className="btn-secondary" onClick={() => onEdit ? onEdit(conta.id) : navigate(`/contas-pagar/editar/${conta.id}`)}>
+            <Pencil size={16} /> Editar
+          </button>
+        )}
       </div>
 
       <div className="form-card">
@@ -140,7 +130,7 @@ export default function ContaPagarViewPage() {
             <table className="data-table">
               <thead>
                 <tr>
-                  <th>Parcela</th><th>Vencimento</th><th>Valor</th><th>Situação</th><th>Pago em</th><th className="col-actions">Ações</th>
+                  <th>Parcela</th><th>Vencimento</th><th>Valor</th><th>Situação</th><th>Pago em</th><th>Cancelado em</th>
                 </tr>
               </thead>
               <tbody>
@@ -149,15 +139,9 @@ export default function ContaPagarViewPage() {
                     <td>{p.numParcela}/{conta.numParcela}</td>
                     <td>{fmtData(p.dataVencimento)}</td>
                     <td>{fmtMoeda(p.valorParcela)}</td>
-                    <td>{p.pago ? 'Paga' : 'Em aberto'}</td>
+                    <td>{p.pago ? 'Paga' : p.cancelada ? 'Cancelada' : 'Em aberto'}</td>
                     <td>{fmtData(p.dataPagamento)}</td>
-                    <td className="col-actions">
-                      {!p.pago && conta.status === 'ABERTO' && (
-                        <button className="btn-icon btn-success" title="Pagar parcela" disabled={paying !== null} onClick={() => pagar(p.id)}>
-                          <CheckCircle size={15} />
-                        </button>
-                      )}
-                    </td>
+                    <td>{fmtData(p.dataCancelamento)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -207,8 +191,13 @@ export default function ContaPagarViewPage() {
           </div>
 
           <div className="form-page-footer">
-            <button className="btn-secondary" onClick={() => navigate('/contas-pagar')}>
-              Voltar
+            {onClose && conta.status === 'ABERTO' && parcelas.every(parcela => !parcela.pago && !parcela.cancelada) && (
+              <button className="btn-primary" onClick={() => onEdit ? onEdit(conta.id) : navigate(`/contas-pagar/editar/${conta.id}`)}>
+                Editar
+              </button>
+            )}
+            <button className="btn-secondary" onClick={() => onClose ? onClose() : navigate('/contas-pagar')}>
+              {onClose ? 'Fechar' : 'Voltar'}
             </button>
           </div>
         </div>

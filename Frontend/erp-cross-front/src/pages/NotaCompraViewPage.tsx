@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { FileDown, Pencil } from 'lucide-react';
+import { FileDown } from 'lucide-react';
 import { NotaCompraService } from '../services/notaCompraService';
 import type { NotaCompraView } from '../types/entities';
 import './PaisesPage.css';
@@ -12,8 +12,9 @@ function formatDate(value: string | null | undefined): string {
   return isNaN(d.getTime()) ? '—' : d.toLocaleDateString('pt-BR');
 }
 
-export default function NotaCompraViewPage() {
-  const { id } = useParams<{ id: string }>();
+export default function NotaCompraViewPage({ notaId, onClose }: { notaId?: number; onClose?: () => void } = {}) {
+  const routeParams = useParams<{ id: string }>();
+  const id = notaId?.toString() ?? routeParams.id;
   const navigate = useNavigate();
   const [nota, setNota] = useState<NotaCompraView | null>(null);
   const [loading, setLoading] = useState(true);
@@ -309,16 +310,6 @@ export default function NotaCompraViewPage() {
 
               <div className="view-group">
                 <span className="view-label">
-                  Status
-                </span>
-
-                <span className="view-value">
-                  {nota.status || '—'}
-                </span>
-              </div>
-
-              <div className="view-group">
-                <span className="view-label">
                   Situação
                 </span>
 
@@ -373,20 +364,10 @@ export default function NotaCompraViewPage() {
           <div className="form-page-footer">
 
             <button
-              className="btn-primary"
-              onClick={() =>
-                navigate(`/notas-compra/editar/${nota.id}`)
-              }
-            >
-              <Pencil size={15} />
-              Editar
-            </button>
-
-            <button
               className="btn-secondary"
-              onClick={() => navigate('/notas-compra')}
+              onClick={() => onClose ? onClose() : navigate('/notas-compra')}
             >
-              Voltar
+              {onClose ? 'Fechar' : 'Voltar'}
             </button>
 
           </div>

@@ -25,8 +25,6 @@ const EMPTY: ProdutoCreate = {
   codigoBarras: '',
   custoCompra: 0,
   lucroPercentual: 0,
-  estoque: 0,
-  estoqueMinimo: 0,
   ativo: true,
 };
 
@@ -353,42 +351,13 @@ export default function ProdutoCreateModal({ onCreated, onClose, zBase = 1000 }:
                   />
                 </div>
 
-              </div>
-
-              <div className="form-row">
-
                 <div className="form-group">
-                  <label htmlFor="estoque">Quantidade em Estoque *</label>
+                  <label htmlFor="estoque">Quantidade em Estoque</label>
                   <input
                     id="estoque"
                     type="number"
-                    min="0"
-                    placeholder="0"
-                    value={form.estoque}
-                    onChange={e =>
-                      setForm({
-                        ...form,
-                        estoque: Number(e.target.value)
-                      })
-                    }
-                    style={{ fontSize: '0.9em' }}
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label htmlFor="estoqueMinimo">Estoque Mínimo *</label>
-                  <input
-                    id="estoqueMinimo"
-                    type="number"
-                    min="0"
-                    placeholder="0"
-                    value={form.estoqueMinimo}
-                    onChange={e =>
-                      setForm({
-                        ...form,
-                        estoqueMinimo: Number(e.target.value)
-                      })
-                    }
+                    value={0}
+                    disabled
                     style={{ fontSize: '0.9em' }}
                   />
                 </div>

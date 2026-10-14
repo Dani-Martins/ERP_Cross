@@ -20,6 +20,11 @@ public class NotaCompraService
 
     public async Task<NotaCompra> CreateAsync(CreateNotaCompraDto dto)
     {
+        // Validar unicidade de Número, Modelo e Série
+        var existing = await _repository.GetByNumeroModeloSerieAsync(dto.NumeroNota, dto.Modelo, dto.Serie);
+        if (existing != null)
+            throw new InvalidOperationException($"Já existe uma nota de compra com os dados: Número '{dto.NumeroNota}', Modelo '{dto.Modelo}', Série '{dto.Serie}'.");
+
         var n = new NotaCompra
         {
             FornecedorId = dto.FornecedorId, Modelo = dto.Modelo, Serie = dto.Serie, NumeroNota = dto.NumeroNota,

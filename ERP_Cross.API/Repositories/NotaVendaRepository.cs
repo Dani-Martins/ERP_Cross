@@ -11,7 +11,7 @@ public class NotaVendaRepository
     public NotaVendaRepository(IDbConnection db) { _db = db; }
 
     private const string SelectColumns =
-        "nv.NumeroNota, nv.Modelo, nv.Serie, nv.ClienteId, nv.DataEmissao, nv.DataChegada, nv.TransportadoraId, nv.PlacaVeiculo, " +
+        "nv.Id, nv.NumeroNota, nv.Modelo, nv.Serie, nv.ClienteId, nv.DataEmissao, nv.DataChegada, nv.TransportadoraId, nv.PlacaVeiculo, " +
         "nv.TipoFrete, nv.ValorFrete, nv.Desconto, nv.OutrosCustos, nv.TotalProdutos, nv.TotalPagar, nv.CondicaoPagamentoId, nv.Observacao, nv.Status, nv.Ativo, nv.CriadoEm, nv.AtualizadoEm, " +
         "cl.Nome AS NomeCliente, cp.NomeCondicao AS NomeCondicaoPagamento, t.Nome AS NomeTransportadora";
 
@@ -24,10 +24,10 @@ public class NotaVendaRepository
     public async Task<IEnumerable<NotaVenda>> GetAllAsync()
         => await _db.QueryAsync<NotaVenda>($"SELECT {SelectColumns} {FromJoin}");
 
-    public async Task<NotaVenda?> GetByKeyAsync(string numeroNota, string modelo, string serie, int clienteId)
+    public async Task<NotaVenda?> GetByKeyAsync(string numeroNota, string modelo, string serie)
         => await _db.QueryFirstOrDefaultAsync<NotaVenda>(
-            $"SELECT {SelectColumns} {FromJoin} WHERE nv.NumeroNota=@NumeroNota AND nv.Modelo=@Modelo AND nv.Serie=@Serie AND nv.ClienteId=@ClienteId",
-            new { NumeroNota = numeroNota, Modelo = modelo, Serie = serie, ClienteId = clienteId });
+            $"SELECT {SelectColumns} {FromJoin} WHERE nv.NumeroNota=@NumeroNota AND nv.Modelo=@Modelo AND nv.Serie=@Serie AND nv.Ativo=1",
+            new { NumeroNota = numeroNota, Modelo = modelo, Serie = serie });
 
     public async Task<bool> InsertAsync(NotaVenda n)
         => await _db.ExecuteAsync(
@@ -42,12 +42,12 @@ public class NotaVendaRepository
               PlacaVeiculo=@PlacaVeiculo, TipoFrete=@TipoFrete, ValorFrete=@ValorFrete,
               Desconto=@Desconto, OutrosCustos=@OutrosCustos, TotalProdutos=@TotalProdutos, TotalPagar=@TotalPagar, CondicaoPagamentoId=@CondicaoPagamentoId,
               Observacao=@Observacao, Status=@Status, Ativo=@Ativo, AtualizadoEm=NOW()
-              WHERE NumeroNota=@NumeroNota AND Modelo=@Modelo AND Serie=@Serie AND ClienteId=@ClienteId", n) > 0;
+              WHERE NumeroNota=@NumeroNota AND Modelo=@Modelo AND Serie=@Serie", n) > 0;
 
-    public async Task<bool> DeleteAsync(string numeroNota, string modelo, string serie, int clienteId)
+    public async Task<bool> DeleteAsync(string numeroNota, string modelo, string serie)
         => await _db.ExecuteAsync(
-            "UPDATE NotaVenda SET Ativo = 0, AtualizadoEm = NOW() WHERE NumeroNota=@NumeroNota AND Modelo=@Modelo AND Serie=@Serie AND ClienteId=@ClienteId",
-            new { NumeroNota = numeroNota, Modelo = modelo, Serie = serie, ClienteId = clienteId }) > 0;
+            "UPDATE NotaVenda SET Ativo = 0, AtualizadoEm = NOW() WHERE NumeroNota=@NumeroNota AND Modelo=@Modelo AND Serie=@Serie",
+            new { NumeroNota = numeroNota, Modelo = modelo, Serie = serie }) > 0;
 
     public async Task<string> GetNextNumeroNotaAsync(string modelo, string serie)
     {

@@ -11,7 +11,7 @@ public class ContaPagarParcelaRepository
     public ContaPagarParcelaRepository(IDbConnection db) { _db = db; }
 
     private const string SelectColumns =
-        "Id, ContaPagarId, NumParcela, DataVencimento, ValorParcela, Pago, DataPagamento, ValorPago";
+        "Id, ContaPagarId, NumParcela, DataVencimento, ValorParcela, Pago, DataPagamento, ValorPago, Cancelada, DataCancelamento";
 
     public async Task<IEnumerable<ContaPagarParcela>> GetByContaAsync(long contaId)
         => await _db.QueryAsync<ContaPagarParcela>(
@@ -30,11 +30,23 @@ public class ContaPagarParcelaRepository
     public async Task<bool> MarcarPagaAsync(long id, DateTime dataPagamento, decimal valorPago)
         => await _db.ExecuteAsync(
             @"UPDATE ContaPagarParcela SET Pago = 1, DataPagamento = @DataPagamento, ValorPago = @ValorPago
-              WHERE Id = @Id AND Pago = 0", new { Id = id, DataPagamento = dataPagamento, ValorPago = valorPago }) > 0;
+                            WHERE Id = @Id AND Pago = 0 AND Cancelada = 0", new { Id = id, DataPagamento = dataPagamento, ValorPago = valorPago }) > 0;
+
+        public async Task<bool> CancelarAsync(long id)
+                => await _db.ExecuteAsync(
+                        @"UPDATE ContaPagarParcela SET Cancelada = 1, DataCancelamento = NOW()
+                            WHERE Id = @Id AND Pago = 0 AND Cancelada = 0", new { Id = id }) > 0;
+
+        public async Task<int> CancelarDaParcelaEmDianteAsync(long contaId, int numeroParcela)
+                => await _db.ExecuteAsync(
+                        @"UPDATE ContaPagarParcela SET Cancelada = 1, DataCancelamento = NOW()
+                            WHERE ContaPagarId = @ContaId AND NumParcela >= @NumeroParcela
+                                AND Pago = 0 AND Cancelada = 0",
+                        new { ContaId = contaId, NumeroParcela = numeroParcela });
 
     public async Task<int> CountAbertasAsync(long contaId)
         => await _db.ExecuteScalarAsync<int>(
-            "SELECT COUNT(*) FROM ContaPagarParcela WHERE ContaPagarId = @ContaId AND Pago = 0", new { ContaId = contaId });
+            "SELECT COUNT(*) FROM ContaPagarParcela WHERE ContaPagarId = @ContaId AND Pago = 0 AND Cancelada = 0", new { ContaId = contaId });
 
     public async Task DeleteByContaAsync(long contaId)
         => await _db.ExecuteAsync("DELETE FROM ContaPagarParcela WHERE ContaPagarId = @ContaId", new { ContaId = contaId });

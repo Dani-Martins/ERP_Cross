@@ -253,6 +253,61 @@
   border-bottom: 1px solid var(--border-table-row);
 }
 
+.contas-pagar-table {
+  width: 100%;
+  table-layout: fixed;
+}
+
+.contas-pagar-table th,
+.contas-pagar-table td {
+  padding: 9px 5px;
+  font-size: 0.74rem;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.contas-pagar-table th {
+  padding: 8px 4px;
+  font-size: 0.62rem;
+  line-height: 1.2;
+  white-space: normal;
+  overflow: visible;
+  overflow-wrap: anywhere;
+  text-overflow: clip;
+}
+
+.contas-pagar-table th:nth-child(1) { width: 6%; }
+.contas-pagar-table th:nth-child(2) { width: 6%; }
+.contas-pagar-table th:nth-child(3) { width: 9%; }
+.contas-pagar-table th:nth-child(4) { width: 18%; }
+.contas-pagar-table th:nth-child(5) { width: 7%; }
+.contas-pagar-table th:nth-child(6) { width: 12%; }
+.contas-pagar-table th:nth-child(7) { width: 8%; }
+.contas-pagar-table th:nth-child(8) { width: 8%; }
+.contas-pagar-table th:nth-child(9) { width: 12%; }
+.contas-pagar-table th:nth-child(10) { width: 14%; }
+
+.contas-pagar-table td:nth-child(4) {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.contas-pagar-table td.col-actions {
+  white-space: nowrap;
+  overflow: visible;
+  text-overflow: clip;
+}
+
+.conta-parcela-paga td {
+  color: #22c55e !important;
+}
+
+.conta-parcela-cancelada td {
+  color: #ef4444 !important;
+}
+
 .data-table tbody tr:last-child td { border-bottom: none; }
 .data-table tbody tr:hover { background: var(--bg-card-hover); }
 
@@ -336,6 +391,73 @@
 }
 
 .modal-sm { max-width: 500px; }
+
+.account-page-modal-overlay {
+  padding: 2vh 2vw;
+}
+
+.account-page-modal {
+  width: 96vw;
+  max-width: 1600px;
+  height: 96vh;
+  max-height: 96vh;
+  overflow: hidden;
+}
+
+.account-page-modal > .modal-header {
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border-card);
+}
+
+.account-page-modal .modal-action {
+  margin-left: auto;
+  margin-right: 8px;
+  padding: 6px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.account-page-modal .modal-action:hover {
+  background: var(--bg-card-hover);
+  color: var(--text-primary);
+}
+
+.account-page-modal-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.account-page-modal-body > .page-container {
+  height: auto;
+  min-height: 100%;
+  padding: 20px 24px 24px;
+}
+
+.account-page-modal-body .page-header {
+  display: none;
+}
+
+@media (max-width: 700px) {
+  .account-page-modal-overlay {
+    padding: 0;
+  }
+
+  .account-page-modal {
+    width: 100vw;
+    height: 100dvh;
+    max-height: 100dvh;
+    border-radius: 0;
+  }
+
+  .account-page-modal-body > .page-container {
+    padding: 16px 12px 20px;
+  }
+}
 
 @keyframes modalIn {
   from { opacity: 0; transform: scale(0.96) translateY(-10px); }
@@ -742,6 +864,7 @@
 /* ── Inputs da tabela de produtos ──────────────────────────────────────────── */
 .produto-table-input {
   width: 100%;
+  box-sizing: border-box;
   padding: 8px 10px;
   border: 1px solid var(--border-color);
   border-radius: 6px;
@@ -750,6 +873,20 @@
   color: var(--text-secondary);
   outline: none;
   text-align: center;
+}
+
+.nota-venda-produtos-wrap,
+.nota-compra-produtos-wrap {
+  overflow-x: auto;
+}
+
+.nota-venda-produtos-table {
+  min-width: 1080px;
+}
+
+.nota-compra-produtos-table {
+  min-width: 0;
+  table-layout: fixed;
 }
 
 .produto-table-input:focus {

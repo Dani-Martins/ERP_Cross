@@ -22,7 +22,7 @@ public class ProdutoService
             CustoCompra = dto.CustoCompra,
             PrecoVenda = dto.CustoCompra * (1 + dto.LucroPercentual / 100),
             LucroPercentual = dto.LucroPercentual,
-            Estoque = dto.Estoque, EstoqueMinimo = dto.EstoqueMinimo, Ativo = dto.Ativo
+            Estoque = 0, EstoqueMinimo = 0, Ativo = dto.Ativo
         };
         p.Id = await _repository.InsertAsync(p);
         return p;
@@ -38,7 +38,7 @@ public class ProdutoService
         p.CustoCompra = dto.CustoCompra;
         p.PrecoVenda = dto.CustoCompra * (1 + dto.LucroPercentual / 100);
         p.LucroPercentual = dto.LucroPercentual;
-        p.Estoque = dto.Estoque; p.EstoqueMinimo = dto.EstoqueMinimo; p.Ativo = dto.Ativo;
+        p.Estoque = 0; p.EstoqueMinimo = 0; p.Ativo = dto.Ativo;
 
         return await _repository.UpdateAsync(p);
     }

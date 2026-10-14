@@ -82,3 +82,10 @@ C:\Users\USUARIO\AppData\Local\Temp\erp_build_check\ERP_Cross.API.deps.json
 C:\Users\USUARIO\AppData\Local\Temp\erp_build_check\ERP_Cross.API.runtimeconfig.json
 C:\Users\USUARIO\AppData\Local\Temp\erp_build_check\ERP_Cross.API.dll
 C:\Users\USUARIO\AppData\Local\Temp\erp_build_check\ERP_Cross.API.pdb
+C:\Users\USUARIO\AppData\Local\Temp\ERP_Cross.API-build-check\appsettings.Development.json
+C:\Users\USUARIO\AppData\Local\Temp\ERP_Cross.API-build-check\appsettings.json
+C:\Users\USUARIO\AppData\Local\Temp\ERP_Cross.API-build-check\ERP_Cross.API.staticwebassets.endpoints.json
+C:\Users\USUARIO\AppData\Local\Temp\ERP_Cross.API-build-check\ERP_Cross.API.deps.json
+C:\Users\USUARIO\AppData\Local\Temp\ERP_Cross.API-build-check\ERP_Cross.API.runtimeconfig.json
+C:\Users\USUARIO\AppData\Local\Temp\ERP_Cross.API-build-check\ERP_Cross.API.dll
+C:\Users\USUARIO\AppData\Local\Temp\ERP_Cross.API-build-check\ERP_Cross.API.pdb

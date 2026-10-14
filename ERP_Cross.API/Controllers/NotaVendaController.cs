@@ -16,27 +16,38 @@ public class NotaVendaController(NotaVendaService service) : ControllerBase
     public async Task<ActionResult<IEnumerable<NotaVendaView>>> GetAll()
         => Ok(await _service.GetAllAsync());
 
-    [HttpGet("{numeroNota}/{modelo}/{serie}/{clienteId:int}")]
-    public async Task<ActionResult<NotaVenda>> GetByKey(string numeroNota, string modelo, string serie, int clienteId)
+    [HttpPost("sincronizar-contas-receber")]
+    public async Task<IActionResult> SincronizarContasReceber()
+        => Ok(new { parcelasCriadas = await _service.SincronizarContasReceberAsync() });
+
+    [HttpGet("{numeroNota}/{modelo}/{serie}")]
+    public async Task<ActionResult<NotaVenda>> GetByKey(string numeroNota, string modelo, string serie)
     {
-        var item = await _service.GetByKeyAsync(numeroNota, modelo, serie, clienteId);
+        var item = await _service.GetByKeyAsync(numeroNota, modelo, serie);
         return item == null ? NotFound() : Ok(item);
     }
 
     [HttpPost]
     public async Task<ActionResult<NotaVendaView>> Create(CreateNotaVendaDto dto)
     {
-        var item = await _service.CreateAsync(dto);
-        return item == null ? BadRequest() : Ok(item);
+        try
+        {
+            var item = await _service.CreateAsync(dto);
+            return item == null ? BadRequest() : Ok(item);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Conflict(new { message = ex.Message });
+        }
     }
 
-    [HttpPut("{numeroNota}/{modelo}/{serie}/{clienteId:int}")]
-    public async Task<IActionResult> Update(string numeroNota, string modelo, string serie, int clienteId, UpdateNotaVendaDto dto)
-        => await _service.UpdateAsync(numeroNota, modelo, serie, clienteId, dto) ? NoContent() : NotFound();
+    [HttpPut("{numeroNota}/{modelo}/{serie}")]
+    public async Task<IActionResult> Update(string numeroNota, string modelo, string serie, UpdateNotaVendaDto dto)
+        => await _service.UpdateAsync(numeroNota, modelo, serie, dto) ? NoContent() : NotFound();
 
-    [HttpDelete("{numeroNota}/{modelo}/{serie}/{clienteId:int}")]
-    public async Task<IActionResult> Delete(string numeroNota, string modelo, string serie, int clienteId)
-        => await _service.DeleteAsync(numeroNota, modelo, serie, clienteId) ? NoContent() : NotFound();
+    [HttpDelete("{numeroNota}/{modelo}/{serie}")]
+    public async Task<IActionResult> Delete(string numeroNota, string modelo, string serie)
+        => await _service.DeleteAsync(numeroNota, modelo, serie) ? NoContent() : NotFound();
 
     [HttpGet("proximo-numero/{modelo}/{serie}")]
     public async Task<ActionResult<string>> GetNextNumeroNota(string modelo, string serie)

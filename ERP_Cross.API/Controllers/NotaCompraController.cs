@@ -26,8 +26,15 @@ public class NotaCompraController(NotaCompraService service) : ControllerBase
     [HttpPost]
     public async Task<ActionResult<NotaCompraView>> Create(CreateNotaCompraDto dto)
     {
-        var item = await _service.CreateAsync(dto);
-        return CreatedAtAction(nameof(GetById), new { id = item.Id }, item);
+        try
+        {
+            var item = await _service.CreateAsync(dto);
+            return CreatedAtAction(nameof(GetById), new { id = item.Id }, item);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Conflict(new { message = ex.Message });
+        }
     }
 
     [HttpPut("{id:long}")]

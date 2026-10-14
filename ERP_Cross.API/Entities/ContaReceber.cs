@@ -13,6 +13,7 @@ public class ContaReceber
     public DateTime DataEmissao { get; set; }
     public DateTime DataVencimento { get; set; }
     public DateTime? DataRecebimento { get; set; }
+    public DateTime? DataCancelamento { get; set; }
     public decimal? ValorRecebido { get; set; }
     public decimal Juros { get; set; }
     public decimal Multa { get; set; }

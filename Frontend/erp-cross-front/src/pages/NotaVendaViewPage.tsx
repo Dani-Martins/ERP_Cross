@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { FileText, Pencil } from 'lucide-react';
+import { FileText } from 'lucide-react';
 import { NotaVendaService } from '../services/notaVendaService';
 import type { NotaVendaView } from '../types/entities';
 import './PaisesPage.css';
@@ -11,13 +11,24 @@ function formatDate(value: string | null | undefined): string {
   return isNaN(d.getTime()) ? '—' : d.toLocaleDateString('pt-BR');
 }
 
-export default function NotaVendaViewPage() {
-  const { numeroNota, modelo, serie, clienteId } = useParams<{
+interface NotaVendaKey {
+  numeroNota: string;
+  modelo: string;
+  serie: string;
+  clienteId: number;
+}
+
+export default function NotaVendaViewPage({ notaKey, onClose }: { notaKey?: NotaVendaKey; onClose?: () => void } = {}) {
+  const routeParams = useParams<{
     numeroNota: string;
     modelo: string;
     serie: string;
     clienteId: string;
   }>();
+  const numeroNota = notaKey?.numeroNota ?? routeParams.numeroNota;
+  const modelo = notaKey?.modelo ?? routeParams.modelo;
+  const serie = notaKey?.serie ?? routeParams.serie;
+  const clienteId = notaKey?.clienteId.toString() ?? routeParams.clienteId;
 
   const navigate = useNavigate();
 
@@ -28,8 +39,7 @@ export default function NotaVendaViewPage() {
     NotaVendaService.getByKey(
       numeroNota!,
       modelo!,
-      serie!,
-      Number(clienteId)
+      serie!
     )
       .then(r => setNota(r.data))
       .catch(() => navigate('/notas-venda'))
@@ -79,12 +89,6 @@ export default function NotaVendaViewPage() {
               <div className="view-group">
                 <span className="view-label">Data de Emissão</span>
                 <span className="view-value">{formatDate(nota.dataEmissao)}</span>
-              </div>
-              <div className="view-group">
-                <span className="view-label">Status</span>
-                <span className={`status-badge ${nota.ativo ? 'status-active' : 'status-inactive'}`}>
-                  {nota.status}
-                </span>
               </div>
             </div>
           </div>
@@ -180,18 +184,8 @@ export default function NotaVendaViewPage() {
           </div>
 
           <div className="form-page-footer">
-            <button
-              className="btn-primary"
-              onClick={() =>
-                navigate(
-                  `/notas-venda/editar/${nota.numeroNota}/${nota.modelo}/${nota.serie}/${nota.clienteId}`
-                )
-              }
-            >
-              <Pencil size={15} /> Editar
-            </button>
-            <button className="btn-secondary" onClick={() => navigate('/notas-venda')}>
-              Voltar
+            <button className="btn-secondary" onClick={() => onClose ? onClose() : navigate('/notas-venda')}>
+              {onClose ? 'Fechar' : 'Voltar'}
             </button>
           </div>
 

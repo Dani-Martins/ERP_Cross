@@ -267,8 +267,6 @@ export interface ProdutoCreate {
   codigoBarras?: string;
   custoCompra: number;
   lucroPercentual: number;
-  estoque: number;
-  estoqueMinimo: number;
   ativo: boolean;
 }
 export type ProdutoUpdate = ProdutoCreate;
@@ -377,6 +375,7 @@ export interface ContaReceberView {
   dataEmissao: string;
   dataVencimento: string;
   dataRecebimento?: string;
+  dataCancelamento?: string;
   valorRecebido?: number;
   juros: number;
   multa: number;
@@ -422,6 +421,27 @@ export interface ContaReceberLoteCreate {
 export interface ContaReceberBaixaLote {
   ids: number[];
   dataRecebimento: string;
+}
+
+export interface ContaReceberParcelaInput {
+  numParcela: number;
+  dataVencimento: string;
+  valorParcela: number;
+  dataRecebimento?: string;
+}
+
+export interface ContaReceberParcelasCreate {
+  numeroNota: string;
+  modelo: string;
+  serie: string;
+  clienteId: number;
+  dataEmissao: string;
+  parcelas: ContaReceberParcelaInput[];
+  juros: number;
+  multa: number;
+  desconto: number;
+  formaPagamentoId?: number;
+  observacao?: string;
 }
 
 // ── Conta a Pagar ─────────────────────────────────────────────────────────────
@@ -487,10 +507,13 @@ export interface ContaPagarParcela {
   pago: boolean;
   dataPagamento?: string;
   valorPago?: number;
+  cancelada: boolean;
+  dataCancelamento?: string;
 }
 
 // ── Nota de Venda ─────────────────────────────────────────────────────────────
 export interface NotaVendaView {
+  id: number;
   numeroNota: string;
   modelo: string;
   serie: string;

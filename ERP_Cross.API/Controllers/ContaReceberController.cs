@@ -16,6 +16,10 @@ public class ContaReceberController(ContaReceberService service) : ControllerBas
     public async Task<ActionResult<IEnumerable<ContaReceberView>>> GetAll()
         => Ok(await _service.GetAllAsync());
 
+    [HttpPost("sincronizar-notas-venda")]
+    public async Task<IActionResult> SincronizarNotasVenda()
+        => Ok(new { parcelasCriadas = await _service.SincronizarNotasDeVendaAsync() });
+
     [HttpGet("proximo-numero")]
     public async Task<ActionResult<long>> GetProximoNumero()
         => Ok(await _service.GetProximoNumeroNotaAsync());
@@ -32,6 +36,19 @@ public class ContaReceberController(ContaReceberService service) : ControllerBas
     {
         var item = await _service.CreateAsync(dto);
         return CreatedAtAction(nameof(GetById), new { id = item.Id }, item);
+    }
+
+    [HttpPost("parcelas")]
+    public async Task<ActionResult<IEnumerable<ContaReceberView>>> CreateParcelas(CreateContaReceberParcelasDto dto)
+    {
+        try
+        {
+            return Ok(await _service.CreateParcelasAsync(dto));
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Conflict(new { message = ex.Message });
+        }
     }
 
     [HttpPost("lote")]
@@ -54,6 +71,14 @@ public class ContaReceberController(ContaReceberService service) : ControllerBas
         var count = await _service.BaixaLoteAsync(dto);
         return Ok(new { atualizadas = count });
     }
+
+    [HttpPost("{id:long}/receber")]
+    public async Task<IActionResult> RegistrarRecebimento(long id, RegistrarRecebimentoDto dto)
+        => await _service.RegistrarRecebimentoAsync(id, dto.DataRecebimento) ? NoContent() : BadRequest();
+
+    [HttpPost("{id:long}/cancelar")]
+    public async Task<IActionResult> Cancelar(long id)
+        => await _service.CancelarAsync(id) ? NoContent() : BadRequest();
 
     [HttpPut("{id:long}")]
     public async Task<IActionResult> Update(long id, UpdateContaReceberDto dto)

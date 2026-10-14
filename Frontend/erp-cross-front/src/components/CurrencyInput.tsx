@@ -3,6 +3,7 @@ import '../pages/PaisesPage.css';
 
 interface Props {
   id?: string;
+  className?: string;
   value: number;
   onChange: (value: number) => void;
   placeholder?: string;
@@ -13,7 +14,7 @@ interface Props {
  * Input monetário em Real brasileiro.
  * Exibe "R$ 1.234,56" mas entrega/recebe number (1234.56).
  */
-export default function CurrencyInput({ id, value, onChange, placeholder = 'R$ 0,00', disabled }: Props) {
+export default function CurrencyInput({ id, className, value, onChange, placeholder = 'R$ 0,00', disabled }: Props) {
   const [display, setDisplay] = useState('');
   const skipFormat = useRef(false);
 
@@ -62,6 +63,7 @@ export default function CurrencyInput({ id, value, onChange, placeholder = 'R$ 0
   return (
     <input
       id={id}
+      className={className}
       type="text"
       inputMode="numeric"
       placeholder={placeholder}

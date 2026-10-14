@@ -113,22 +113,6 @@ export default function ProdutoViewPage() {
 
           </div>
 
-          <div className="form-section">
-            <h2 className="form-section-title">
-              Estoque
-            </h2>
-
-            <div className="view-group">
-              <span className="view-label">
-                Quantidade em Estoque
-              </span>
-              <span className="view-value">
-                {produto.estoque}
-              </span>
-            </div>
-
-          </div>
-
           <div className="form-page-footer">
 
             <button

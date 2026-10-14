@@ -16,9 +16,9 @@ public class ContaPagarRepository
         "cp.Status, cp.Ativo, cp.FormaPagamentoId, cp.Observacao, cp.CriadoEm, cp.AtualizadoEm, " +
         "f.Nome AS NomeFornecedor, fp.NomeFormaPagamento, " +
         "(SELECT COUNT(*) FROM ContaPagarParcela p WHERE p.ContaPagarId = cp.Id AND p.Pago = 1) AS ParcelasPagas, " +
-        "(SELECT p.Id FROM ContaPagarParcela p WHERE p.ContaPagarId = cp.Id AND p.Pago = 0 ORDER BY p.NumParcela LIMIT 1) AS ProximaParcelaId, " +
-        "(SELECT p.ValorParcela FROM ContaPagarParcela p WHERE p.ContaPagarId = cp.Id AND p.Pago = 0 ORDER BY p.NumParcela LIMIT 1) AS ValorProximaParcela, " +
-        "(SELECT p.DataVencimento FROM ContaPagarParcela p WHERE p.ContaPagarId = cp.Id AND p.Pago = 0 ORDER BY p.NumParcela LIMIT 1) AS ProximoVencimento";
+        "(SELECT p.Id FROM ContaPagarParcela p WHERE p.ContaPagarId = cp.Id AND p.Pago = 0 AND p.Cancelada = 0 ORDER BY p.NumParcela LIMIT 1) AS ProximaParcelaId, " +
+        "(SELECT p.ValorParcela FROM ContaPagarParcela p WHERE p.ContaPagarId = cp.Id AND p.Pago = 0 AND p.Cancelada = 0 ORDER BY p.NumParcela LIMIT 1) AS ValorProximaParcela, " +
+        "(SELECT p.DataVencimento FROM ContaPagarParcela p WHERE p.ContaPagarId = cp.Id AND p.Pago = 0 AND p.Cancelada = 0 ORDER BY p.NumParcela LIMIT 1) AS ProximoVencimento";
 
     private const string FromJoin = @"
         FROM ContaPagar cp

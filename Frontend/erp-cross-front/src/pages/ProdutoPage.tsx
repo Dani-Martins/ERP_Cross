@@ -109,7 +109,6 @@ export default function ProdutoPage() {
                 <th>Custo</th>
                 <th>Lucro %</th>
                 <th>Preço</th>
-                <th>Estoque</th>
                 <th>Status</th>
                 <th className="col-actions">Ações</th>
               </tr>
@@ -132,7 +131,6 @@ export default function ProdutoPage() {
                       currency: 'BRL'
                     })}
                   </td>
-                  <td>{produto.estoque}</td>
                   <td>
                     <span className={`status-badge ${produto.ativo ? 'status-active' : 'status-inactive'}`}>
                       {produto.ativo ? 'Ativo' : 'Inativo'}

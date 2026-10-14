@@ -1,60 +1,71 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { TrendingUp, Eye, Pencil, Trash2, Plus, Search, X, CheckSquare } from 'lucide-react';
+import { TrendingUp, Eye, CheckCircle, XCircle, Plus, Search, X } from 'lucide-react';
 import { ContaReceberService } from '../services/contasService';
 import type { ContaReceberView } from '../types/entities';
+import ContaReceberFormPage from './ContaReceberFormPage';
+import ContaReceberViewPage from './ContaReceberViewPage';
 import './PaisesPage.css';
-
-const STATUS_LABEL: Record<string, string> = {
-  ABERTO: 'Aberto',
-  PAGO: 'Pago',
-  RECEBIDO: 'Recebido',
-  CANCELADO: 'Cancelado',
-  VENCIDO: 'Vencido',
-};
 
 function fmtMoeda(v: number) {
   return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 }
 
-function fmtData(s: string) {
+function fmtData(s?: string | null) {
   if (!s) return '—';
   const parts = s.split('/');
   if (parts.length === 3) return `${parts[0]}/${parts[1]}/${parts[2]}`;
   return s.substring(0, 10).split('-').reverse().join('/');
 }
 
-function statusClass(s: string) {
-  if (s === 'PAGO' || s === 'RECEBIDO') return 'status-badge status-active';
-  if (s === 'CANCELADO') return 'status-badge status-inactive';
-  if (s === 'VENCIDO') return 'status-badge status-inactive';
-  return 'status-badge';
+function hojeLocal() {
+  return new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().substring(0, 10);
 }
 
 export default function ContasReceberPage() {
-  const navigate = useNavigate();
   const [contas, setContas] = useState<ContaReceberView[]>([]);
   const [busca, setBusca] = useState('');
   const [filterStatus, setFilterStatus] = useState<'todos' | 'abertos' | 'pagos'>('todos');
   const [loading, setLoading] = useState(true);
-  
-  // Estado de ações: exclusão
-  const [deleteId, setDeleteId] = useState<number | null>(null);
-  const [deleting, setDeleting] = useState(false);
-  
-  // Estado de ações: baixa em lote
-  const [selecionados, setSelecionados] = useState<Set<number>>(new Set());
-  const [showBaixaModal, setShowBaixaModal] = useState(false);
-  const [dataBaixa, setDataBaixa] = useState(new Date().toISOString().substring(0, 10));
-  const [baixando, setBaixando] = useState(false);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [viewingId, setViewingId] = useState<number | null>(null);
+  const [paymentAction, setPaymentAction] = useState<ContaReceberView | null>(null);
+  const [paymentActioning, setPaymentActioning] = useState(false);
+  const [paymentError, setPaymentError] = useState('');
+  const [cancelAction, setCancelAction] = useState<ContaReceberView | null>(null);
+  const [cancelActioning, setCancelActioning] = useState(false);
+  const [cancelError, setCancelError] = useState('');
 
-  useEffect(() => {
-    ContaReceberService.getAll()
-      .then(res => setContas(res.data))
-      .finally(() => setLoading(false));
-  }, []);
+  async function load() {
+    setLoading(true);
+    try {
+      await ContaReceberService.sincronizarNotasVenda().catch(() => undefined);
+      const res = await ContaReceberService.getAll();
+      setContas(res.data);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => { void load(); }, []);
+
+  function closeCreateModal() {
+    setShowCreateModal(false);
+    void load();
+  }
+
+  function closeViewModal() {
+    setViewingId(null);
+    void load();
+  }
+
+  function closeEditModal() {
+    setEditingId(null);
+    void load();
+  }
 
   const filtradas = contas.filter(c => {
+    if (!c.ativo) return false;
     const matchStatus =
       filterStatus === 'todos' ? true :
       filterStatus === 'pagos' ? (c.status === 'PAGO' || c.status === 'RECEBIDO') :
@@ -65,31 +76,34 @@ export default function ContasReceberPage() {
     return matchStatus && matchBusca;
   });
 
-  function toggleSelecionado(id: number) {
-    setSelecionados(prev => {
-      const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
-      return next;
-    });
+  async function handlePayment() {
+    if (!paymentAction) return;
+    setPaymentActioning(true);
+    try {
+      await ContaReceberService.receber(paymentAction.id, hojeLocal());
+      setPaymentAction(null);
+      await load();
+    } catch (err) {
+      const apiError = err as { response?: { data?: { message?: string } } };
+      setPaymentError(apiError.response?.data?.message ?? 'Não foi possível registrar o recebimento. A parcela pode já estar encerrada.');
+    } finally {
+      setPaymentActioning(false);
+    }
   }
 
-  async function handleBaixaLote() {
-    setBaixando(true);
-    await ContaReceberService.baixaLote({ ids: Array.from(selecionados), dataRecebimento: dataBaixa });
-    const res = await ContaReceberService.getAll();
-    setContas(res.data);
-    setSelecionados(new Set());
-    setShowBaixaModal(false);
-    setBaixando(false);
-  }
-
-  async function handleDelete() {
-    if (!deleteId) return;
-    setDeleting(true);
-    await ContaReceberService.remove(deleteId);
-    setContas(prev => prev.filter(c => c.id !== deleteId));
-    setDeleteId(null);
-    setDeleting(false);
+  async function handleCancel() {
+    if (!cancelAction) return;
+    setCancelActioning(true);
+    try {
+      await ContaReceberService.cancelar(cancelAction.id);
+      setCancelAction(null);
+      await load();
+    } catch (err) {
+      const apiError = err as { response?: { data?: { message?: string } } };
+      setCancelError(apiError.response?.data?.message ?? 'Não foi possível cancelar. Verifique se a migração do banco foi aplicada e se a parcela continua aberta.');
+    } finally {
+      setCancelActioning(false);
+    }
   }
 
   return (
@@ -122,15 +136,9 @@ export default function ContasReceberPage() {
                 <button className="search-clear" onClick={() => setBusca('')}><X size={14} /></button>
               )}
             </div>
-            <button className="btn-primary" onClick={() => navigate('/contas-receber/nova')}>
+            <button className="btn-primary" onClick={() => setShowCreateModal(true)}>
               <Plus size={16} /> Nova Conta
             </button>
-            {selecionados.size > 0 && (
-              <button className="btn-primary" style={{ background: 'var(--success, #16a34a)' }}
-                onClick={() => { setDataBaixa(new Date().toISOString().substring(0, 10)); setShowBaixaModal(true); }}>
-                <CheckSquare size={16} /> Dar Baixa ({selecionados.size})
-              </button>
-            )}
           </div>
         </div>
 
@@ -140,59 +148,49 @@ export default function ContasReceberPage() {
           ) : filtradas.length === 0 ? (
             <div className="table-empty">Nenhuma conta encontrada.</div>
           ) : (
-            <table className="data-table">
+            <table className="data-table contas-pagar-table">
               <thead>
                 <tr>
-                  <th style={{ width: 50, textAlign: 'center' }}>Baixas</th>
-                  <th style={{ width: 60 }}>#</th>
+                  <th>Modelo</th>
+                  <th>Série</th>
+                  <th>Nº Nota</th>
                   <th>Cliente</th>
-                  <th style={{ width: 100 }}>Nº Nota</th>
-                  <th style={{ width: 50 }}>Parc.</th>
-                  <th style={{ width: 120 }}>Valor</th>
+                  <th>Parcela</th>
+                  <th>Valor Parcela</th>
                   <th style={{ width: 110 }}>Vencimento</th>
                   <th style={{ width: 110 }}>Recebimento</th>
-                  <th style={{ width: 100 }}>Status</th>
+                  <th style={{ width: 110 }}>Cancelamento</th>
                   <th className="col-actions">Ações</th>
                 </tr>
               </thead>
               <tbody>
                 {filtradas.map(c => {
-                  const selecionavel = c.status !== 'PAGO' && c.status !== 'RECEBIDO' && c.status !== 'CANCELADO';
+                  const encerrada = c.status === 'PAGO' || c.status === 'RECEBIDO' || c.status === 'CANCELADO';
                   return (
-                  <tr key={c.id} style={selecionados.has(c.id) ? { background: 'linear-gradient(90deg, rgba(212, 160, 23, 0.15), rgba(212, 160, 23, 0.05))', borderLeft: '4px solid #D4A017' } : { borderLeft: '4px solid transparent' }}>
-                    <td style={{ textAlign: 'center' }}>
-                      {selecionavel && (
-                        <input 
-                          type="checkbox" 
-                          checked={selecionados.has(c.id)}
-                          onChange={() => toggleSelecionado(c.id)}
-                          title="Selecionar para dar baixa" 
-                          style={{ cursor: 'pointer', width: 18, height: 18 }}
-                        />
-                      )}
-                    </td>
-                    <td className="col-id">{c.id}</td>
-                    <td>{c.nomeCliente ?? '—'}</td>
+                  <tr key={c.id} className={c.status === 'CANCELADO' ? 'conta-parcela-cancelada' : c.status === 'PAGO' || c.status === 'RECEBIDO' ? 'conta-parcela-paga' : undefined}>
+                    <td>{c.modelo}</td>
+                    <td>{c.serie}</td>
                     <td>{c.numeroNota}</td>
+                    <td>{c.nomeCliente ?? '—'}</td>
                     <td style={{ textAlign: 'center' }}>{c.numParcela}</td>
                     <td><strong>{fmtMoeda(c.valorParcela)}</strong></td>
                     <td>{fmtData(c.dataVencimento)}</td>
                     <td>{c.dataRecebimento ? fmtData(c.dataRecebimento) : <span style={{ color: 'var(--text-muted)' }}>—</span>}</td>
-                    <td>
-                      <span className={statusClass(c.status)}>
-                        {STATUS_LABEL[c.status] ?? c.status}
-                      </span>
-                    </td>
+                    <td>{fmtData(c.dataCancelamento)}</td>
                     <td className="col-actions" style={{ whiteSpace: 'nowrap' }}>
-                      <button className="btn-icon btn-view" title="Visualizar" onClick={() => navigate(`/contas-receber/visualizar/${c.id}`)}>
+                      <button className="btn-icon btn-view" title="Visualizar" onClick={() => setViewingId(c.id)}>
                         <Eye size={16} />
                       </button>
-                      <button className="btn-icon btn-edit" title="Editar" onClick={() => navigate(`/contas-receber/editar/${c.id}`)}>
-                        <Pencil size={16} />
-                      </button>
-                      <button className="btn-icon btn-delete" title="Excluir" onClick={() => setDeleteId(c.id)}>
-                        <Trash2 size={16} />
-                      </button>
+                      {!encerrada && (
+                        <>
+                          <button className="btn-icon btn-success" title="Confirmar recebimento" onClick={() => { setPaymentError(''); setPaymentAction(c); }}>
+                            <CheckCircle size={16} />
+                          </button>
+                          <button className="btn-icon btn-danger" title="Cancelar parcela e próximas em aberto" onClick={() => { setCancelError(''); setCancelAction(c); }}>
+                            <XCircle size={16} />
+                          </button>
+                        </>
+                      )}
                     </td>
                   </tr>
                   );
@@ -203,46 +201,63 @@ export default function ContasReceberPage() {
         </div>
       </div>
 
-      {deleteId && (
-        <div className="modal-overlay" onClick={() => setDeleteId(null)}>
+      {paymentAction && (
+        <div className="modal-overlay" onClick={() => setPaymentAction(null)}>
           <div className="modal modal-sm" onClick={e => e.stopPropagation()}>
             <div className="modal-header">
-              <h2 className="modal-title">Confirmar Exclusão</h2>
-              <button className="modal-close" onClick={() => setDeleteId(null)}>×</button>
+              <h2>Confirmar Recebimento</h2>
+              <button className="modal-close" onClick={() => setPaymentAction(null)}><X size={20} /></button>
             </div>
             <div className="modal-body">
-              <p>Tem certeza que deseja excluir esta conta a receber? Esta ação só pode ser desfeita por um Administrador.</p>
+              <p>Confirmar o recebimento irreversível da parcela {paymentAction.numParcela} da nota {paymentAction.numeroNota}?</p>
+              <p>A data de recebimento será registrada automaticamente como hoje.</p>
+              {paymentError && <p className="form-error">{paymentError}</p>}
             </div>
             <div className="modal-footer">
-              <button className="btn-danger" onClick={handleDelete} disabled={deleting}>
-                {deleting ? 'Excluindo...' : 'Excluir'}
+              <button className="btn-primary" onClick={handlePayment} disabled={paymentActioning}>
+                {paymentActioning ? 'Processando...' : 'Confirmar Recebimento'}
               </button>
-              <button className="btn-secondary" onClick={() => setDeleteId(null)}>Cancelar</button>
+              <button className="btn-secondary" onClick={() => setPaymentAction(null)}>Voltar</button>
             </div>
           </div>
         </div>
       )}
 
-      {showBaixaModal && (
-        <div className="modal-overlay" onClick={() => setShowBaixaModal(false)}>
+      {cancelAction && (
+        <div className="modal-overlay" onClick={() => setCancelAction(null)}>
           <div className="modal modal-sm" onClick={e => e.stopPropagation()}>
             <div className="modal-header">
-              <h2 className="modal-title">Dar Baixa em Lote</h2>
-              <button className="modal-close" onClick={() => setShowBaixaModal(false)}>×</button>
+              <h2>Confirmar Cancelamento</h2>
+              <button className="modal-close" onClick={() => setCancelAction(null)}><X size={20} /></button>
             </div>
             <div className="modal-body">
-              <p>{selecionados.size} parcela(s) serão marcadas como <strong>PAGO</strong> com o valor da parcela como valor recebido.</p>
-              <div className="form-group" style={{ marginTop: 16 }}>
-                <label htmlFor="dataBaixa">Data de Recebimento</label>
-                <input id="dataBaixa" type="date" value={dataBaixa}
-                  onChange={e => setDataBaixa(e.target.value)} />
-              </div>
+              <p>Cancelar irreversivelmente a parcela {cancelAction.numParcela} da nota {cancelAction.numeroNota}?</p>
+              <p>Esta parcela e as seguintes em aberto serão canceladas. Parcelas já recebidas serão preservadas. A data de cancelamento será automática.</p>
+              {cancelError && <p className="form-error">{cancelError}</p>}
             </div>
             <div className="modal-footer">
-              <button className="btn-primary" onClick={handleBaixaLote} disabled={baixando}>
-                {baixando ? 'Processando...' : 'Confirmar Baixa'}
+              <button className="btn-danger" onClick={handleCancel} disabled={cancelActioning}>
+                {cancelActioning ? 'Processando...' : 'Confirmar Cancelamento'}
               </button>
-              <button className="btn-secondary" onClick={() => setShowBaixaModal(false)}>Cancelar</button>
+              <button className="btn-secondary" onClick={() => setCancelAction(null)}>Voltar</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {(showCreateModal || editingId !== null || viewingId !== null) && (
+        <div className="modal-overlay account-page-modal-overlay">
+          <div className="modal account-page-modal" role="dialog" aria-modal="true">
+            <div className="modal-header">
+              <h2>{viewingId !== null ? 'Visualizar Conta a Receber' : editingId !== null ? 'Editar Conta a Receber' : 'Nova Conta a Receber'}</h2>
+              <button className="modal-close" type="button" aria-label="Fechar" onClick={viewingId !== null ? closeViewModal : editingId !== null ? closeEditModal : closeCreateModal}>
+                <X size={20} />
+              </button>
+            </div>
+            <div className="account-page-modal-body">
+              {viewingId !== null && <ContaReceberViewPage contaId={viewingId} onClose={closeViewModal} onEdit={id => { setEditingId(id); setViewingId(null); }} />}
+              {editingId !== null && <ContaReceberFormPage contaId={editingId} onClose={closeEditModal} />}
+              {showCreateModal && <ContaReceberFormPage onClose={closeCreateModal} />}
             </div>
           </div>
         </div>

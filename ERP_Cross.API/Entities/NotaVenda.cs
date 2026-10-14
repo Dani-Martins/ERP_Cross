@@ -3,6 +3,7 @@ namespace ERP_Cross.API.Entities;
 
 public class NotaVenda
 {
+    public long Id { get; set; }
     public string NumeroNota { get; set; } = string.Empty;
     public string Modelo { get; set; } = string.Empty;
     public string Serie { get; set; } = string.Empty;

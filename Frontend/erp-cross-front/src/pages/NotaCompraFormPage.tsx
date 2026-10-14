@@ -11,8 +11,8 @@ import CondicaoPagamentoLookupModal from '../components/CondicaoPagamentoLookupM
 import FornecedorLookupModal from '../components/FornecedorLookupModal';
 import TransportadoraLookupModal from '../components/TransportadoraLookupModal';
 import ProdutoLookupModal from '../components/ProdutoLookupModal';
-import VeiculoLookupModal from '../components/VeiculoLookupModal';
 import CurrencyInput from '../components/CurrencyInput';
+import VeiculoLookupModal from '../components/VeiculoLookupModal';
 import './PaisesPage.css';
 
 function toInputDate(value: string | null |undefined): string {
@@ -87,7 +87,7 @@ const EMPTY: NotaCompraCreate = {
 
   ativo: true,
 };
-export default function NotaCompraFormPage() {
+export default function NotaCompraFormPage({ onClose }: { onClose?: () => void } = {}) {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const isEdit = !!id;
@@ -263,7 +263,12 @@ export default function NotaCompraFormPage() {
       return;
     }
 
-    if (form.dataChegada && form.dataChegada > maxDataPermitida) {
+    if (!form.dataChegada) {
+      setError('Data de chegada é obrigatória.');
+      return;
+    }
+
+    if (form.dataChegada > maxDataPermitida) {
       setError('A data de chegada não pode ser posterior à data atual.');
       return;
     }
@@ -281,6 +286,24 @@ export default function NotaCompraFormPage() {
     if (!form.placaVeiculo?.trim()) {
       setError('Placa do veículo é obrigatória.');
       return;
+    }
+
+    // Validação de duplicação: verificar se já existe uma nota com esses dados
+    if (!isEdit) {
+      try {
+        const notasExistentes = await NotaCompraService.getAll();
+        const duplicada = notasExistentes.data.some(nota => 
+          nota.numeroNota === form.numeroNota &&
+          nota.modelo === form.modelo &&
+          nota.serie === form.serie
+        );
+        if (duplicada) {
+          setError(`Já existe uma nota de compra com Número '${form.numeroNota}', Modelo '${form.modelo}' e Série '${form.serie}'.`);
+          return;
+        }
+      } catch (err) {
+        // Se houver erro ao buscar, continua o fluxo (deixa o backend validar)
+      }
     }
 
     setSaving(true);
@@ -322,7 +345,8 @@ export default function NotaCompraFormPage() {
         });
       }
 
-      navigate('/notas-compra');
+      if (onClose) onClose();
+      else navigate('/notas-compra');
 
     } catch (err) {
 
@@ -371,7 +395,7 @@ export default function NotaCompraFormPage() {
 
   const maxDataPermitida = today();
 
-  function handleValidateNota() {
+  async function handleValidateNota() {
     if (!form.numeroNota.trim()) {
       setError('Número da nota é obrigatório.');
       return;
@@ -386,6 +410,23 @@ export default function NotaCompraFormPage() {
     }
     if (!form.fornecedorId) {
       setError('Fornecedor é obrigatório.');
+      return;
+    }
+
+    // Validação de duplicação: verificar se já existe uma nota com esses dados
+    try {
+      const notasExistentes = await NotaCompraService.getAll();
+      const duplicada = notasExistentes.data.some(nota => 
+        nota.numeroNota === form.numeroNota &&
+        nota.modelo === form.modelo &&
+        nota.serie === form.serie
+      );
+      if (duplicada) {
+        setError(`Já existe uma nota de compra com Número '${form.numeroNota}', Modelo '${form.modelo}' e Série '${form.serie}'.`);
+        return;
+      }
+    } catch (err) {
+      setError('Erro ao validar unicidade da nota.');
       return;
     }
 
@@ -528,17 +569,31 @@ export default function NotaCompraFormPage() {
               </div>
 
               {!isEdit && (
-                <div style={{ marginTop: '16px', display: 'flex', gap: '8px', alignItems: 'center' }}>
+                <div style={{ marginTop: '16px', display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
                   {!notaValidada ? (
-                    <button
-                      type="button"
-                      className="btn-primary"
-                      onClick={handleValidateNota}
-                      disabled={!canValidateNota}
-                      title={!canValidateNota ? 'Preencha número, modelo, série e fornecedor' : 'Validar e liberar preenchimento dos demais campos'}
-                    >
-                      ✓ Validar Nota
-                    </button>
+                    <>
+                      <button
+                        type="button"
+                        className="btn-primary"
+                        onClick={handleValidateNota}
+                        disabled={!canValidateNota}
+                        title={!canValidateNota ? 'Preencha número, modelo, série e fornecedor' : 'Validar e liberar preenchimento dos demais campos'}
+                      >
+                        ✓ Validar Nota
+                      </button>
+                      {error && (
+                        <div style={{
+                          width: '100%',
+                          padding: '8px 12px',
+                          backgroundColor: '#dc2626',
+                          color: 'white',
+                          borderRadius: '4px',
+                          fontSize: '0.9em',
+                        }}>
+                          {error}
+                        </div>
+                      )}
+                    </>
                   ) : (
                     <span style={{
                       display: 'flex',
@@ -577,7 +632,7 @@ export default function NotaCompraFormPage() {
                 </div>
 
                 <div className="form-group">
-                  <label>Data de Chegada</label>
+                  <label>Data de Chegada *</label>
 
                   <input
                     type="date"
@@ -686,14 +741,14 @@ export default function NotaCompraFormPage() {
             {/* Produtos */}
             <div className="form-section">
               <h2 className="form-section-title">Produtos</h2>
-              <div className="lookup-table-wrap">
-                <table className="data-table">
+              <div className="lookup-table-wrap nota-compra-produtos-wrap">
+                <table className="data-table nota-compra-produtos-table">
                   <thead>
                     <tr>
                       <th style={{ width: 40 }}>CÓDIGO</th>
                       <th>PRODUTO</th>
-                      <th style={{ width: 90 }}>QTD</th>
-                      <th style={{ width: 80 }}>VALOR UN.</th>
+                      <th style={{ width: 100 }}>QTD</th>
+                      <th style={{ width: 140 }}>VALOR UN.</th>
                       <th style={{ width: 90 }}>DESC. %</th>
                       <th style={{ width: 120 }}>PREÇO LÍQ. UN.</th>
                       <th style={{ width: 110 }}>UNIDADE</th>
@@ -725,9 +780,9 @@ export default function NotaCompraFormPage() {
                         
                         return (
                         <tr key={idx}>
-                          <td className="col-code">{p.idProduto}</td>
-                          <td className="col-name">{p.nomeProduto || 'Produto ' + (idx + 1)}</td>
-                          <td>
+                          <td className="col-code" data-label="Código">{p.idProduto}</td>
+                          <td className="col-name" data-label="Produto">{p.nomeProduto || 'Produto ' + (idx + 1)}</td>
+                          <td data-label="Quantidade">
                             <input
                               type="number"
                               step="1"
@@ -742,10 +797,19 @@ export default function NotaCompraFormPage() {
                               className="produto-table-input"
                             />
                           </td>
-                          <td>
-                            R$ {Number(p.precoUnit).toFixed(2).replace('.', ',')}
+                          <td data-label="Valor unitário">
+                            <CurrencyInput
+                              disabled={!notaValidada}
+                              value={p.precoUnit}
+                              onChange={value => {
+                                const newProdutos = [...produtos];
+                                newProdutos[idx].precoUnit = value;
+                                setProdutos(newProdutos);
+                              }}
+                              className="produto-table-input"
+                            />
                           </td>
-                          <td>
+                          <td data-label="Desconto (%)">
                             <input
                               type="number"
                               step="1"
@@ -762,10 +826,10 @@ export default function NotaCompraFormPage() {
                               title="Porcentagem de desconto (0-100%)"
                             />
                           </td>
-                          <td>
+                          <td data-label="Preço líquido unitário">
                             R$ {(p.precoUnit * (1 - (p.desconto || 0) / 100)).toFixed(2).replace('.', ',')}
                           </td>
-                          <td>
+                          <td data-label="Unidade">
                             <select
                               disabled={!notaValidada}
                               value={p.unidadeMedidaId || ''}
@@ -784,13 +848,13 @@ export default function NotaCompraFormPage() {
                               ))}
                             </select>
                           </td>
-                          <td>
+                          <td data-label="Total">
                             R$ {total.toFixed(2).replace('.', ',')}
                           </td>
-                          <td>
+                          <td data-label="Rateio">
                             R$ {rateioProd.toFixed(2).replace('.', ',')}
                           </td>
-                          <td>
+                          <td className="nota-produto-actions">
                             <button
                               type="button"
                               className="btn-icon"
@@ -1038,9 +1102,7 @@ export default function NotaCompraFormPage() {
               <button
                 type="button"
                 className="btn-secondary"
-                onClick={() =>
-                  navigate('/notas-compra')
-                }
+                onClick={() => onClose ? onClose() : navigate('/notas-compra')}
               >
                 Cancelar
               </button>
@@ -1102,12 +1164,13 @@ export default function NotaCompraFormPage() {
 
       {showProdutoModal && (
         <ProdutoLookupModal
+          tipo="compra"
           onClose={() => setShowProdutoModal(false)}
-          onSelect={(id, nomeProduto, _, __, precoVenda) => {
+          onSelect={(id, nomeProduto) => {
             setProdutos([...produtos, {
               idProduto: id,
               quantidade: 1,
-              precoUnit: precoVenda || 0,
+              precoUnit: 0,
               desconto: 0,
               idNotaCompra: 0,
               nomeProduto: nomeProduto,

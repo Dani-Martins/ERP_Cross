@@ -1,114 +1,116 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { TrendingDown, Eye, CheckCircle, XCircle, Plus, Search, X } from 'lucide-react';
 import { ContaPagarService } from '../services/contasService';
-import type { ContaPagarView } from '../types/entities';
+import type { ContaPagarParcela, ContaPagarView } from '../types/entities';
+import ContaPagarFormPage from './ContaPagarFormPage';
+import ContaPagarViewPage from './ContaPagarViewPage';
 import './PaisesPage.css';
 
-function fmtData(s: string) {
+type ContaPagarLinha = { conta: ContaPagarView; parcela: ContaPagarParcela };
+
+function fmtData(s?: string | null) {
+  if (!s) return '—';
   if (/^\d{2}\/\d{2}\/\d{4}$/.test(s)) return s;
   return s.substring(0, 10).split('-').reverse().join('/');
 }
 
+function hojeLocal() {
+  return new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().substring(0, 10);
+}
+
 export default function ContasPagarPage() {
-  const navigate = useNavigate();
-  
-  const [contas, setContas] = useState<ContaPagarView[]>([]);
+  const [parcelas, setParcelas] = useState<ContaPagarLinha[]>([]);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<'aberto' | 'finalizado' | 'cancelado' | 'todos'>('todos');
   const [loading, setLoading] = useState(true);
-  
-  // Estados de ação: exclusão
-  const [deleteId, setDeleteId] = useState<number | null>(null);
-  const [deleting, setDeleting] = useState(false);
-  
-  // Estados de ação: pagamento de parcela
-  const [paymentActionId, setPaymentActionId] = useState<number | null>(null);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [viewingId, setViewingId] = useState<number | null>(null);
+  const [paymentAction, setPaymentAction] = useState<ContaPagarLinha | null>(null);
   const [paymentActioning, setPaymentActioning] = useState(false);
-  
-  // Estados de ação: cancelamento
-  const [statusActionId, setStatusActionId] = useState<number | null>(null);
-  const [statusActioning, setStatusActioning] = useState(false);
+  const [paymentError, setPaymentError] = useState('');
+  const [cancelAction, setCancelAction] = useState<ContaPagarLinha | null>(null);
+  const [cancelActioning, setCancelActioning] = useState(false);
+  const [cancelError, setCancelError] = useState('');
 
-  useEffect(() => {
-    // Notas de compra abertas que ainda não viraram conta entram aqui antes da listagem
-    ContaPagarService.sincronizarNotas()
-      .catch(() => undefined)
-      .then(() => ContaPagarService.getAll())
-      .then(res => setContas(res.data))
-      .finally(() => setLoading(false));
-  }, []);
+  async function load() {
+    setLoading(true);
+    try {
+      await ContaPagarService.sincronizarNotas().catch(() => undefined);
+      const res = await ContaPagarService.getAll();
+      const rows = await Promise.all(res.data.map(async conta => {
+        const parcelasConta = await ContaPagarService.getParcelas(conta.id);
+        return parcelasConta.data.map(parcela => ({ conta, parcela }));
+      }));
+      setParcelas(rows.flat());
+    } finally {
+      setLoading(false);
+    }
+  }
 
-  const filtered = contas.filter(c => {
+  useEffect(() => { void load(); }, []);
+
+  function closeCreateModal() {
+    setShowCreateModal(false);
+    void load();
+  }
+
+  function closeViewModal() {
+    setViewingId(null);
+    void load();
+  }
+
+  function closeEditModal() {
+    setEditingId(null);
+    void load();
+  }
+
+  const filtered = parcelas.filter(({ conta, parcela }) => {
     const matchSearch = !search ||
-      (c.nomeFornecedor ?? '').toLowerCase().includes(search.toLowerCase()) ||
-      c.numeroNota.toLowerCase().includes(search.toLowerCase());
-    
-    const contaStatus = (c.status || 'ABERTO').toUpperCase();
+      (conta.nomeFornecedor ?? '').toLowerCase().includes(search.toLowerCase()) ||
+      conta.numeroNota.toLowerCase().includes(search.toLowerCase()) ||
+      conta.modelo.toLowerCase().includes(search.toLowerCase()) ||
+      conta.serie.toLowerCase().includes(search.toLowerCase());
+    const contaStatus = parcela.cancelada ? 'CANCELADO' : parcela.pago ? 'FINALIZADO' : 'ABERTO';
     const matchStatus =
       statusFilter === 'todos' ||
       (statusFilter === 'aberto' && contaStatus === 'ABERTO') ||
-      (statusFilter === 'finalizado' && (contaStatus === 'FINALIZADO' || contaStatus === 'FINALIZADA')) ||
+      (statusFilter === 'finalizado' && contaStatus === 'FINALIZADO') ||
       (statusFilter === 'cancelado' && contaStatus === 'CANCELADO');
 
     return matchSearch && matchStatus;
   });
 
-  async function handleDelete() {
-    if (!deleteId) return;
-    setDeleting(true);
-    try {
-      await ContaPagarService.remove(deleteId);
-      setContas(prev => prev.filter(c => c.id !== deleteId));
-      setDeleteId(null);
-      setDeleting(false);
-    } catch (err) {
-      console.error('Erro ao excluir conta:', err);
-      setDeleting(false);
-    }
-  }
-
   async function handlePayment() {
-    if (paymentActionId === null) return;
+    if (!paymentAction) return;
     setPaymentActioning(true);
     try {
-      const conta = contas.find(c => c.id === paymentActionId);
-      if (!conta?.proximaParcelaId) return;
-      await ContaPagarService.pagarParcela(conta.proximaParcelaId, new Date().toISOString().substring(0, 10));
-      const res = await ContaPagarService.getAll();
-      setContas(res.data);
-      setPaymentActionId(null);
+      await ContaPagarService.pagarParcela(paymentAction.parcela.id, hojeLocal());
+      setPaymentAction(null);
+      await load();
     } catch (err) {
       console.error('Erro ao pagar parcela:', err);
+      const apiError = err as { response?: { data?: { message?: string } } };
+      setPaymentError(apiError.response?.data?.message ?? 'Não foi possível registrar o pagamento. A parcela pode já estar encerrada.');
     } finally {
       setPaymentActioning(false);
     }
   }
 
-  async function handleCancelAccount() {
-    if (statusActionId === null) return;
-    setStatusActioning(true);
+  async function handleCancelParcela() {
+    if (!cancelAction) return;
+    setCancelActioning(true);
     try {
-      await ContaPagarService.cancelar(statusActionId);
-      setContas(prev =>
-        prev.map(c =>
-          c.id === statusActionId ? { ...c, status: 'CANCELADO' } : c
-        )
-      );
-      setStatusActionId(null);
+      await ContaPagarService.cancelarParcela(cancelAction.parcela.id);
+      setCancelAction(null);
+      await load();
     } catch (err) {
-      console.error('Erro ao cancelar conta:', err);
+      console.error('Erro ao cancelar parcela:', err);
+      const apiError = err as { response?: { data?: { message?: string } } };
+      setCancelError(apiError.response?.data?.message ?? 'Não foi possível cancelar. Verifique se a migração do banco foi aplicada e se a parcela continua aberta.');
     } finally {
-      setStatusActioning(false);
+      setCancelActioning(false);
     }
-  }
-
-  function getStatusBadgeClass(status: string | null | undefined): string {
-    const normalizedStatus = (status || 'ABERTO').toUpperCase();
-    if (normalizedStatus === 'ABERTO') return 'badge-aberta';
-    if (normalizedStatus === 'FINALIZADO' || normalizedStatus === 'FINALIZADA') return 'badge-finalizado';
-    if (normalizedStatus === 'CANCELADO') return 'badge-cancelado';
-    return 'badge-aberta';
   }
 
   return (
@@ -148,7 +150,7 @@ export default function ContasPagarPage() {
                 </button>
               )}
             </div>
-            <button className="btn-primary" onClick={() => navigate('/contas-pagar/nova')}>
+            <button className="btn-primary" onClick={() => setShowCreateModal(true)}>
               <Plus size={16} /> Nova Conta
             </button>
           </div>
@@ -162,101 +164,86 @@ export default function ContasPagarPage() {
               {search ? 'Nenhuma conta encontrada para a busca.' : 'Nenhuma conta cadastrada.'}
             </div>
           ) : (
-            <table className="data-table">
+            <table className="data-table contas-pagar-table">
               <thead>
                 <tr>
-                  <th>#</th>
+                  <th>Modelo</th>
+                  <th>Série</th>
                   <th>Nº Nota</th>
                   <th>Fornecedor</th>
-                  <th>Emissão</th>
-                  <th>Parcelas</th>
-                  <th>Próx. Parcela</th>
+                  <th>Parcela</th>
+                  <th>Valor Parcela</th>
                   <th>Vencimento</th>
-                  <th>Status</th>
+                  <th>Pagamento</th>
+                  <th>Cancelamento</th>
                   <th className="col-actions">Ações</th>
                 </tr>
               </thead>
               <tbody>
-                {filtered.map((conta) => (
-                  <tr key={conta.id}>
-                    <td className="col-id">{conta.id}</td>
+                {filtered.map(({ conta, parcela }) => {
+                  const encerrada = parcela.pago || parcela.cancelada;
+                  return (
+                  <tr key={parcela.id} className={parcela.cancelada ? 'conta-parcela-cancelada' : parcela.pago ? 'conta-parcela-paga' : undefined}>
+                    <td>{conta.modelo || '—'}</td>
+                    <td>{conta.serie || '—'}</td>
                     <td className="col-name">{conta.numeroNota}</td>
                     <td>{conta.nomeFornecedor ?? '—'}</td>
-                    <td>
-                      {/^\d{2}\/\d{2}\/\d{4}$/.test(conta.dataEmissao)
-                        ? conta.dataEmissao
-                        : new Date(conta.dataEmissao).toLocaleDateString('pt-BR')}
-                    </td>
-                    <td style={{ textAlign: 'center' }}>
-                      <strong>{conta.parcelasPagas} de {conta.numParcela}</strong>
-                    </td>
-                    <td>
-                      {conta.valorProximaParcela != null
-                        ? conta.valorProximaParcela.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
-                        : '—'}
-                    </td>
-                    <td>
-                      {conta.proximoVencimento ? fmtData(conta.proximoVencimento) : '—'}
-                    </td>
-                    <td>
-                      <span className={`badge ${getStatusBadgeClass(conta.status)}`}>
-                        {conta.status || 'ABERTO'}
-                      </span>
-                    </td>
+                    <td>{parcela.numParcela}/{conta.numParcela}</td>
+                    <td>{parcela.valorParcela.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
+                    <td>{fmtData(parcela.dataVencimento)}</td>
+                    <td>{fmtData(parcela.dataPagamento)}</td>
+                    <td>{fmtData(parcela.dataCancelamento)}</td>
                     <td className="col-actions">
                       <button
                         className="btn-icon btn-view"
                         title="Visualizar"
-                        onClick={() => navigate(`/contas-pagar/visualizar/${conta.id}`)}
+                        onClick={() => setViewingId(conta.id)}
                       >
                         <Eye size={15} />
                       </button>
-                      {(conta.status === 'ABERTO' || !conta.status) && (
+                      {!encerrada && (
                         <>
-                          <button
-                            className="btn-icon btn-success"
-                            title="Pagar próxima parcela"
-                            onClick={() => setPaymentActionId(conta.id)}
-                            disabled={!conta.proximaParcelaId}
-                            style={!conta.proximaParcelaId ? { opacity: 0.5, cursor: 'not-allowed' } : {}}
-                          >
+                          <button className="btn-icon btn-success" title="Confirmar pagamento" onClick={() => setPaymentAction({ conta, parcela })}>
                             <CheckCircle size={15} />
                           </button>
-                          <button
-                            className="btn-icon btn-danger"
-                            title="Cancelar"
-                            onClick={() => setStatusActionId(conta.id)}
-                          >
+                          <button className="btn-icon btn-danger" title="Cancelar parcela e próximas em aberto" onClick={() => { setCancelError(''); setCancelAction({ conta, parcela }); }}>
                             <XCircle size={15} />
                           </button>
                         </>
                       )}
                     </td>
                   </tr>
-                ))}
+                  );
+                })}
               </tbody>
             </table>
           )}
         </div>
       </div>
 
-      {deleteId !== null && (
-        <div className="modal-overlay" onClick={() => setDeleteId(null)}>
+      {paymentAction !== null && (
+        <div className="modal-overlay" onClick={() => setPaymentAction(null)}>
           <div className="modal modal-sm" onClick={(ev) => ev.stopPropagation()}>
             <div className="modal-header">
-              <h2>Confirmar Exclusão</h2>
-              <button className="modal-close" onClick={() => setDeleteId(null)}>
+              <h2>Confirmar Pagamento</h2>
+              <button className="modal-close" onClick={() => setPaymentAction(null)}>
                 <X size={20} />
               </button>
             </div>
             <div className="modal-body">
-              <p>Tem certeza que deseja excluir esta conta a pagar? Esta ação só pode ser desfeita por um Administrador.</p>
+              <p>Confirmar o pagamento irreversível da parcela {paymentAction.parcela.numParcela} da nota {paymentAction.conta.numeroNota}?</p>
+              <p>Após confirmar, não será possível desfazer o pagamento.</p>
+              {paymentError && <p className="form-error">{paymentError}</p>}
             </div>
             <div className="modal-footer">
-              <button className="btn-danger" onClick={handleDelete} disabled={deleting}>
-                {deleting ? 'Excluindo...' : 'Excluir'}
+              <button
+                className="btn-primary"
+                onClick={handlePayment}
+                disabled={paymentActioning}
+              >
+                {paymentActioning ? 'Processando...' : 'Confirmar Pagamento'}
               </button>
-              <button className="btn-secondary" onClick={() => setDeleteId(null)}>
+              <button className="btn-secondary" onClick={() => setPaymentAction(null)}>
                 Cancelar
               </button>
             </div>
@@ -264,27 +251,29 @@ export default function ContasPagarPage() {
         </div>
       )}
 
-      {paymentActionId !== null && (
-        <div className="modal-overlay" onClick={() => setPaymentActionId(null)}>
+      {cancelAction !== null && (
+        <div className="modal-overlay" onClick={() => setCancelAction(null)}>
           <div className="modal modal-sm" onClick={(ev) => ev.stopPropagation()}>
             <div className="modal-header">
-              <h2>Confirmar Pagamento</h2>
-              <button className="modal-close" onClick={() => setPaymentActionId(null)}>
+              <h2>Confirmar Cancelamento</h2>
+              <button className="modal-close" onClick={() => setCancelAction(null)}>
                 <X size={20} />
               </button>
             </div>
             <div className="modal-body">
-              <p>Confirmar o pagamento da próxima parcela desta conta?</p>
+              <p>Cancelar irreversivelmente a parcela {cancelAction.parcela.numParcela} da nota {cancelAction.conta.numeroNota}?</p>
+              <p>Esta parcela e as seguintes em aberto serão canceladas. Parcelas já pagas serão preservadas. A data de cancelamento será automática.</p>
+              {cancelError && <p className="form-error">{cancelError}</p>}
             </div>
             <div className="modal-footer">
               <button
-                className="btn-success"
-                onClick={handlePayment}
-                disabled={paymentActioning}
+                className="btn-danger"
+                onClick={handleCancelParcela}
+                disabled={cancelActioning}
               >
-                {paymentActioning ? 'Processando...' : 'Confirmar Pagamento'}
+                {cancelActioning ? 'Processando...' : 'Confirmar Cancelamento'}
               </button>
-              <button className="btn-secondary" onClick={() => setPaymentActionId(null)}>
+              <button className="btn-secondary" onClick={() => setCancelAction(null)}>
                 Voltar
               </button>
             </div>
@@ -292,29 +281,19 @@ export default function ContasPagarPage() {
         </div>
       )}
 
-      {statusActionId !== null && (
-        <div className="modal-overlay" onClick={() => setStatusActionId(null)}>
-          <div className="modal modal-sm" onClick={(ev) => ev.stopPropagation()}>
+      {(showCreateModal || editingId !== null || viewingId !== null) && (
+        <div className="modal-overlay account-page-modal-overlay">
+          <div className="modal account-page-modal" role="dialog" aria-modal="true">
             <div className="modal-header">
-              <h2>Confirmar Ação</h2>
-              <button className="modal-close" onClick={() => setStatusActionId(null)}>
+              <h2>{viewingId !== null ? 'Visualizar Conta a Pagar' : editingId !== null ? 'Editar Conta a Pagar' : 'Nova Conta a Pagar'}</h2>
+              <button className="modal-close" type="button" aria-label="Fechar" onClick={viewingId !== null ? closeViewModal : editingId !== null ? closeEditModal : closeCreateModal}>
                 <X size={20} />
               </button>
             </div>
-            <div className="modal-body">
-              <p>Tem certeza que deseja cancelar esta conta a pagar?</p>
-            </div>
-            <div className="modal-footer">
-              <button
-                className="btn-danger"
-                onClick={handleCancelAccount}
-                disabled={statusActioning}
-              >
-                {statusActioning ? 'Processando...' : 'Cancelar'}
-              </button>
-              <button className="btn-secondary" onClick={() => setStatusActionId(null)}>
-                Voltar
-              </button>
+            <div className="account-page-modal-body">
+              {viewingId !== null && <ContaPagarViewPage contaId={viewingId} onClose={closeViewModal} onEdit={id => { setEditingId(id); setViewingId(null); }} />}
+              {editingId !== null && <ContaPagarFormPage contaId={editingId} onClose={closeEditModal} />}
+              {showCreateModal && <ContaPagarFormPage onClose={closeCreateModal} />}
             </div>
           </div>
         </div>

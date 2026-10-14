@@ -36,8 +36,9 @@ function addDays(iso: string, days: number) {
   return d.toISOString().substring(0, 10);
 }
 
-export default function ContaPagarFormPage() {
-  const { id } = useParams<{ id: string }>();
+export default function ContaPagarFormPage({ contaId, onClose }: { contaId?: number; onClose?: () => void } = {}) {
+  const routeParams = useParams<{ id: string }>();
+  const id = contaId?.toString() ?? routeParams.id;
   const navigate = useNavigate();
   const isEdit = Boolean(id);
 
@@ -169,7 +170,8 @@ export default function ContaPagarFormPage() {
       } else {
         await ContaPagarService.create(payload);
       }
-      navigate('/contas-pagar');
+      if (onClose) onClose();
+      else navigate('/contas-pagar');
     } catch (err) {
       const axiosErr = err as AxiosError<{ message: string }>;
       setError(axiosErr.response?.data?.message ?? 'Erro ao salvar. Verifique os dados e tente novamente.');
@@ -368,7 +370,7 @@ export default function ContaPagarFormPage() {
               <button type="submit" className="btn-primary" disabled={saving}>
                 {saving ? 'Salvando...' : 'Salvar'}
               </button>
-              <button type="button" className="btn-secondary" onClick={() => navigate('/contas-pagar')}>
+              <button type="button" className="btn-secondary" onClick={() => onClose ? onClose() : navigate('/contas-pagar')}>
                 Cancelar
               </button>
             </div>

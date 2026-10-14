@@ -64,9 +64,42 @@ public class CreateContaReceberLoteDto
     public bool Ativo { get; set; } = true;
 }
 
+public class CreateContaReceberParcelasDto
+{
+    [Required]
+    public string NumeroNota { get; set; } = string.Empty;
+    [Required]
+    public string Modelo { get; set; } = string.Empty;
+    [Required]
+    public string Serie { get; set; } = string.Empty;
+    public int ClienteId { get; set; }
+    public DateTime DataEmissao { get; set; }
+    [Required, MinLength(1)]
+    public List<ContaReceberParcelaInput> Parcelas { get; set; } = new();
+    public decimal Juros { get; set; }
+    public decimal Multa { get; set; }
+    public decimal Desconto { get; set; }
+    public int? FormaPagamentoId { get; set; }
+    public string? Observacao { get; set; }
+}
+
+public class ContaReceberParcelaInput
+{
+    public int NumParcela { get; set; }
+    public DateTime DataVencimento { get; set; }
+    [Range(0.01, double.MaxValue)]
+    public decimal ValorParcela { get; set; }
+    public DateTime? DataRecebimento { get; set; }
+}
+
 public class BaixaContaReceberLoteDto
 {
     public IEnumerable<long> Ids { get; set; } = [];
+    public DateTime DataRecebimento { get; set; }
+}
+
+public class RegistrarRecebimentoDto
+{
     public DateTime DataRecebimento { get; set; }
 }
 
@@ -82,6 +115,7 @@ public class ContaReceberView
     public DateTime DataEmissao { get; set; }
     public DateTime DataVencimento { get; set; }
     public DateTime? DataRecebimento { get; set; }
+    public DateTime? DataCancelamento { get; set; }
     public decimal? ValorRecebido { get; set; }
     public decimal Juros { get; set; }
     public decimal Multa { get; set; }

@@ -11,4 +11,6 @@ public class ContaPagarParcela
     public bool Pago { get; set; }
     public DateTime? DataPagamento { get; set; }
     public decimal? ValorPago { get; set; }
+    public bool Cancelada { get; set; }
+    public DateTime? DataCancelamento { get; set; }
 }
