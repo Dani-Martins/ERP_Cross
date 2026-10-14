@@ -22,8 +22,9 @@ function fmtPercent(n: number) {
   return n > 0 ? `${n.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}%` : '—';
 }
 
-export default function CondicaoPagamentoViewPage() {
-  const { id } = useParams<{ id: string }>();
+export default function CondicaoPagamentoViewPage({ condicaoId, onClose, onEdit }: { condicaoId?: number; onClose?: () => void; onEdit?: (id: number) => void } = {}) {
+  const routeParams = useParams<{ id: string }>();
+  const id = condicaoId?.toString() ?? routeParams.id;
   const navigate = useNavigate();
   const [condicao, setCondicao] = useState<CondicaoPagamentoView | null>(null);
   const [parcelas, setParcelas] = useState<ParcelaCondicaoPagamentoView[]>([]);
@@ -132,10 +133,10 @@ export default function CondicaoPagamentoViewPage() {
           </div>
 
           <div className="form-page-footer">
-            <button className="btn-primary" onClick={() => navigate(`/condicoes-pagamento/editar/${condicao.id}`)}>
+            <button className="btn-primary" onClick={() => onEdit ? onEdit(condicao.id) : navigate(`/condicoes-pagamento/editar/${condicao.id}`)}>
               <Pencil size={15} /> Editar
             </button>
-            <button className="btn-secondary" onClick={() => navigate('/condicoes-pagamento')}>Cancelar</button>
+            <button className="btn-secondary" onClick={() => onClose ? onClose() : navigate('/condicoes-pagamento')}>{onClose ? 'Fechar' : 'Cancelar'}</button>
           </div>
         </div>
       </div>

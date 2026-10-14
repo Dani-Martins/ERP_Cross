@@ -8,8 +8,9 @@ import './PaisesPage.css';
 
 const EMPTY: FormaPagamentoCreate = { nomeFormaPagamento: '', aceitaParcela: false, ativo: true };
 
-export default function FormaPagamentoFormPage() {
-  const { id } = useParams<{ id: string }>();
+export default function FormaPagamentoFormPage({ formaId, onClose }: { formaId?: number; onClose?: () => void } = {}) {
+  const routeParams = useParams<{ id: string }>();
+  const id = formaId?.toString() ?? routeParams.id;
   const navigate = useNavigate();
   const isEdit = Boolean(id);
 
@@ -54,7 +55,8 @@ export default function FormaPagamentoFormPage() {
       } else {
         await FormaPagamentoService.create(form);
       }
-      navigate('/formas-pagamento');
+      if (onClose) onClose();
+      else navigate('/formas-pagamento');
     } catch (err) {
       const axiosErr = err as AxiosError<{ message: string }>;
       if (axiosErr.response?.status === 409) {
@@ -139,7 +141,7 @@ export default function FormaPagamentoFormPage() {
             <button type="submit" className="btn-primary" disabled={saving}>
               {saving ? 'Salvando...' : 'Salvar'}
             </button>
-            <button type="button" className="btn-secondary" onClick={() => navigate('/formas-pagamento')}>
+            <button type="button" className="btn-secondary" onClick={() => onClose ? onClose() : navigate('/formas-pagamento')}>
               Cancelar
             </button>
           </div>

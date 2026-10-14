@@ -15,6 +15,9 @@ public class ProdutoService
 
     public async Task<Produto> CreateAsync(CreateProdutoDto dto)
     {
+        if (!string.IsNullOrWhiteSpace(dto.CodigoBarras) && await _repository.CodigoBarrasExistsAsync(dto.CodigoBarras))
+            throw new ArgumentException($"Já existe um produto cadastrado com o código de barras '{dto.CodigoBarras}'.");
+
         var p = new Produto
         {
             NomeProduto = dto.NomeProduto, Referencia = dto.Referencia, UnidadeId = dto.UnidadeId, MarcaId = dto.MarcaId,
@@ -32,6 +35,9 @@ public class ProdutoService
     {
         var p = await _repository.GetByIdAsync(id);
         if (p == null) return false;
+
+        if (!string.IsNullOrWhiteSpace(dto.CodigoBarras) && await _repository.CodigoBarrasExistsAsync(dto.CodigoBarras, excludeId: id))
+            throw new ArgumentException($"Já existe outro produto cadastrado com o código de barras '{dto.CodigoBarras}'.");
 
         p.NomeProduto = dto.NomeProduto; p.Referencia = dto.Referencia; p.UnidadeId = dto.UnidadeId; p.MarcaId = dto.MarcaId;
         p.CategoriaId = dto.CategoriaId; p.Descricao = dto.Descricao; p.CodigoBarras = dto.CodigoBarras;

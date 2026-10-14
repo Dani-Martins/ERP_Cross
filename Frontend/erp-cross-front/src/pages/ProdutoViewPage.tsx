@@ -7,6 +7,12 @@ import type { ProdutoView } from '../types/entities';
 
 import './PaisesPage.css';
 
+function formatDate(value: string | null | undefined): string {
+  if (!value) return '—';
+  const d = new Date(value.replace(' ', 'T'));
+  return isNaN(d.getTime()) ? '—' : d.toLocaleString('pt-BR');
+}
+
 export default function ProdutoViewPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -53,9 +59,25 @@ export default function ProdutoViewPage() {
               Dados do Produto
             </h2>
 
+            <div className="form-row">
+              <div className="view-group">
+                <span className="view-label">Código</span>
+                <span className="view-value">{produto.id}</span>
+              </div>
+              <div className="view-group">
+                <span className="view-label">Referência</span>
+                <span className="view-value">{produto.referencia || '—'}</span>
+              </div>
+            </div>
+
             <div className="view-group">
               <span className="view-label">Produto</span>
               <span className="view-value">{produto.nomeProduto}</span>
+            </div>
+
+            <div className="view-group">
+              <span className="view-label">Código de Barras (EAN-13)</span>
+              <span className="view-value">{produto.codigoBarras || '—'}</span>
             </div>
 
             <div className="view-group">
@@ -69,7 +91,31 @@ export default function ProdutoViewPage() {
             </div>
 
           </div>
-                    <div className="form-section">
+
+          <div className="form-section">
+            <h2 className="form-section-title">
+              Classificação
+            </h2>
+
+            <div className="form-row">
+              <div className="view-group">
+                <span className="view-label">Categoria</span>
+                <span className="view-value">{produto.nomeCategoria || '—'}</span>
+              </div>
+              <div className="view-group">
+                <span className="view-label">Marca</span>
+                <span className="view-value">{produto.nomeMarca || '—'}</span>
+              </div>
+            </div>
+
+            <div className="view-group">
+              <span className="view-label">Unidade de Medida</span>
+              <span className="view-value">{produto.nomeUnidade || '—'}</span>
+            </div>
+
+          </div>
+
+          <div className="form-section">
             <h2 className="form-section-title">
               Valores
             </h2>
@@ -109,6 +155,56 @@ export default function ProdutoViewPage() {
                   currency: 'BRL'
                 })}
               </span>
+            </div>
+
+          </div>
+
+          <div className="form-section">
+            <h2 className="form-section-title">
+              Estoque
+            </h2>
+
+            <div className="form-row">
+              <div className="view-group">
+                <span className="view-label">Quantidade em Estoque</span>
+                <span className="view-value">{produto.estoque.toLocaleString('pt-BR')}</span>
+              </div>
+              <div className="view-group">
+                <span className="view-label">Estoque Mínimo</span>
+                <span className="view-value">{produto.estoqueMinimo.toLocaleString('pt-BR')}</span>
+              </div>
+            </div>
+
+          </div>
+
+          <div className="form-section">
+            <h2 className="form-section-title">
+              Status
+            </h2>
+
+            <div className="view-group">
+              <span className="view-label">Situação</span>
+              <span className={`status-badge ${produto.ativo ? 'status-active' : 'status-inactive'}`}>
+                {produto.ativo ? 'Ativo' : 'Inativo'}
+              </span>
+            </div>
+
+          </div>
+
+          <div className="form-section view-dates">
+            <h2 className="form-section-title">
+              Informações do Sistema
+            </h2>
+
+            <div className="form-row">
+              <div className="view-group">
+                <span className="view-label">Criado em</span>
+                <span className="view-value view-muted">{formatDate(produto.dataCriacao)}</span>
+              </div>
+              <div className="view-group">
+                <span className="view-label">Atualizado em</span>
+                <span className="view-value view-muted">{formatDate(produto.dataAtualizacao)}</span>
+              </div>
             </div>
 
           </div>

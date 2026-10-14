@@ -1,13 +1,16 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { CreditCard, Plus, Search, X, Eye, Pencil, Trash2 } from 'lucide-react';
 import { FormaPagamentoService } from '../services/formaPagamentoService';
 import type { FormaPagamentoView } from '../types/entities';
+import FormaPagamentoFormPage from './FormaPagamentoFormPage';
+import FormaPagamentoViewPage from './FormaPagamentoViewPage';
 import './PaisesPage.css';
 
 export default function FormasPagamentoPage() {
-  const navigate = useNavigate();
   const [all, setAll] = useState<FormaPagamentoView[]>([]);
+  const [showCreate, setShowCreate] = useState(false);
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [viewingId, setViewingId] = useState<number | null>(null);
   const [search, setSearch] = useState('');
   const [filterStatus, setFilterStatus] = useState<'todos' | 'ativos' | 'inativos'>('ativos');
   const [loading, setLoading] = useState(true);
@@ -23,6 +26,13 @@ export default function FormasPagamentoPage() {
     FormaPagamentoService.getAll()
       .then(res => setAll(res.data))
       .finally(() => setLoading(false));
+  }
+
+  function fecharModal() {
+    setShowCreate(false);
+    setEditingId(null);
+    setViewingId(null);
+    load();
   }
 
   const filtered = all.filter(f => {
@@ -77,7 +87,7 @@ export default function FormasPagamentoPage() {
               <button className="search-clear" onClick={() => setSearch('')}><X size={14} /></button>
             )}
           </div>
-          <button className="btn-primary" onClick={() => navigate('/formas-pagamento/nova')}>
+          <button className="btn-primary" onClick={() => setShowCreate(true)}>
             <Plus size={16} /> Nova Forma
           </button>
         </div>
@@ -115,10 +125,10 @@ export default function FormasPagamentoPage() {
                     </span>
                   </td>
                   <td className="col-actions">
-                    <button className="btn-icon btn-view" title="Visualizar" onClick={() => navigate(`/formas-pagamento/visualizar/${f.id}`)}>
+                    <button className="btn-icon btn-view" title="Visualizar" onClick={() => setViewingId(f.id)}>
                       <Eye size={16} />
                     </button>
-                    <button className="btn-icon btn-edit" title="Editar" onClick={() => navigate(`/formas-pagamento/editar/${f.id}`)}>
+                    <button className="btn-icon btn-edit" title="Editar" onClick={() => setEditingId(f.id)}>
                       <Pencil size={16} />
                     </button>
                     <button className="btn-icon btn-delete" title="Excluir" onClick={() => setDeleteId(f.id)}>
@@ -131,6 +141,28 @@ export default function FormasPagamentoPage() {
           </table>
         )}
       </div>
+
+      {(showCreate || editingId !== null || viewingId !== null) && (
+        <div className="modal-overlay">
+          <div className="modal modal-form-page" role="dialog" aria-modal="true">
+            <div className="modal-header">
+              <h2>{viewingId !== null ? 'Visualizar Forma de Pagamento' : editingId !== null ? 'Editar Forma de Pagamento' : 'Nova Forma de Pagamento'}</h2>
+              <button className="modal-close" type="button" aria-label="Fechar" onClick={fecharModal}><X size={18} /></button>
+            </div>
+            <div className="account-page-modal-body">
+              {viewingId !== null && (
+                <FormaPagamentoViewPage
+                  formaId={viewingId}
+                  onClose={fecharModal}
+                  onEdit={id => { setEditingId(id); setViewingId(null); }}
+                />
+              )}
+              {editingId !== null && <FormaPagamentoFormPage formaId={editingId} onClose={fecharModal} />}
+              {showCreate && <FormaPagamentoFormPage onClose={fecharModal} />}
+            </div>
+          </div>
+        </div>
+      )}
 
       {deleteId != null && (
         <div className="modal-overlay" onClick={() => setDeleteId(null)}>

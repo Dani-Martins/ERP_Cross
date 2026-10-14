@@ -96,6 +96,11 @@ export default function ProdutoFormPage() {
       return;
     }
 
+    if (!form.codigoBarras) {
+      setError('Código de Barras é obrigatório.');
+      return;
+    }
+
     if (!form.unidadeId) {
       setError('Unidade é obrigatória.');
       return;
@@ -133,8 +138,8 @@ export default function ProdutoFormPage() {
 
       const axiosErr = err as AxiosError<{ message: string }>;
 
-      if (axiosErr.response?.status === 409)
-        setError(axiosErr.response.data?.message ?? 'Conflito.');
+      if (axiosErr.response?.status === 400 || axiosErr.response?.status === 409)
+        setError(axiosErr.response.data?.message ?? 'Erro ao salvar.');
 
       else
         setError('Erro ao salvar.');
@@ -233,7 +238,7 @@ export default function ProdutoFormPage() {
 
             <div className="form-row">
               <div className="form-group">
-                <label htmlFor="codigoBarras">Código de Barras (EAN-13)</label>
+                <label htmlFor="codigoBarras">Código de Barras (EAN-13) *</label>
                 <input
                   id="codigoBarras"
                   type="text"

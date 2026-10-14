@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { CalendarClock, Plus, Search, X, Eye, Pencil, Trash2 } from 'lucide-react';
 import { CondicaoPagamentoService } from '../services/condicaoPagamentoService';
 import type { CondicaoPagamentoView } from '../types/entities';
+import CondicaoPagamentoFormPage from './CondicaoPagamentoFormPage';
+import CondicaoPagamentoViewPage from './CondicaoPagamentoViewPage';
 import './PaisesPage.css';
 
 function fmtPercent(n: number) {
@@ -10,8 +11,10 @@ function fmtPercent(n: number) {
 }
 
 export default function CondicoesPagamentoPage() {
-  const navigate = useNavigate();
   const [all, setAll] = useState<CondicaoPagamentoView[]>([]);
+  const [showCreate, setShowCreate] = useState(false);
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [viewingId, setViewingId] = useState<number | null>(null);
   const [search, setSearch] = useState('');
   const [filterStatus, setFilterStatus] = useState<'todos' | 'ativos' | 'inativos'>('ativos');
   const [loading, setLoading] = useState(true);
@@ -27,6 +30,13 @@ export default function CondicoesPagamentoPage() {
     CondicaoPagamentoService.getAll()
       .then(res => setAll(res.data))
       .finally(() => setLoading(false));
+  }
+
+  function fecharModal() {
+    setShowCreate(false);
+    setEditingId(null);
+    setViewingId(null);
+    load();
   }
 
   const filtered = all.filter(c => {
@@ -76,7 +86,7 @@ export default function CondicoesPagamentoPage() {
               <button className="search-clear" onClick={() => setSearch('')}><X size={14} /></button>
             )}
           </div>
-          <button className="btn-primary" onClick={() => navigate('/condicoes-pagamento/nova')}>
+          <button className="btn-primary" onClick={() => setShowCreate(true)}>
             <Plus size={16} /> Nova Condição
           </button>
         </div>
@@ -114,10 +124,10 @@ export default function CondicoesPagamentoPage() {
                     </span>
                   </td>
                   <td className="col-actions">
-                    <button className="btn-icon btn-view" title="Visualizar" onClick={() => navigate(`/condicoes-pagamento/visualizar/${c.id}`)}>
+                    <button className="btn-icon btn-view" title="Visualizar" onClick={() => setViewingId(c.id)}>
                       <Eye size={16} />
                     </button>
-                    <button className="btn-icon btn-edit" title="Editar" onClick={() => navigate(`/condicoes-pagamento/editar/${c.id}`)}>
+                    <button className="btn-icon btn-edit" title="Editar" onClick={() => setEditingId(c.id)}>
                       <Pencil size={16} />
                     </button>
                     <button className="btn-icon btn-delete" title="Excluir" onClick={() => setDeleteId(c.id)}>
@@ -130,6 +140,28 @@ export default function CondicoesPagamentoPage() {
           </table>
         )}
       </div>
+
+      {(showCreate || editingId !== null || viewingId !== null) && (
+        <div className="modal-overlay">
+          <div className="modal modal-form-page" role="dialog" aria-modal="true">
+            <div className="modal-header">
+              <h2>{viewingId !== null ? 'Visualizar Condição de Pagamento' : editingId !== null ? 'Editar Condição de Pagamento' : 'Nova Condição de Pagamento'}</h2>
+              <button className="modal-close" type="button" aria-label="Fechar" onClick={fecharModal}><X size={18} /></button>
+            </div>
+            <div className="account-page-modal-body">
+              {viewingId !== null && (
+                <CondicaoPagamentoViewPage
+                  condicaoId={viewingId}
+                  onClose={fecharModal}
+                  onEdit={id => { setEditingId(id); setViewingId(null); }}
+                />
+              )}
+              {editingId !== null && <CondicaoPagamentoFormPage condicaoId={editingId} onClose={fecharModal} />}
+              {showCreate && <CondicaoPagamentoFormPage onClose={fecharModal} />}
+            </div>
+          </div>
+        </div>
+      )}
 
       {deleteId != null && (
         <div className="modal-overlay" onClick={() => setDeleteId(null)}>

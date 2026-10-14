@@ -56,11 +56,7 @@ export default function ContaReceberViewPage({ contaId, onClose, onEdit }: { con
   if (!conta) return null;
 
   const totalBruto = parcelas.reduce((total, parcela) => total + parcela.valorParcela, 0);
-  const totalComEncargos = parcelas.reduce((total, parcela) =>
-    total + parcela.valorParcela + parcela.juros + parcela.multa - parcela.desconto, 0);
-  const totalJuros = parcelas.reduce((total, parcela) => total + parcela.juros, 0);
-  const totalMulta = parcelas.reduce((total, parcela) => total + parcela.multa, 0);
-  const totalDesconto = parcelas.reduce((total, parcela) => total + parcela.desconto, 0);
+  const taxas = parcelas[0];
   const parcelasPagas = parcelas.filter(parcela => parcela.status === 'PAGO' || parcela.status === 'RECEBIDO').length;
   const parcelasCanceladas = parcelas.filter(parcela => parcela.status === 'CANCELADO').length;
   const situacaoGeral = parcelasPagas + parcelasCanceladas === parcelas.length
@@ -162,7 +158,7 @@ export default function ContaReceberViewPage({ contaId, onClose, onEdit }: { con
                       <td>{fmtData(parcela.dataVencimento)}</td>
                       <td>{fmtMoeda(parcela.valorParcela)}</td>
                       <td>{STATUS_LABEL[parcela.status] ?? parcela.status}</td>
-                      <td>{fmtData(parcela.dataRecebimento)}</td>
+                      <td>{fmtData(parcela.dataRecebimento)}{parcela.valorRecebido != null ? ` (${fmtMoeda(parcela.valorRecebido)})` : ''}</td>
                       <td>{fmtData(parcela.dataCancelamento)}</td>
                       </tr>
                     ))}
@@ -175,28 +171,18 @@ export default function ContaReceberViewPage({ contaId, onClose, onEdit }: { con
             <h2 className="form-section-title">Taxas</h2>
             <div className="form-row">
               <div className="view-group">
-                <span className="view-label">Juros</span>
-                <span className="view-value" style={{ color: totalJuros > 0 ? '#dc2626' : undefined }}>
-                  {fmtMoeda(totalJuros)}
-                </span>
+                <span className="view-label">Juros por parcela</span>
+                <span className="view-value">{taxas.juros}%</span>
               </div>
               <div className="view-group">
-                <span className="view-label">Multa</span>
-                <span className="view-value" style={{ color: totalMulta > 0 ? '#dc2626' : undefined }}>
-                  {fmtMoeda(totalMulta)}
-                </span>
+                <span className="view-label">Multa por atraso</span>
+                <span className="view-value">{taxas.multa}%</span>
               </div>
               <div className="view-group">
-                <span className="view-label">Desconto</span>
-                <span className="view-value" style={{ color: totalDesconto > 0 ? '#16a34a' : undefined }}>{fmtMoeda(totalDesconto)}</span>
+                <span className="view-label">Desconto pontualidade</span>
+                <span className="view-value">{taxas.desconto}%</span>
               </div>
             </div>
-            {(totalJuros > 0 || totalMulta > 0 || totalDesconto > 0) && (
-              <div className="view-group">
-                <span className="view-label">Total com Encargos</span>
-                <span className="view-value"><strong>{fmtMoeda(totalComEncargos)}</strong></span>
-              </div>
-            )}
           </div>
 
           {conta.observacao && (

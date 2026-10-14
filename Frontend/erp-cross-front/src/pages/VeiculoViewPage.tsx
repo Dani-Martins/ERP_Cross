@@ -11,8 +11,9 @@ function formatDate(value: string | null | undefined): string {
   return isNaN(d.getTime()) ? '—' : d.toLocaleDateString('pt-BR');
 }
 
-export default function VeiculoViewPage() {
-  const { id } = useParams<{ id: string }>();
+export default function VeiculoViewPage({ veiculoId, onClose, onEdit }: { veiculoId?: number; onClose?: () => void; onEdit?: (id: number) => void } = {}) {
+  const routeParams = useParams<{ id: string }>();
+  const id = veiculoId?.toString() ?? routeParams.id;
   const navigate = useNavigate();
   const [veiculo, setVeiculo] = useState<VeiculoView | null>(null);
   const [loading, setLoading] = useState(true);
@@ -198,7 +199,7 @@ return (
           <button
             className="btn-primary"
             onClick={() =>
-              navigate(`/veiculos/editar/${veiculo.id}`)
+              onEdit ? onEdit(veiculo.id) : navigate(`/veiculos/editar/${veiculo.id}`)
             }
           >
             <Pencil size={15} />
@@ -208,10 +209,10 @@ return (
           <button
             className="btn-secondary"
             onClick={() =>
-              navigate('/veiculos')
+              onClose ? onClose() : navigate('/veiculos')
             }
           >
-            Voltar
+            {onClose ? 'Fechar' : 'Voltar'}
           </button>
 
         </div>

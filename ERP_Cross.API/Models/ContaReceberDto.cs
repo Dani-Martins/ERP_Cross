@@ -5,11 +5,11 @@ namespace ERP_Cross.API.Models;
 
 public class CreateContaReceberDto
 {
-    [Required]
+    [Required, RegularExpression(@"^\d{1,9}$", ErrorMessage = "Número da nota deve conter até 9 dígitos.")]
     public string NumeroNota { get; set; } = string.Empty;
-    [Required]
+    [Required, RegularExpression(@"^\d{1,3}$", ErrorMessage = "Modelo deve conter até 3 dígitos.")]
     public string Modelo { get; set; } = string.Empty;
-    [Required]
+    [Required, RegularExpression(@"^\d{1,3}$", ErrorMessage = "Série deve conter até 3 dígitos.")]
     public string Serie { get; set; } = string.Empty;
     public int ClienteId { get; set; }
     public int NumParcela { get; set; }
@@ -30,11 +30,11 @@ public class CreateContaReceberDto
 
 public class UpdateContaReceberDto
 {
-    [Required]
+    [Required, RegularExpression(@"^\d{1,9}$", ErrorMessage = "Número da nota deve conter até 9 dígitos.")]
     public string NumeroNota { get; set; } = string.Empty;
-    [Required]
+    [Required, RegularExpression(@"^\d{1,3}$", ErrorMessage = "Modelo deve conter até 3 dígitos.")]
     public string Modelo { get; set; } = string.Empty;
-    [Required]
+    [Required, RegularExpression(@"^\d{1,3}$", ErrorMessage = "Série deve conter até 3 dígitos.")]
     public string Serie { get; set; } = string.Empty;
     public int ClienteId { get; set; }
     public int NumParcela { get; set; }
@@ -66,11 +66,11 @@ public class CreateContaReceberLoteDto
 
 public class CreateContaReceberParcelasDto
 {
-    [Required]
+    [Required, RegularExpression(@"^\d{1,9}$", ErrorMessage = "Número da nota deve conter até 9 dígitos.")]
     public string NumeroNota { get; set; } = string.Empty;
-    [Required]
+    [Required, RegularExpression(@"^\d{1,3}$", ErrorMessage = "Modelo deve conter até 3 dígitos.")]
     public string Modelo { get; set; } = string.Empty;
-    [Required]
+    [Required, RegularExpression(@"^\d{1,3}$", ErrorMessage = "Série deve conter até 3 dígitos.")]
     public string Serie { get; set; } = string.Empty;
     public int ClienteId { get; set; }
     public DateTime DataEmissao { get; set; }

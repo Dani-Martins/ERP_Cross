@@ -75,7 +75,9 @@ public class ContaReceberService
                 DataEmissao = dto.DataEmissao,
                 DataVencimento = parcela.DataVencimento,
                 DataRecebimento = parcela.DataRecebimento,
-                ValorRecebido = parcela.DataRecebimento.HasValue ? parcela.ValorParcela : null,
+                ValorRecebido = parcela.DataRecebimento.HasValue
+                    ? CalcularValorRecebido(parcela.ValorParcela, parcela.DataVencimento, parcela.DataRecebimento.Value, dto.Juros, dto.Multa, dto.Desconto)
+                    : null,
                 Juros = dto.Juros,
                 Multa = dto.Multa,
                 Desconto = dto.Desconto,
@@ -114,7 +116,21 @@ public class ContaReceberService
     }
 
     public async Task<bool> RegistrarRecebimentoAsync(long id, DateTime dataRecebimento)
-        => await _repository.RegistrarRecebimentoAsync(id, dataRecebimento);
+    {
+        var conta = await _repository.GetByIdAsync(id);
+        if (conta == null || !conta.Ativo || conta.Status == "PAGO" || conta.Status == "RECEBIDO" || conta.Status == "CANCELADO")
+            return false;
+
+        var valorRecebido = CalcularValorRecebido(conta.ValorParcela, conta.DataVencimento, dataRecebimento, conta.Juros, conta.Multa, conta.Desconto);
+        return await _repository.RegistrarRecebimentoAsync(id, dataRecebimento, valorRecebido);
+    }
+
+    private static decimal CalcularValorRecebido(decimal valor, DateTime vencimento, DateTime recebimento, decimal juros, decimal multa, decimal desconto)
+    {
+        if ((recebimento.Date - vencimento.Date).Days <= 0) return valor;
+        var semDesconto = desconto < 100 ? valor / (1 - desconto / 100m) : valor;
+        return Math.Round(semDesconto * (1 + multa / 100m), 2);
+    }
 
     public async Task<bool> CancelarAsync(long id)
     {

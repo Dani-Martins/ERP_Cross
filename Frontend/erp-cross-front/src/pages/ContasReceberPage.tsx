@@ -76,6 +76,12 @@ export default function ContasReceberPage() {
     return matchStatus && matchBusca;
   });
 
+  const totaisParcelasPorNota = contas.reduce((totais, conta) => {
+    const chave = `${conta.numeroNota}|${conta.modelo}|${conta.serie}|${conta.clienteId}`;
+    totais.set(chave, (totais.get(chave) ?? 0) + 1);
+    return totais;
+  }, new Map<string, number>());
+
   async function handlePayment() {
     if (!paymentAction) return;
     setPaymentActioning(true);
@@ -166,13 +172,15 @@ export default function ContasReceberPage() {
               <tbody>
                 {filtradas.map(c => {
                   const encerrada = c.status === 'PAGO' || c.status === 'RECEBIDO' || c.status === 'CANCELADO';
+                  const chaveNota = `${c.numeroNota}|${c.modelo}|${c.serie}|${c.clienteId}`;
+                  const totalParcelas = totaisParcelasPorNota.get(chaveNota) ?? c.numParcela;
                   return (
                   <tr key={c.id} className={c.status === 'CANCELADO' ? 'conta-parcela-cancelada' : c.status === 'PAGO' || c.status === 'RECEBIDO' ? 'conta-parcela-paga' : undefined}>
                     <td>{c.modelo}</td>
                     <td>{c.serie}</td>
                     <td>{c.numeroNota}</td>
                     <td>{c.nomeCliente ?? '—'}</td>
-                    <td style={{ textAlign: 'center' }}>{c.numParcela}</td>
+                    <td style={{ textAlign: 'center' }}>{c.numParcela}/{totalParcelas}</td>
                     <td><strong>{fmtMoeda(c.valorParcela)}</strong></td>
                     <td>{fmtData(c.dataVencimento)}</td>
                     <td>{c.dataRecebimento ? fmtData(c.dataRecebimento) : <span style={{ color: 'var(--text-muted)' }}>—</span>}</td>

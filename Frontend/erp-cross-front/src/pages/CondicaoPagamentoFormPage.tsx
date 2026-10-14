@@ -25,8 +25,9 @@ const EMPTY: CondicaoPagamentoCreate = {
   nomeCondicao: '', taxaJuros: 0, multa: 0, desconto: 0, ativo: true,
 };
 
-export default function CondicaoPagamentoFormPage() {
-  const { id } = useParams<{ id: string }>();
+export default function CondicaoPagamentoFormPage({ condicaoId, onClose }: { condicaoId?: number; onClose?: () => void } = {}) {
+  const routeParams = useParams<{ id: string }>();
+  const id = condicaoId?.toString() ?? routeParams.id;
   const navigate = useNavigate();
   const isEdit = Boolean(id);
 
@@ -195,7 +196,8 @@ export default function CondicaoPagamentoFormPage() {
           : ParcelaCondicaoPagamentoService.create(payload);
       }));
 
-      navigate('/condicoes-pagamento');
+      if (onClose) onClose();
+      else navigate('/condicoes-pagamento');
     } catch (err) {
       const axiosErr = err as AxiosError<{ message: string }>;
       if (axiosErr.response?.status === 409) {
@@ -428,7 +430,7 @@ export default function CondicaoPagamentoFormPage() {
             <button type="submit" className="btn-primary" disabled={saving}>
               {saving ? 'Salvando...' : 'Salvar'}
             </button>
-            <button type="button" className="btn-secondary" onClick={() => navigate('/condicoes-pagamento')}>
+            <button type="button" className="btn-secondary" onClick={() => onClose ? onClose() : navigate('/condicoes-pagamento')}>
               Cancelar
             </button>
           </div>

@@ -17,8 +17,9 @@ function formatDate(value: string | null | undefined): string {
   return isNaN(d.getTime()) ? '—' : d.toLocaleString('pt-BR');
 }
 
-export default function FormaPagamentoViewPage() {
-  const { id } = useParams<{ id: string }>();
+export default function FormaPagamentoViewPage({ formaId, onClose, onEdit }: { formaId?: number; onClose?: () => void; onEdit?: (id: number) => void } = {}) {
+  const routeParams = useParams<{ id: string }>();
+  const id = formaId?.toString() ?? routeParams.id;
   const navigate = useNavigate();
   const [forma, setForma] = useState<FormaPagamentoView | null>(null);
   const [loading, setLoading] = useState(true);
@@ -82,10 +83,10 @@ export default function FormaPagamentoViewPage() {
           </div>
 
           <div className="form-page-footer">
-            <button className="btn-primary" onClick={() => navigate(`/formas-pagamento/editar/${forma.id}`)}>
+            <button className="btn-primary" onClick={() => onEdit ? onEdit(forma.id) : navigate(`/formas-pagamento/editar/${forma.id}`)}>
               <Pencil size={15} /> Editar
             </button>
-            <button className="btn-secondary" onClick={() => navigate('/formas-pagamento')}>Cancelar</button>
+            <button className="btn-secondary" onClick={() => onClose ? onClose() : navigate('/formas-pagamento')}>{onClose ? 'Fechar' : 'Cancelar'}</button>
           </div>
         </div>
       </div>

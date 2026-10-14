@@ -1,16 +1,20 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Plus, Search, X, Eye, Pencil, Trash2, Car } from 'lucide-react';
 import { VeiculoService } from '../services/veiculoService';
 import type { VeiculoView } from '../types/entities';
+import VeiculoFormPage from './VeiculoFormPage';
+import VeiculoViewPage from './VeiculoViewPage';
 import './PaisesPage.css';
 
 export default function VeiculoPage() {
-  const navigate = useNavigate();
   const [veiculos, setVeiculos] = useState<VeiculoView[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<'ativos' | 'inativos' | 'todos'>('ativos');
+
+  const [showCreate, setShowCreate] = useState(false);
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [viewingId, setViewingId] = useState<number | null>(null);
 
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [deleting, setDeleting] = useState(false);
@@ -25,6 +29,13 @@ export default function VeiculoPage() {
     } finally {
       setLoading(false);
     }
+  }
+
+  function fecharModal() {
+    setShowCreate(false);
+    setEditingId(null);
+    setViewingId(null);
+    load();
   }
 
   useEffect(() => { load(); }, []);
@@ -89,7 +100,7 @@ export default function VeiculoPage() {
               </button>
             )}
           </div>
-          <button className="btn-primary" onClick={() => navigate('/veiculos/novo')}>
+          <button className="btn-primary" onClick={() => setShowCreate(true)}>
             <Plus size={16} /> Novo Veículo
           </button>
         </div>
@@ -132,14 +143,14 @@ export default function VeiculoPage() {
                     <button
                       className="btn-icon btn-view"
                       title="Visualizar"
-                      onClick={() => navigate(`/veiculos/visualizar/${veiculo.id}`)}
+                      onClick={() => setViewingId(veiculo.id)}
                     >
                       <Eye size={15} />
                     </button>
                     <button
                       className="btn-icon btn-edit"
                       title="Editar"
-                      onClick={() => navigate(`/veiculos/editar/${veiculo.id}`)}
+                      onClick={() => setEditingId(veiculo.id)}
                     >
                       <Pencil size={15} />
                     </button>
@@ -157,6 +168,28 @@ export default function VeiculoPage() {
           </table>
         )}
       </div>
+
+      {(showCreate || editingId !== null || viewingId !== null) && (
+        <div className="modal-overlay">
+          <div className="modal modal-form-page" role="dialog" aria-modal="true">
+            <div className="modal-header">
+              <h2>{viewingId !== null ? 'Visualizar Veículo' : editingId !== null ? 'Editar Veículo' : 'Novo Veículo'}</h2>
+              <button className="modal-close" type="button" aria-label="Fechar" onClick={fecharModal}><X size={18} /></button>
+            </div>
+            <div className="account-page-modal-body">
+              {viewingId !== null && (
+                <VeiculoViewPage
+                  veiculoId={viewingId}
+                  onClose={fecharModal}
+                  onEdit={id => { setEditingId(id); setViewingId(null); }}
+                />
+              )}
+              {editingId !== null && <VeiculoFormPage veiculoId={editingId} onClose={fecharModal} />}
+              {showCreate && <VeiculoFormPage onClose={fecharModal} />}
+            </div>
+          </div>
+        </div>
+      )}
 
       {deleteId !== null && (
         <div className="modal-overlay" onClick={() => setDeleteId(null)}>

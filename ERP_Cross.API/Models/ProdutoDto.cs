@@ -12,6 +12,7 @@ public class CreateProdutoDto
     public int? MarcaId { get; set; }
     public int? CategoriaId { get; set; }
     public string? Descricao { get; set; }
+    [Required]
     public string? CodigoBarras { get; set; }
     public decimal CustoCompra { get; set; }
     public decimal LucroPercentual { get; set; }
@@ -27,6 +28,7 @@ public class UpdateProdutoDto
     public int? MarcaId { get; set; }
     public int? CategoriaId { get; set; }
     public string? Descricao { get; set; }
+    [Required]
     public string? CodigoBarras { get; set; }
     public decimal CustoCompra { get; set; }
     public decimal LucroPercentual { get; set; }

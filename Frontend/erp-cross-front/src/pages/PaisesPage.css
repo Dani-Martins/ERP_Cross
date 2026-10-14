@@ -442,6 +442,16 @@
   display: none;
 }
 
+.modal.modal-form-page {
+  width: 100%;
+  max-width: 920px;
+}
+
+.modal-form-page > .modal-header {
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border-card);
+}
+
 @media (max-width: 700px) {
   .account-page-modal-overlay {
     padding: 0;
@@ -546,6 +556,56 @@
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 12px;
+}
+
+.nota-identificacao-row {
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.nota-identificacao-row .form-group {
+  flex: 0 0 auto;
+}
+
+.nota-identificacao-row .form-group label {
+  white-space: nowrap;
+}
+
+.nota-identificacao-row .form-group input {
+  width: 100%;
+}
+
+.nota-identificacao-row .form-group:first-child {
+  width: 16ch;
+}
+
+.nota-identificacao-row .form-group:not(:first-child) {
+  width: 7ch;
+}
+
+.nota-identificacao-row .form-group.data-emissao-field {
+  width: 20ch;
+}
+
+@media (max-width: 640px) {
+  .nota-identificacao-row {
+    gap: 10px;
+  }
+
+  .nota-identificacao-row .form-group:first-child {
+    width: 13ch;
+  }
+
+  .nota-identificacao-row .form-group:not(:first-child) {
+    width: 6ch;
+  }
+
+  .nota-identificacao-row .form-group.data-emissao-field {
+    width: 16ch;
+  }
 }
 
 .form-row-2 {

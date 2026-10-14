@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Plus, Search, X, Eye, Pencil, Trash2, Truck } from 'lucide-react';
 import { TransportadoraService } from '../services/transportadoraService';
 import type { TransportadoraView } from '../types/entities';
+import TransportadoraFormPage from './TransportadoraFormPage';
+import TransportadoraViewPage from './TransportadoraViewPage';
 import './PaisesPage.css';
 
 /** Mascara CNPJ → 12.345.678/****-** */
@@ -15,11 +16,14 @@ function maskCnpj(cnpj: string): string {
 }
 
 export default function TransportadoraPage() {
-  const navigate = useNavigate();
   const [transportadoras, setTransportadoras] = useState<TransportadoraView[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<'ativos' | 'inativos' | 'todos'>('ativos');
+
+  const [showCreate, setShowCreate] = useState(false);
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [viewingId, setViewingId] = useState<number | null>(null);
 
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [deleting, setDeleting] = useState(false);
@@ -34,6 +38,13 @@ export default function TransportadoraPage() {
     } finally {
       setLoading(false);
     }
+  }
+
+  function fecharModal() {
+    setShowCreate(false);
+    setEditingId(null);
+    setViewingId(null);
+    load();
   }
 
   useEffect(() => { load(); }, []);
@@ -98,7 +109,7 @@ export default function TransportadoraPage() {
               </button>
             )}
           </div>
-          <button className="btn-primary" onClick={() => navigate('/transportadoras/novo')}>
+          <button className="btn-primary" onClick={() => setShowCreate(true)}>
             <Plus size={16} /> Nova Transportadora
           </button>
         </div>
@@ -143,14 +154,14 @@ export default function TransportadoraPage() {
                     <button
                       className="btn-icon btn-view"
                       title="Visualizar"
-                      onClick={() => navigate(`/transportadoras/visualizar/${transportadora.id}`)}
+                      onClick={() => setViewingId(transportadora.id)}
                     >
                       <Eye size={15} />
                     </button>
                     <button
                       className="btn-icon btn-edit"
                       title="Editar"
-                      onClick={() => navigate(`/transportadoras/editar/${transportadora.id}`)}
+                      onClick={() => setEditingId(transportadora.id)}
                     >
                       <Pencil size={15} />
                     </button>
@@ -168,6 +179,28 @@ export default function TransportadoraPage() {
           </table>
         )}
       </div>
+
+      {(showCreate || editingId !== null || viewingId !== null) && (
+        <div className="modal-overlay">
+          <div className="modal modal-form-page" role="dialog" aria-modal="true">
+            <div className="modal-header">
+              <h2>{viewingId !== null ? 'Visualizar Transportadora' : editingId !== null ? 'Editar Transportadora' : 'Nova Transportadora'}</h2>
+              <button className="modal-close" type="button" aria-label="Fechar" onClick={fecharModal}><X size={18} /></button>
+            </div>
+            <div className="account-page-modal-body">
+              {viewingId !== null && (
+                <TransportadoraViewPage
+                  transportadoraId={viewingId}
+                  onClose={fecharModal}
+                  onEdit={id => { setEditingId(id); setViewingId(null); }}
+                />
+              )}
+              {editingId !== null && <TransportadoraFormPage transportadoraId={editingId} onClose={fecharModal} />}
+              {showCreate && <TransportadoraFormPage onClose={fecharModal} />}
+            </div>
+          </div>
+        </div>
+      )}
 
       {deleteId !== null && (
         <div className="modal-overlay" onClick={() => setDeleteId(null)}>

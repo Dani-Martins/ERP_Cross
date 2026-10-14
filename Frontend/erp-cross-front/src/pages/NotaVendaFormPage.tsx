@@ -11,6 +11,7 @@ import ClienteLookupModal from '../components/ClienteLookupModal';
 import TransportadoraLookupModal from '../components/TransportadoraLookupModal';
 import ProdutoLookupModal from '../components/ProdutoLookupModal';
 import CurrencyInput from '../components/CurrencyInput';
+import { calcularLinhaProduto } from '../utils/calculoProduto';
 import VeiculoLookupModal from '../components/VeiculoLookupModal';
 import './PaisesPage.css';
 
@@ -184,11 +185,10 @@ export default function NotaVendaFormPage({ onClose }: { onClose?: () => void } 
       return;
     }
 
-    const calculatedTotalProd = produtos.reduce((sum, p) => {
-      const subtotal = p.quantidade * p.precoUnit;
-      const descontoReais = (subtotal * (p.desconto || 0)) / 100;
-      return sum + (subtotal - descontoReais);
-    }, 0);
+    const calculatedTotalProd = produtos.reduce(
+      (sum, p) => sum + calcularLinhaProduto(p.quantidade, p.precoUnit, p.desconto).total,
+      0,
+    );
 
     const totalPag = calculatedTotalProd;
 
@@ -332,19 +332,11 @@ export default function NotaVendaFormPage({ onClose }: { onClose?: () => void } 
 
   }
 
-  const totalProdutosSemDesconto = produtos.reduce((sum, p) => {
-    const subtotal = p.quantidade * p.precoUnit;
-    return sum + subtotal;
-  }, 0);
-
-  const totalComDesconto = produtos.reduce((sum, p) => {
-    const subtotal = p.quantidade * p.precoUnit;
-    const descontoReais = (subtotal * (p.desconto || 0)) / 100;
-    return sum + (subtotal - descontoReais);
-  }, 0);
-
-  const calculatedTotalProdutos = totalProdutosSemDesconto;
-  const totalPagar = totalComDesconto;
+  const calculatedTotalProdutos = produtos.reduce(
+    (sum, p) => sum + calcularLinhaProduto(p.quantidade, p.precoUnit, p.desconto).total,
+    0,
+  );
+  const totalPagar = calculatedTotalProdutos;
 
   const canFillForm = form.numeroNota.trim() !== '' && 
                       form.modelo.trim() !== '' && 
@@ -428,19 +420,21 @@ export default function NotaVendaFormPage({ onClose }: { onClose?: () => void } 
                 Dados da Nota
               </h2>
 
-              <div className="form-row">
+              <div className="form-row nota-identificacao-row">
 
                 <div className="form-group">
                   <label>Número da Nota *</label>
 
                   <input
                     type="text"
+                    inputMode="numeric"
+                    maxLength={9}
                     value={form.numeroNota}
                     disabled={isEdit || notaValidada}
                     onChange={e =>
                       setForm({
                         ...form,
-                        numeroNota: e.target.value.toUpperCase()
+                        numeroNota: e.target.value.replace(/\D/g, '').slice(0, 9)
                       })
                     }
                   />
@@ -451,12 +445,14 @@ export default function NotaVendaFormPage({ onClose }: { onClose?: () => void } 
 
                   <input
                     type="text"
+                    inputMode="numeric"
+                    maxLength={3}
                     value={form.modelo}
                     disabled={isEdit || notaValidada}
                     onChange={e =>
                       setForm({
                         ...form,
-                        modelo: e.target.value.toUpperCase()
+                        modelo: e.target.value.replace(/\D/g, '').slice(0, 3)
                       })
                     }
                   />
@@ -467,12 +463,14 @@ export default function NotaVendaFormPage({ onClose }: { onClose?: () => void } 
 
                   <input
                     type="text"
+                    inputMode="numeric"
+                    maxLength={3}
                     value={form.serie}
                     disabled={isEdit || notaValidada}
                     onChange={e =>
                       setForm({
                         ...form,
-                        serie: e.target.value.toUpperCase()
+                        serie: e.target.value.replace(/\D/g, '').slice(0, 3)
                       })
                     }
                   />
@@ -683,11 +681,11 @@ export default function NotaVendaFormPage({ onClose }: { onClose?: () => void } 
                     <tr>
                       <th style={{ width: 40 }}>CÓDIGO</th>
                       <th>PRODUTO</th>
+                      <th style={{ width: 90 }}>UNIDADE</th>
                       <th style={{ width: 100 }}>QTD</th>
                       <th style={{ width: 140 }}>VALOR UN.</th>
                       <th style={{ width: 90 }}>DESC. %</th>
                       <th style={{ width: 120 }}>PREÇO LÍQ. UN.</th>
-                      <th style={{ width: 110 }}>UNIDADE</th>
                       <th style={{ width: 100 }}>TOTAL</th>
                       <th style={{ width: 50 }}></th>
                     </tr>
@@ -699,14 +697,31 @@ export default function NotaVendaFormPage({ onClose }: { onClose?: () => void } 
                       </tr>
                     ) : (
                       produtos.map((p, idx) => {
-                        const subtotal = p.quantidade * p.precoUnit;
-                        const descontoReais = (subtotal * (p.desconto || 0)) / 100;
-                        const total = subtotal - descontoReais;
+                        const { liquidoUnit, total } = calcularLinhaProduto(p.quantidade, p.precoUnit, p.desconto);
                         
                         return (
                         <tr key={idx}>
                           <td className="col-code">{p.idProduto}</td>
                           <td className="col-name">{p.nomeProduto || 'Produto ' + (idx + 1)}</td>
+                          <td>
+                            <select
+                              disabled={!notaValidada}
+                              value={p.unidadeMedidaId || ''}
+                              onChange={e => {
+                                const newProdutos = [...produtos];
+                                const unidadeSelecionada = unidades.find(u => u.id === Number(e.target.value));
+                                newProdutos[idx].unidadeMedidaId = Number(e.target.value);
+                                newProdutos[idx].nomeUnidade = unidadeSelecionada?.nomeUnidade;
+                                setProdutos(newProdutos);
+                              }}
+                              className="produto-table-select"
+                            >
+                              <option value="">Selecione...</option>
+                              {unidades.map(u => (
+                                <option key={u.id} value={u.id}>{u.sigla}</option>
+                              ))}
+                            </select>
+                          </td>
                           <td>
                             <input
                               type="number"
@@ -752,26 +767,7 @@ export default function NotaVendaFormPage({ onClose }: { onClose?: () => void } 
                             />
                           </td>
                           <td>
-                            R$ {(p.precoUnit * (1 - (p.desconto || 0) / 100)).toFixed(2).replace('.', ',')}
-                          </td>
-                          <td>
-                            <select
-                              disabled={!notaValidada}
-                              value={p.unidadeMedidaId || ''}
-                              onChange={e => {
-                                const newProdutos = [...produtos];
-                                const unidadeSelecionada = unidades.find(u => u.id === Number(e.target.value));
-                                newProdutos[idx].unidadeMedidaId = Number(e.target.value);
-                                newProdutos[idx].nomeUnidade = unidadeSelecionada?.nomeUnidade;
-                                setProdutos(newProdutos);
-                              }}
-                              className="produto-table-select"
-                            >
-                              <option value="">Selecione...</option>
-                              {unidades.map(u => (
-                                <option key={u.id} value={u.id}>{u.nomeUnidade}</option>
-                              ))}
-                            </select>
+                            R$ {liquidoUnit.toFixed(2).replace('.', ',')}
                           </td>
                           <td>
                             R$ {total.toFixed(2).replace('.', ',')}
@@ -811,20 +807,6 @@ export default function NotaVendaFormPage({ onClose }: { onClose?: () => void } 
                   gap: '40px',
                   alignItems: 'center'
                 }}>
-                  <div style={{
-                    fontSize: '1.1em',
-                    fontWeight: '700',
-                    color: 'var(--text-secondary)',
-                    display: 'flex',
-                    justifyContent: 'flex-end',
-                    alignItems: 'center',
-                    gap: '12px'
-                  }}>
-                    <span>Total dos Produtos:</span>
-                    <span style={{ fontSize: '1.4em', fontWeight: '800', color: 'var(--text-primary)' }}>
-                      R$ {calculatedTotalProdutos.toFixed(2).replace('.', ',')}
-                    </span>
-                  </div>
                   <div style={{
                     fontSize: '1.1em',
                     fontWeight: '700',

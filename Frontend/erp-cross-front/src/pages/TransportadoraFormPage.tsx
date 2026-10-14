@@ -45,9 +45,10 @@ const EMPTY: TransportadoraCreate = {
   ativo: true,
 };
 
-export default function TransportadoraFormPage() {
+export default function TransportadoraFormPage({ transportadoraId, onClose }: { transportadoraId?: number; onClose?: () => void } = {}) {
 
-  const { id } = useParams();
+  const routeParams = useParams();
+  const id = transportadoraId?.toString() ?? routeParams.id;
 
   const navigate = useNavigate();
 
@@ -216,7 +217,8 @@ async function handleSave(e: React.FormEvent) {
 
     }
 
-    navigate('/transportadoras');
+    if (onClose) onClose();
+    else navigate('/transportadoras');
 
   } catch (err) {
 
@@ -796,7 +798,7 @@ return (
             <button
               type="button"
               className="btn-secondary"
-              onClick={() => navigate('/transportadoras')}
+              onClick={() => onClose ? onClose() : navigate('/transportadoras')}
             >
               Cancelar
             </button>

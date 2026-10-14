@@ -121,6 +121,18 @@ export default function ContaReceberFormPage({ contaId, onClose }: { contaId?: n
     return values;
   }, []);
 
+  const valoresNoPrazo = valoresParcelas.map((valor, index) =>
+    Math.round(valor * Math.pow(1 + form.juros / 100, index) * (1 - form.desconto / 100) * 100) / 100);
+  const valoresExibidos = valoresNoPrazo.map((valor, index) => {
+    const dataRecebimento = parcelas[index].dataRecebimento;
+    if (!dataRecebimento) return valor;
+    const diasAtraso = Math.round((Date.parse(dataRecebimento) - Date.parse(vencimentos[index])) / 86400000);
+    if (diasAtraso <= 0) return valor;
+    const semDesconto = form.desconto < 100 ? valor / (1 - form.desconto / 100) : valor;
+    return Math.round(semDesconto * (1 + form.multa / 100) * 100) / 100;
+  });
+  const valorTotalRecebimentos = valoresExibidos.reduce((total, valor) => total + valor, 0);
+
   function setQtdParcelas(qtd: number) {
     const count = Math.min(360, Math.max(1, qtd || 1));
     setForm(current => ({ ...current, numParcela: count }));
@@ -165,7 +177,7 @@ export default function ContaReceberFormPage({ contaId, onClose }: { contaId?: n
           parcelas: parcelas.map((parcela, index) => ({
             numParcela: index + 1,
             dataVencimento: vencimentos[index],
-            valorParcela: valoresParcelas[index],
+            valorParcela: valoresNoPrazo[index],
             dataRecebimento: parcela.dataRecebimento,
           })),
         };
@@ -200,26 +212,30 @@ export default function ContaReceberFormPage({ contaId, onClose }: { contaId?: n
               <>
                 <div className="form-section">
                   <h2 className="form-section-title">Dados do Documento</h2>
-                  <div className="form-row">
-                    <div className="form-group">
-                      <label htmlFor="dataEmissao">Data de Emissão *</label>
-                      <input id="dataEmissao" type="date" value={form.dataEmissao}
-                        max={today()} onChange={e => { setForm({ ...form, dataEmissao: e.target.value }); setVencPrimeira(null); }} />
-                    </div>
+                  <div className="form-group id-field">
+                    <label htmlFor="id">Código</label>
+                    <input id="id" type="text" readOnly value={nextId} />
+                  </div>
+                  <div className="form-row nota-identificacao-row">
                     <div className="form-group">
                       <label htmlFor="numeroNota">Número da Nota *</label>
-                      <input id="numeroNota" type="text" value={form.numeroNota}
-                        onChange={e => setForm({ ...form, numeroNota: e.target.value.toUpperCase() })} />
-                    </div>
-                    <div className="form-group">
-                      <label htmlFor="serie">Série *</label>
-                      <input id="serie" type="text" value={form.serie}
-                        onChange={e => setForm({ ...form, serie: e.target.value.toUpperCase() })} />
+                      <input id="numeroNota" type="text" inputMode="numeric" maxLength={9} value={form.numeroNota}
+                        onChange={e => setForm({ ...form, numeroNota: e.target.value.replace(/\D/g, '').slice(0, 9) })} />
                     </div>
                     <div className="form-group">
                       <label htmlFor="modelo">Modelo *</label>
-                      <input id="modelo" type="text" value={form.modelo}
-                        onChange={e => setForm({ ...form, modelo: e.target.value.toUpperCase() })} />
+                      <input id="modelo" type="text" inputMode="numeric" maxLength={3} value={form.modelo}
+                        onChange={e => setForm({ ...form, modelo: e.target.value.replace(/\D/g, '').slice(0, 3) })} />
+                    </div>
+                    <div className="form-group">
+                      <label htmlFor="serie">Série *</label>
+                      <input id="serie" type="text" inputMode="numeric" maxLength={3} value={form.serie}
+                        onChange={e => setForm({ ...form, serie: e.target.value.replace(/\D/g, '').slice(0, 3) })} />
+                    </div>
+                    <div className="form-group data-emissao-field">
+                      <label htmlFor="dataEmissao">Data de Emissão *</label>
+                      <input id="dataEmissao" type="date" value={form.dataEmissao}
+                        max={today()} onChange={e => { setForm({ ...form, dataEmissao: e.target.value }); setVencPrimeira(null); }} />
                     </div>
                   </div>
                 </div>
@@ -259,7 +275,7 @@ export default function ContaReceberFormPage({ contaId, onClose }: { contaId?: n
                 </div>
 
                 <div className="form-section">
-                  <h2 className="form-section-title">Valor e Parcelamento</h2>
+                  <h2 className="form-section-title">Valor da Venda</h2>
                   <div className="form-row">
                     <div className="form-group">
                       <label>Valor Total *</label>
@@ -271,23 +287,75 @@ export default function ContaReceberFormPage({ contaId, onClose }: { contaId?: n
                         onChange={e => setQtdParcelas(Number(e.target.value))} />
                     </div>
                   </div>
+                </div>
+
+                <div className="form-section">
+                  <h2 className="form-section-title">Taxas</h2>
+                  <div className="form-row">
+                    <div className="form-group" style={{ flex: '0 0 120px' }}>
+                      <label htmlFor="taxaJuros">Juros por parcela (%)</label>
+                      <input id="taxaJuros" type="number" min={0} step={0.01} placeholder="0,00"
+                        value={form.juros} onChange={e => setForm({ ...form, juros: Number(e.target.value) })} style={{ width: '100%' }} />
+                    </div>
+                    <div className="form-group" style={{ flex: '0 0 120px' }}>
+                      <label htmlFor="multa">Multa por atraso (%)</label>
+                      <input id="multa" type="number" min={0} step={0.01} placeholder="0,00"
+                        value={form.multa} onChange={e => setForm({ ...form, multa: Number(e.target.value) })} style={{ width: '100%' }} />
+                    </div>
+                    <div className="form-group" style={{ flex: '0 0 150px' }}>
+                      <label htmlFor="desconto">Desconto pontualidade (%)</label>
+                      <input id="desconto" type="number" min={0} max={100} step={0.01} placeholder="0,00"
+                        value={form.desconto} onChange={e => setForm({ ...form, desconto: Number(e.target.value) })} style={{ width: '100%' }} />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="form-section">
+                  <h2 className="form-section-title">Parcelas</h2>
+                  <p className="form-hint">Preencha a data de recebimento apenas nas parcelas que já foram recebidas.</p>
                   <table className="data-table" style={{ marginTop: 12 }}>
                     <thead><tr><th>Parcela</th><th>Vencimento</th><th>Valor</th><th>Data de Recebimento</th></tr></thead>
                     <tbody>
                       {parcelas.map((parcela, index) => (
                         <tr key={index}>
                           <td>{index + 1}/{parcelas.length}</td>
-                          <td><input type="date" value={vencimentos[index]} disabled={index > 0}
-                            onChange={e => e.target.value && setVencPrimeira(e.target.value)} /></td>
-                          <td>{fmtMoeda(valoresParcelas[index] ?? 0)}</td>
-                          <td><input type="date" value={parcela.dataRecebimento ?? ''} max={today()}
-                            onChange={e => updateParcela(index, { dataRecebimento: e.target.value || undefined })} /></td>
+                          <td>
+                            <div className="form-group">
+                              <input type="date" value={vencimentos[index]} disabled={index > 0}
+                                onChange={e => e.target.value && setVencPrimeira(e.target.value)} />
+                            </div>
+                          </td>
+                          <td>{fmtMoeda(valoresExibidos[index] ?? 0)}</td>
+                          <td>
+                            <div className="form-group">
+                              <input type="date" value={parcela.dataRecebimento ?? ''} max={today()}
+                                onChange={e => updateParcela(index, { dataRecebimento: e.target.value || undefined })} />
+                            </div>
+                          </td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
-                  <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12, fontWeight: 700, marginTop: 16 }}>
-                    <span>Total:</span><span>{fmtMoeda(valoresParcelas.reduce((sum, value) => sum + value, 0))}</span>
+                  <div style={{
+                    backgroundColor: 'var(--bg-secondary)',
+                    padding: '20px',
+                    borderRadius: '4px',
+                    marginBottom: '20px'
+                  }}>
+                    <div style={{
+                      fontSize: '1.1em',
+                      fontWeight: '700',
+                      color: 'var(--text-secondary)',
+                      display: 'flex',
+                      justifyContent: 'flex-end',
+                      alignItems: 'center',
+                      gap: '12px'
+                    }}>
+                      <span>Total:</span>
+                      <span style={{ fontSize: '1.4em', fontWeight: '800', color: 'var(--text-primary)' }}>
+                        {fmtMoeda(valorTotalRecebimentos)}
+                      </span>
+                    </div>
                   </div>
                 </div>
 
@@ -305,20 +373,9 @@ export default function ContaReceberFormPage({ contaId, onClose }: { contaId?: n
                 <div className="form-section">
                   <h2 className="form-section-title">Dados do Documento</h2>
 
-                  <div className="form-group">
-                    <label htmlFor="id">Código *</label>
-                    <input
-                      id="id"
-                      type="text"
-                      readOnly
-                      value={nextId}
-                      style={{
-                        width: '120px',
-                        padding: '6px',
-                        fontSize: '0.8rem',
-                        textAlign: 'center'
-                      }}
-                    />
+                  <div className="form-group id-field">
+                    <label htmlFor="id">Código</label>
+                    <input id="id" type="text" readOnly value={nextId} />
                   </div>
 
                   <div className="form-group">
@@ -334,24 +391,24 @@ export default function ContaReceberFormPage({ contaId, onClose }: { contaId?: n
                     </div>
                   </div>
 
-                  <div className="form-row">
+                  <div className="form-row nota-identificacao-row">
                     <div className="form-group">
                       <label htmlFor="numeroNota">Número da Nota *</label>
-                      <input id="numeroNota" type="text" placeholder="Ex: 000001"
+                      <input id="numeroNota" type="text" inputMode="numeric" maxLength={9}
                         value={form.numeroNota}
-                        onChange={e => setForm({ ...form, numeroNota: e.target.value.toUpperCase() })} />
+                        onChange={e => setForm({ ...form, numeroNota: e.target.value.replace(/\D/g, '').slice(0, 9) })} />
                     </div>
                     <div className="form-group">
                       <label htmlFor="modelo">Modelo</label>
-                      <input id="modelo" type="text" placeholder="Ex: SE"
+                      <input id="modelo" type="text" inputMode="numeric" maxLength={3}
                         value={form.modelo}
-                        onChange={e => setForm({ ...form, modelo: e.target.value.toUpperCase() })} />
+                        onChange={e => setForm({ ...form, modelo: e.target.value.replace(/\D/g, '').slice(0, 3) })} />
                     </div>
                     <div className="form-group">
                       <label htmlFor="serie">Série</label>
-                      <input id="serie" type="text" placeholder="Ex: 001"
+                      <input id="serie" type="text" inputMode="numeric" maxLength={3}
                         value={form.serie}
-                        onChange={e => setForm({ ...form, serie: e.target.value.toUpperCase() })} />
+                        onChange={e => setForm({ ...form, serie: e.target.value.replace(/\D/g, '').slice(0, 3) })} />
                     </div>
                   </div>
 
@@ -400,16 +457,19 @@ export default function ContaReceberFormPage({ contaId, onClose }: { contaId?: n
                   <h2 className="form-section-title">Taxas</h2>
                   <div className="form-row">
                     <div className="form-group">
-                      <label>Juros (R$)</label>
-                      <CurrencyInput value={form.juros} onChange={v => setForm({ ...form, juros: v })} />
+                      <label>Juros por parcela (%)</label>
+                      <input type="number" min={0} step={0.01} value={form.juros}
+                        onChange={e => setForm({ ...form, juros: Number(e.target.value) })} />
                     </div>
                     <div className="form-group">
-                      <label>Multa (R$)</label>
-                      <CurrencyInput value={form.multa} onChange={v => setForm({ ...form, multa: v })} />
+                      <label>Multa por atraso (%)</label>
+                      <input type="number" min={0} step={0.01} value={form.multa}
+                        onChange={e => setForm({ ...form, multa: Number(e.target.value) })} />
                     </div>
                     <div className="form-group">
-                      <label>Desconto (R$)</label>
-                      <CurrencyInput value={form.desconto} onChange={v => setForm({ ...form, desconto: v })} />
+                      <label>Desconto pontualidade (%)</label>
+                      <input type="number" min={0} max={100} step={0.01} value={form.desconto}
+                        onChange={e => setForm({ ...form, desconto: Number(e.target.value) })} />
                     </div>
                   </div>
                 </div>

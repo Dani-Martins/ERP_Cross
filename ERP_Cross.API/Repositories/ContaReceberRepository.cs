@@ -75,12 +75,12 @@ public class ContaReceberRepository
                             WHERE Id=@Id AND Ativo=1 AND Status='CANCELADO' AND DataCancelamento IS NOT NULL",
                         new { Id = id }) > 0;
 
-        public async Task<bool> RegistrarRecebimentoAsync(long id, DateTime dataRecebimento)
+        public async Task<bool> RegistrarRecebimentoAsync(long id, DateTime dataRecebimento, decimal valorRecebido)
                 => await _db.ExecuteAsync(
                         @"UPDATE ContaReceber SET Status = 'PAGO', DataRecebimento = @DataRecebimento,
-                            ValorRecebido = ValorParcela, AtualizadoEm = NOW()
+                            ValorRecebido = @ValorRecebido, AtualizadoEm = NOW()
                             WHERE Id = @Id AND Status NOT IN ('PAGO', 'RECEBIDO', 'CANCELADO')",
-                        new { Id = id, DataRecebimento = dataRecebimento }) > 0;
+                        new { Id = id, DataRecebimento = dataRecebimento, ValorRecebido = valorRecebido }) > 0;
 
         public async Task<bool> CancelarAsync(long id)
                 => await _db.ExecuteAsync(

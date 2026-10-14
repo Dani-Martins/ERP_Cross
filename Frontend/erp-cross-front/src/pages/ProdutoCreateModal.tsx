@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import type { AxiosError } from 'axios';
 import { X, Search } from 'lucide-react';
 import { ProdutoService } from '../services/produtoService';
 import type { ProdutoCreate } from '../types/entities';
@@ -64,6 +65,11 @@ export default function ProdutoCreateModal({ onCreated, onClose, zBase = 1000 }:
       return;
     }
 
+    if (!form.codigoBarras) {
+      setError('Código de Barras é obrigatório.');
+      return;
+    }
+
     if (!form.unidadeId) {
       setError('Unidade é obrigatória.');
       return;
@@ -92,8 +98,9 @@ export default function ProdutoCreateModal({ onCreated, onClose, zBase = 1000 }:
       const res = await ProdutoService.create(form);
       const precoVenda = form.custoCompra + (form.custoCompra * form.lucroPercentual / 100);
       onCreated(res.data.id, form.nomeProduto, form.unidadeId, nomeUnidade, precoVenda, form.custoCompra);
-    } catch {
-      setError('Erro ao salvar.');
+    } catch (err) {
+      const axiosErr = err as AxiosError<{ message: string }>;
+      setError(axiosErr.response?.status === 400 ? axiosErr.response.data?.message ?? 'Erro ao salvar.' : 'Erro ao salvar.');
       setSaving(false);
     }
   }
@@ -173,7 +180,7 @@ export default function ProdutoCreateModal({ onCreated, onClose, zBase = 1000 }:
 
               <div className="form-row">
                 <div className="form-group">
-                  <label htmlFor="codigoBarras">Código de Barras (EAN-13)</label>
+                  <label htmlFor="codigoBarras">Código de Barras (EAN-13) *</label>
                   <input
                     id="codigoBarras"
                     type="text"

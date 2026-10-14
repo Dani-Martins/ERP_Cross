@@ -11,8 +11,9 @@ function formatDate(value: string | null | undefined): string {
   return isNaN(d.getTime()) ? '—' : d.toLocaleDateString('pt-BR');
 }
 
-export default function TransportadoraViewPage() {
-  const { id } = useParams<{ id: string }>();
+export default function TransportadoraViewPage({ transportadoraId, onClose, onEdit }: { transportadoraId?: number; onClose?: () => void; onEdit?: (id: number) => void } = {}) {
+  const routeParams = useParams<{ id: string }>();
+  const id = transportadoraId?.toString() ?? routeParams.id;
   const navigate = useNavigate();
   const [transportadora, setTransportadora] = useState<TransportadoraView | null>(null);
   const [loading, setLoading] = useState(true);
@@ -314,7 +315,7 @@ return (
           <button
             className="btn-primary"
             onClick={() =>
-              navigate(`/transportadoras/editar/${transportadora.id}`)
+              onEdit ? onEdit(transportadora.id) : navigate(`/transportadoras/editar/${transportadora.id}`)
             }
           >
             <Pencil size={15} />
@@ -324,10 +325,10 @@ return (
           <button
             className="btn-secondary"
             onClick={() =>
-              navigate('/transportadoras')
+              onClose ? onClose() : navigate('/transportadoras')
             }
           >
-            Voltar
+            {onClose ? 'Fechar' : 'Voltar'}
           </button>
 
         </div>

@@ -217,22 +217,25 @@ export default function ContaPagarFormPage({ contaId, onClose }: { contaId?: num
                 <input id="id" type="text" readOnly value={nextId} />
               </div>
 
-              <div className="form-row">
-                <div className="form-group">
-                  <label htmlFor="dataEmissao">Data de Emissão *</label>
-                  <input id="dataEmissao" type="date" value={form.dataEmissao} max={today()} onChange={e => { setForm({ ...form, dataEmissao: e.target.value }); if (!isEdit) setVencPrimeira(null); }} />
-                </div>
+              <div className="form-row nota-identificacao-row">
                 <div className="form-group">
                   <label htmlFor="numeroNota">Número da Nota *</label>
-                  <input id="numeroNota" type="text" placeholder="Ex: 000001" value={form.numeroNota} onChange={e => setForm({ ...form, numeroNota: e.target.value.toUpperCase() })} />
+                  <input id="numeroNota" type="text" inputMode="numeric" maxLength={9} value={form.numeroNota}
+                    onChange={e => setForm({ ...form, numeroNota: e.target.value.replace(/\D/g, '').slice(0, 9) })} />
                 </div>
                 <div className="form-group">
-                  <label htmlFor="serie">Série</label>
-                  <input id="serie" type="text" placeholder="Ex: 1" value={form.serie} onChange={e => setForm({ ...form, serie: e.target.value.toUpperCase() })} />
+                  <label htmlFor="modelo">Modelo *</label>
+                  <input id="modelo" type="text" inputMode="numeric" maxLength={3} value={form.modelo}
+                    onChange={e => setForm({ ...form, modelo: e.target.value.replace(/\D/g, '').slice(0, 3) })} />
                 </div>
                 <div className="form-group">
-                  <label htmlFor="modelo">Modelo</label>
-                  <input id="modelo" type="text" placeholder="Ex: 55" value={form.modelo} onChange={e => setForm({ ...form, modelo: e.target.value.toUpperCase() })} />
+                  <label htmlFor="serie">Série *</label>
+                  <input id="serie" type="text" inputMode="numeric" maxLength={3} value={form.serie}
+                    onChange={e => setForm({ ...form, serie: e.target.value.replace(/\D/g, '').slice(0, 3) })} />
+                </div>
+                <div className="form-group data-emissao-field">
+                  <label htmlFor="dataEmissao">Data de Emissão *</label>
+                  <input id="dataEmissao" type="date" value={form.dataEmissao} max={today()} onChange={e => { setForm({ ...form, dataEmissao: e.target.value }); if (!isEdit) setVencPrimeira(null); }} />
                 </div>
               </div>
             </div>

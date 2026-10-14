@@ -12,6 +12,7 @@ import FornecedorLookupModal from '../components/FornecedorLookupModal';
 import TransportadoraLookupModal from '../components/TransportadoraLookupModal';
 import ProdutoLookupModal from '../components/ProdutoLookupModal';
 import CurrencyInput from '../components/CurrencyInput';
+import { calcularLinhaProduto } from '../utils/calculoProduto';
 import VeiculoLookupModal from '../components/VeiculoLookupModal';
 import './PaisesPage.css';
 
@@ -180,11 +181,10 @@ export default function NotaCompraFormPage({ onClose }: { onClose?: () => void }
       return;
     }
 
-    const calculatedTotalProd = produtos.reduce((sum, p) => {
-      const subtotal = p.quantidade * p.precoUnit;
-      const descontoReais = (subtotal * (p.desconto || 0)) / 100;
-      return sum + (subtotal - descontoReais);
-    }, 0);
+    const calculatedTotalProd = produtos.reduce(
+      (sum, p) => sum + calcularLinhaProduto(p.quantidade, p.precoUnit, p.desconto).total,
+      0,
+    );
 
     const totalPag =
       calculatedTotalProd +
@@ -333,14 +333,14 @@ export default function NotaCompraFormPage({ onClose }: { onClose?: () => void }
 
       // Salvar produtos
       for (const produto of produtos) {
-        const descontoReais = Math.round((produto.precoUnit * (produto.desconto || 0)) / 100 * 100) / 100; // Arredondar para 2 casas
+        const { descontoUnit } = calcularLinhaProduto(produto.quantidade, produto.precoUnit, produto.desconto);
         await NotaCompraItemService.create({
           notaCompraId: notaId,
           produtoId: produto.idProduto,
           unidadeId: produto.unidadeMedidaId || 0,
           quantidade: produto.quantidade,
           precoUnit: produto.precoUnit,
-          descontoUnit: descontoReais,
+          descontoUnit,
           ativo: true,
         });
       }
@@ -375,11 +375,11 @@ export default function NotaCompraFormPage({ onClose }: { onClose?: () => void }
 
   }
 
-  const calculatedTotalProdutos = produtos.reduce((sum, p) => {
-    const subtotal = p.quantidade * p.precoUnit;
-    const descontoReais = (subtotal * (p.desconto || 0)) / 100;
-    return sum + (subtotal - descontoReais);
-  }, 0);
+  const calculatedTotalProdutos = produtos.reduce(
+    (sum, p) => sum + calcularLinhaProduto(p.quantidade, p.precoUnit, p.desconto).total,
+    0,
+  );
+
 
   const totalPagar =
     calculatedTotalProdutos +
@@ -475,19 +475,21 @@ export default function NotaCompraFormPage({ onClose }: { onClose?: () => void }
                 Dados da Nota
               </h2>
 
-              <div className="form-row">
+              <div className="form-row nota-identificacao-row">
 
                 <div className="form-group">
                   <label>Número da Nota *</label>
 
                   <input
                     type="text"
+                    inputMode="numeric"
+                    maxLength={9}
                     value={form.numeroNota}
                     disabled={isEdit || notaValidada}
                     onChange={e =>
                       setForm({
                         ...form,
-                        numeroNota: e.target.value.toUpperCase()
+                        numeroNota: e.target.value.replace(/\D/g, '').slice(0, 9)
                       })
                     }
                   />
@@ -498,12 +500,14 @@ export default function NotaCompraFormPage({ onClose }: { onClose?: () => void }
 
                   <input
                     type="text"
+                    inputMode="numeric"
+                    maxLength={3}
                     value={form.modelo}
                     disabled={isEdit || notaValidada}
                     onChange={e =>
                       setForm({
                         ...form,
-                        modelo: e.target.value.toUpperCase()
+                        modelo: e.target.value.replace(/\D/g, '').slice(0, 3)
                       })
                     }
                   />
@@ -514,12 +518,14 @@ export default function NotaCompraFormPage({ onClose }: { onClose?: () => void }
 
                   <input
                     type="text"
+                    inputMode="numeric"
+                    maxLength={3}
                     value={form.serie}
                     disabled={isEdit || notaValidada}
                     onChange={e =>
                       setForm({
                         ...form,
-                        serie: e.target.value.toUpperCase()
+                        serie: e.target.value.replace(/\D/g, '').slice(0, 3)
                       })
                     }
                   />
@@ -669,6 +675,160 @@ export default function NotaCompraFormPage({ onClose }: { onClose?: () => void }
                 <span><strong>Atenção:</strong> Valide a nota preenchendo número, modelo, série e fornecedor para liberar os demais campos.</span>
               </div>
             )}
+            {/* Produtos */}
+            <div className="form-section">
+              <h2 className="form-section-title">Produtos</h2>
+              <div className="lookup-table-wrap nota-compra-produtos-wrap">
+                <table className="data-table nota-compra-produtos-table">
+                  <thead>
+                    <tr>
+                      <th style={{ width: 40 }}>CÓDIGO</th>
+                      <th>PRODUTO</th>
+                      <th style={{ width: 90 }}>UNIDADE</th>
+                      <th style={{ width: 100 }}>QTD</th>
+                      <th style={{ width: 140 }}>VALOR UN.</th>
+                      <th style={{ width: 90 }}>DESC. %</th>
+                      <th style={{ width: 120 }}>PREÇO LÍQ. UN.</th>
+                      <th style={{ width: 100 }}>TOTAL</th>
+                      <th style={{ width: 100 }}>RATEIO</th>
+                      <th style={{ width: 50 }}></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {produtos.length === 0 ? (
+                      <tr>
+                        <td colSpan={10} className="table-empty">Nenhum produto adicionado.</td>
+                      </tr>
+                    ) : (
+                      produtos.map((p, idx) => {
+                        const { liquidoUnit, total } = calcularLinhaProduto(p.quantidade, p.precoUnit, p.desconto);
+
+                        const custoAditional = (form.tipoFrete === 'FOB' ? Number(form.valorFrete) : 0) + Number(form.valorSeguro) + Number(form.outrasDespesas);
+                        const rateioProd = total > 0 ? (Number(p.quantidade) / total) * custoAditional : 0;
+                        
+                        return (
+                        <tr key={idx}>
+                          <td className="col-code" data-label="Código">{p.idProduto}</td>
+                          <td className="col-name" data-label="Produto">{p.nomeProduto || 'Produto ' + (idx + 1)}</td>
+                          <td data-label="Unidade">
+                            <select
+                              disabled={!notaValidada}
+                              value={p.unidadeMedidaId || ''}
+                              onChange={e => {
+                                const newProdutos = [...produtos];
+                                const unidadeSelecionada = unidades.find(u => u.id === Number(e.target.value));
+                                newProdutos[idx].unidadeMedidaId = Number(e.target.value);
+                                newProdutos[idx].nomeUnidade = unidadeSelecionada?.nomeUnidade;
+                                setProdutos(newProdutos);
+                              }}
+                              className="produto-table-select"
+                            >
+                              <option value="">Selecione...</option>
+                              {unidades.map(u => (
+                                <option key={u.id} value={u.id}>{u.sigla}</option>
+                              ))}
+                            </select>
+                          </td>
+                          <td data-label="Quantidade">
+                            <input
+                              type="number"
+                              step="1"
+                              min="0"
+                              disabled={!notaValidada}
+                              value={p.quantidade}
+                              onChange={e => {
+                                const newProdutos = [...produtos];
+                                newProdutos[idx].quantidade = Number(e.target.value);
+                                setProdutos(newProdutos);
+                              }}
+                              className="produto-table-input"
+                            />
+                          </td>
+                          <td data-label="Valor unitário">
+                            <CurrencyInput
+                              disabled={!notaValidada}
+                              value={p.precoUnit}
+                              onChange={value => {
+                                const newProdutos = [...produtos];
+                                newProdutos[idx].precoUnit = value;
+                                setProdutos(newProdutos);
+                              }}
+                              className="produto-table-input"
+                            />
+                          </td>
+                          <td data-label="Desconto (%)">
+                            <input
+                              type="number"
+                              step="1"
+                              min="0"
+                              max="100"
+                              disabled={!notaValidada}
+                              value={p.desconto || 0}
+                              onChange={e => {
+                                const newProdutos = [...produtos];
+                                newProdutos[idx].desconto = Number(e.target.value);
+                                setProdutos(newProdutos);
+                              }}
+                              className="produto-table-input"
+                              title="Porcentagem de desconto (0-100%)"
+                            />
+                          </td>
+                          <td data-label="Preço líquido unitário">
+                            R$ {liquidoUnit.toFixed(2).replace('.', ',')}
+                          </td>
+                          <td data-label="Total">
+                            R$ {total.toFixed(2).replace('.', ',')}
+                          </td>
+                          <td data-label="Rateio">
+                            R$ {rateioProd.toFixed(2).replace('.', ',')}
+                          </td>
+                          <td className="nota-produto-actions">
+                            <button
+                              type="button"
+                              className="btn-icon"
+                              disabled={!notaValidada}
+                              onClick={() => setProdutos(produtos.filter((_, i) => i !== idx))}
+                              title="Remover produto"
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          </td>
+                        </tr>
+                        );
+                      })
+                    )}
+                  </tbody>
+                </table>
+              </div>
+              <div style={{ marginTop: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingRight: '16px' }}>
+                <div style={{ marginTop: '0px' }}>
+                  <button
+                    type="button"
+                    className="btn-primary"
+                    disabled={!notaValidada}
+                    onClick={() => setShowProdutoModal(true)}
+                    style={{ fontSize: '0.9em', padding: '6px 12px' }}
+                  >
+                    + Adicionar Produto
+                  </button>
+                </div>
+                <div style={{
+                  fontSize: '1.1em',
+                  fontWeight: '700',
+                  color: 'var(--text-secondary)',
+                  display: 'flex',
+                  justifyContent: 'flex-end',
+                  alignItems: 'center',
+                  gap: '12px'
+                }}>
+                  <span>Total dos Produtos:</span>
+                  <span style={{ fontSize: '1.4em', fontWeight: '800', color: 'var(--text-primary)' }}>
+                    R$ {calculatedTotalProdutos.toFixed(2).replace('.', ',')}
+                  </span>
+                </div>
+              </div>
+            </div>
+
             {/* Transporte */}
             <div className="form-section">
               <h2 className="form-section-title">
@@ -734,169 +894,6 @@ export default function NotaCompraFormPage({ onClose }: { onClose?: () => void }
                       <Search size={16} />
                     </button>
                   </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Produtos */}
-            <div className="form-section">
-              <h2 className="form-section-title">Produtos</h2>
-              <div className="lookup-table-wrap nota-compra-produtos-wrap">
-                <table className="data-table nota-compra-produtos-table">
-                  <thead>
-                    <tr>
-                      <th style={{ width: 40 }}>CÓDIGO</th>
-                      <th>PRODUTO</th>
-                      <th style={{ width: 100 }}>QTD</th>
-                      <th style={{ width: 140 }}>VALOR UN.</th>
-                      <th style={{ width: 90 }}>DESC. %</th>
-                      <th style={{ width: 120 }}>PREÇO LÍQ. UN.</th>
-                      <th style={{ width: 110 }}>UNIDADE</th>
-                      <th style={{ width: 100 }}>TOTAL</th>
-                      <th style={{ width: 100 }}>RATEIO</th>
-                      <th style={{ width: 50 }}></th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {produtos.length === 0 ? (
-                      <tr>
-                        <td colSpan={10} className="table-empty">Nenhum produto adicionado.</td>
-                      </tr>
-                    ) : (
-                      produtos.map((p, idx) => {
-                        const subtotal = p.quantidade * p.precoUnit;
-                        const descontoReais = (subtotal * (p.desconto || 0)) / 100;
-                        const total = subtotal - descontoReais;
-                        
-                        // Calcular rateio por valor total
-                        const totalProdutosCalc = produtos.reduce((sum, prod) => {
-                          const st = prod.quantidade * prod.precoUnit;
-                          const desc = (st * (prod.desconto || 0)) / 100;
-                          return sum + (st - desc);
-                        }, 0);
-                        
-                        const custoAditional = (form.tipoFrete === 'FOB' ? Number(form.valorFrete) : 0) + Number(form.valorSeguro) + Number(form.outrasDespesas);
-                        const rateioProd = totalProdutosCalc > 0 ? (total / totalProdutosCalc) * custoAditional : 0;
-                        
-                        return (
-                        <tr key={idx}>
-                          <td className="col-code" data-label="Código">{p.idProduto}</td>
-                          <td className="col-name" data-label="Produto">{p.nomeProduto || 'Produto ' + (idx + 1)}</td>
-                          <td data-label="Quantidade">
-                            <input
-                              type="number"
-                              step="1"
-                              min="0"
-                              disabled={!notaValidada}
-                              value={p.quantidade}
-                              onChange={e => {
-                                const newProdutos = [...produtos];
-                                newProdutos[idx].quantidade = Number(e.target.value);
-                                setProdutos(newProdutos);
-                              }}
-                              className="produto-table-input"
-                            />
-                          </td>
-                          <td data-label="Valor unitário">
-                            <CurrencyInput
-                              disabled={!notaValidada}
-                              value={p.precoUnit}
-                              onChange={value => {
-                                const newProdutos = [...produtos];
-                                newProdutos[idx].precoUnit = value;
-                                setProdutos(newProdutos);
-                              }}
-                              className="produto-table-input"
-                            />
-                          </td>
-                          <td data-label="Desconto (%)">
-                            <input
-                              type="number"
-                              step="1"
-                              min="0"
-                              max="100"
-                              disabled={!notaValidada}
-                              value={p.desconto || 0}
-                              onChange={e => {
-                                const newProdutos = [...produtos];
-                                newProdutos[idx].desconto = Number(e.target.value);
-                                setProdutos(newProdutos);
-                              }}
-                              className="produto-table-input"
-                              title="Porcentagem de desconto (0-100%)"
-                            />
-                          </td>
-                          <td data-label="Preço líquido unitário">
-                            R$ {(p.precoUnit * (1 - (p.desconto || 0) / 100)).toFixed(2).replace('.', ',')}
-                          </td>
-                          <td data-label="Unidade">
-                            <select
-                              disabled={!notaValidada}
-                              value={p.unidadeMedidaId || ''}
-                              onChange={e => {
-                                const newProdutos = [...produtos];
-                                const unidadeSelecionada = unidades.find(u => u.id === Number(e.target.value));
-                                newProdutos[idx].unidadeMedidaId = Number(e.target.value);
-                                newProdutos[idx].nomeUnidade = unidadeSelecionada?.nomeUnidade;
-                                setProdutos(newProdutos);
-                              }}
-                              className="produto-table-select"
-                            >
-                              <option value="">Selecione...</option>
-                              {unidades.map(u => (
-                                <option key={u.id} value={u.id}>{u.nomeUnidade}</option>
-                              ))}
-                            </select>
-                          </td>
-                          <td data-label="Total">
-                            R$ {total.toFixed(2).replace('.', ',')}
-                          </td>
-                          <td data-label="Rateio">
-                            R$ {rateioProd.toFixed(2).replace('.', ',')}
-                          </td>
-                          <td className="nota-produto-actions">
-                            <button
-                              type="button"
-                              className="btn-icon"
-                              disabled={!notaValidada}
-                              onClick={() => setProdutos(produtos.filter((_, i) => i !== idx))}
-                              title="Remover produto"
-                            >
-                              <Trash2 size={16} />
-                            </button>
-                          </td>
-                        </tr>
-                        );
-                      })
-                    )}
-                  </tbody>
-                </table>
-              </div>
-              <div style={{ marginTop: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingRight: '16px' }}>
-                <div style={{ marginTop: '0px' }}>
-                  <button
-                    type="button"
-                    className="btn-primary"
-                    disabled={!notaValidada}
-                    onClick={() => setShowProdutoModal(true)}
-                    style={{ fontSize: '0.9em', padding: '6px 12px' }}
-                  >
-                    + Adicionar Produto
-                  </button>
-                </div>
-                <div style={{
-                  fontSize: '1.1em',
-                  fontWeight: '700',
-                  color: 'var(--text-secondary)',
-                  display: 'flex',
-                  justifyContent: 'flex-end',
-                  alignItems: 'center',
-                  gap: '12px'
-                }}>
-                  <span>Total dos Produtos:</span>
-                  <span style={{ fontSize: '1.4em', fontWeight: '800', color: 'var(--text-primary)' }}>
-                    R$ {calculatedTotalProdutos.toFixed(2).replace('.', ',')}
-                  </span>
                 </div>
               </div>
             </div>

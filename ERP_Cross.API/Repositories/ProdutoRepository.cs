@@ -50,5 +50,12 @@ public class ProdutoRepository
 
     public async Task<bool> DeleteAsync(int id)
         => await _db.ExecuteAsync("UPDATE Produto SET Ativo = 0, DataAtualizacao = NOW() WHERE Id = @Id", new { Id = id }) > 0;
+
+    public async Task<bool> CodigoBarrasExistsAsync(string codigoBarras, int? excludeId = null)
+    {
+        const string sql = "SELECT COUNT(1) FROM Produto WHERE CodigoBarras = @CodigoBarras AND (@ExcludeId IS NULL OR Id != @ExcludeId)";
+        var count = await _db.ExecuteScalarAsync<int>(sql, new { CodigoBarras = codigoBarras, ExcludeId = excludeId });
+        return count > 0;
+    }
 }
 

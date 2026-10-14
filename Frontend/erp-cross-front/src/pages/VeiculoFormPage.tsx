@@ -16,8 +16,9 @@ const EMPTY: VeiculoCreate = {
   ativo: true,
 };
 
-export default function VeiculoFormPage() {
-  const { id } = useParams<{ id: string }>();
+export default function VeiculoFormPage({ veiculoId, onClose }: { veiculoId?: number; onClose?: () => void } = {}) {
+  const routeParams = useParams<{ id: string }>();
+  const id = veiculoId?.toString() ?? routeParams.id;
   const navigate = useNavigate();
   const isEdit = !!id;
 
@@ -102,7 +103,8 @@ export default function VeiculoFormPage() {
 
     }
 
-    navigate('/veiculos');
+    if (onClose) onClose();
+    else navigate('/veiculos');
 
   } catch (err) {
 
@@ -335,7 +337,7 @@ return (
           <button
             type="button"
             className="btn-secondary"
-            onClick={() => navigate('/veiculos')}
+            onClick={() => onClose ? onClose() : navigate('/veiculos')}
           >
             Cancelar
           </button>
