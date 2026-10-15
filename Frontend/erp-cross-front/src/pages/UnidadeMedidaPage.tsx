@@ -1,16 +1,20 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Plus, Search, X, Eye, Pencil, Trash2, Ruler } from 'lucide-react';
 import { UnidadeMedidaService } from '../services/unidadeMedidaService';
 import type { UnidadeMedidaView } from '../types/entities';
+import UnidadeMedidaFormPage from './UnidadeMedidaFormPage';
+import UnidadeMedidaViewPage from './UnidadeMedidaViewPage';
 import './PaisesPage.css';
 
 export default function UnidadeMedidaPage() {
-  const navigate = useNavigate();
   const [unidades, setUnidades] = useState<UnidadeMedidaView[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<'ativos' | 'inativos' | 'todos'>('ativos');
+
+  const [showCreate, setShowCreate] = useState(false);
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [viewingId, setViewingId] = useState<number | null>(null);
 
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [deleting, setDeleting] = useState(false);
@@ -25,6 +29,13 @@ export default function UnidadeMedidaPage() {
     } finally {
       setLoading(false);
     }
+  }
+
+  function fecharModal() {
+    setShowCreate(false);
+    setEditingId(null);
+    setViewingId(null);
+    load();
   }
 
   useEffect(() => { load(); }, []);
@@ -87,7 +98,7 @@ export default function UnidadeMedidaPage() {
               </button>
             )}
           </div>
-          <button className="btn-primary" onClick={() => navigate('/unidades/nova')}>
+          <button className="btn-primary" onClick={() => setShowCreate(true)}>
             <Plus size={16} /> Nova Unidade
           </button>
         </div>
@@ -126,14 +137,14 @@ export default function UnidadeMedidaPage() {
                     <button
                       className="btn-icon btn-view"
                       title="Visualizar"
-                      onClick={() => navigate(`/unidades/visualizar/${unidade.id}`)}
+                      onClick={() => setViewingId(unidade.id)}
                     >
                       <Eye size={15} />
                     </button>
                     <button
                       className="btn-icon btn-edit"
                       title="Editar"
-                      onClick={() => navigate(`/unidades/editar/${unidade.id}`)}
+                      onClick={() => setEditingId(unidade.id)}
                     >
                       <Pencil size={15} />
                     </button>
@@ -151,6 +162,28 @@ export default function UnidadeMedidaPage() {
           </table>
         )}
       </div>
+
+      {(showCreate || editingId !== null || viewingId !== null) && (
+        <div className="modal-overlay">
+          <div className="modal modal-form-page" role="dialog" aria-modal="true">
+            <div className="modal-header">
+              <h2>{viewingId !== null ? 'Visualizar Unidade de Medida' : editingId !== null ? 'Editar Unidade de Medida' : 'Nova Unidade de Medida'}</h2>
+              <button className="modal-close" type="button" aria-label="Fechar" onClick={fecharModal}><X size={18} /></button>
+            </div>
+            <div className="account-page-modal-body">
+              {viewingId !== null && (
+                <UnidadeMedidaViewPage
+                  unidadeId={viewingId}
+                  onClose={fecharModal}
+                  onEdit={id => { setEditingId(id); setViewingId(null); }}
+                />
+              )}
+              {editingId !== null && <UnidadeMedidaFormPage unidadeId={editingId} onClose={fecharModal} />}
+              {showCreate && <UnidadeMedidaFormPage onClose={fecharModal} />}
+            </div>
+          </div>
+        </div>
+      )}
 
       {deleteId !== null && (
         <div className="modal-overlay" onClick={() => setDeleteId(null)}>

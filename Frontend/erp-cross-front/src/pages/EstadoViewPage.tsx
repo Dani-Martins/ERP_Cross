@@ -17,8 +17,9 @@ function formatDate(value: string | null | undefined): string {
   return isNaN(d.getTime()) ? '—' : d.toLocaleString('pt-BR');
 }
 
-export default function EstadoViewPage() {
-  const { id } = useParams<{ id: string }>();
+export default function EstadoViewPage({ estadoId, onClose, onEdit }: { estadoId?: number; onClose?: () => void; onEdit?: (id: number) => void } = {}) {
+  const routeParams = useParams<{ id: string }>();
+  const id = estadoId?.toString() ?? routeParams.id;
   const navigate = useNavigate();
 
   const [estado, setEstado] = useState<EstadoView | null>(null);
@@ -27,7 +28,7 @@ export default function EstadoViewPage() {
   useEffect(() => {
     EstadoService.getById(Number(id))
       .then((res) => setEstado(res.data))
-      .catch(() => navigate('/estados'))
+      .catch(() => onClose ? onClose() : navigate('/estados'))
       .finally(() => setLoading(false));
   }, [id, navigate]);
 
@@ -93,12 +94,12 @@ export default function EstadoViewPage() {
           <div className="form-page-footer">
             <button
               className="btn-primary"
-              onClick={() => navigate(`/estados/editar/${estado.id}`)}
+              onClick={() => onEdit ? onEdit(estado.id) : navigate(`/estados/editar/${estado.id}`)}
             >
               <Pencil size={15} /> Editar
             </button>
-            <button className="btn-secondary" onClick={() => navigate('/estados')}>
-              Cancelar
+            <button className="btn-secondary" onClick={() => onClose ? onClose() : navigate('/estados')}>
+              {onClose ? 'Fechar' : 'Cancelar'}
             </button>
           </div>
         </div>

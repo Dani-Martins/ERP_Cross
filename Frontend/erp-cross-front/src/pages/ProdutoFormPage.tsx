@@ -24,8 +24,9 @@ const EMPTY: ProdutoCreate = {
   ativo: true,
 };
 
-export default function ProdutoFormPage() {
-  const { id } = useParams<{ id: string }>();
+export default function ProdutoFormPage({ produtoId, onClose }: { produtoId?: number; onClose?: () => void } = {}) {
+  const routeParams = useParams<{ id: string }>();
+  const id = produtoId?.toString() ?? routeParams.id;
   const navigate = useNavigate();
 
   const isEdit = Boolean(id);
@@ -132,7 +133,8 @@ export default function ProdutoFormPage() {
       else
         await ProdutoService.create(form);
 
-      navigate('/produtos');
+      if (onClose) onClose();
+      else navigate('/produtos');
 
     } catch (err) {
 
@@ -492,7 +494,7 @@ export default function ProdutoFormPage() {
             <button
               type="button"
               className="btn-secondary"
-              onClick={() => navigate('/produtos')}
+              onClick={() => onClose ? onClose() : navigate('/produtos')}
             >
               Cancelar
             </button>

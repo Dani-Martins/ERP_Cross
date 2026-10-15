@@ -35,6 +35,13 @@ public class PaisRepository
         return count > 0;
     }
 
+    public async Task<bool> NomeExistsAsync(string nomePais, int? excludeId = null)
+    {
+        const string sql = "SELECT COUNT(1) FROM Paises WHERE NomePais = @NomePais AND (@ExcludeId IS NULL OR Id != @ExcludeId)";
+        var count = await _connection.ExecuteScalarAsync<int>(sql, new { NomePais = nomePais, ExcludeId = excludeId });
+        return count > 0;
+    }
+
     public async Task<int> InsertAsync(Pais pais)
     {
         const string sql = @"

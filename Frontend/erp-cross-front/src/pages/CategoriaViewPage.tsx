@@ -11,8 +11,9 @@ function formatDate(value: string | null | undefined): string {
   return isNaN(d.getTime()) ? '—' : d.toLocaleDateString('pt-BR');
 }
 
-export default function CategoriaViewPage() {
-  const { id } = useParams<{ id: string }>();
+export default function CategoriaViewPage({ categoriaId, onClose, onEdit }: { categoriaId?: number; onClose?: () => void; onEdit?: (id: number) => void } = {}) {
+  const routeParams = useParams<{ id: string }>();
+  const id = categoriaId?.toString() ?? routeParams.id;
   const navigate = useNavigate();
   const [categoria, setCategoria] = useState<CategoriaView | null>(null);
   const [loading, setLoading] = useState(true);
@@ -82,11 +83,11 @@ export default function CategoriaViewPage() {
           </div>
 
           <div className="form-page-footer">
-            <button className="btn-primary" onClick={() => navigate(`/categorias/editar/${categoria.id}`)}>
+            <button className="btn-primary" onClick={() => onEdit ? onEdit(categoria.id) : navigate(`/categorias/editar/${categoria.id}`)}>
               <Pencil size={15} /> Editar
             </button>
-            <button className="btn-secondary" onClick={() => navigate('/categorias')}>
-              Cancelar
+            <button className="btn-secondary" onClick={() => onClose ? onClose() : navigate('/categorias')}>
+              {onClose ? 'Fechar' : 'Cancelar'}
             </button>
           </div>
         </div>

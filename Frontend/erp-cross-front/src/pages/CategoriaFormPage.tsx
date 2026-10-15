@@ -12,8 +12,9 @@ const EMPTY: CategoriaCreate = {
   ativo: true,
 };
 
-export default function CategoriaFormPage() {
-  const { id } = useParams<{ id: string }>();
+export default function CategoriaFormPage({ categoriaId, onClose }: { categoriaId?: number; onClose?: () => void } = {}) {
+  const routeParams = useParams<{ id: string }>();
+  const id = categoriaId?.toString() ?? routeParams.id;
   const navigate = useNavigate();
   const isEdit = !!id;
 
@@ -67,7 +68,8 @@ export default function CategoriaFormPage() {
       } else {
         await CategoriaService.create(form);
       }
-      navigate('/categorias');
+      if (onClose) onClose();
+    else navigate('/categorias');
     } catch (err) {
       const axiosErr = err as AxiosError<{ message: string }>;
       if (axiosErr.response?.status === 409) {
@@ -159,7 +161,7 @@ export default function CategoriaFormPage() {
             <button type="submit" className="btn-primary" disabled={saving}>
               {saving ? 'Salvando...' : 'Salvar'}
             </button>
-            <button type="button" className="btn-secondary" onClick={() => navigate('/categorias')}>
+            <button type="button" className="btn-secondary" onClick={() => onClose ? onClose() : navigate('/categorias')}>
               Cancelar
             </button>
           </div>

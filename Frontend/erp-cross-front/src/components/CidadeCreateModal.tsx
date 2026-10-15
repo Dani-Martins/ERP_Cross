@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { X, Search } from 'lucide-react';
+import type { AxiosError } from 'axios';
 import { CidadeService } from '../services/cidadeService';
 import type { CidadeCreate } from '../types/entities';
 import EstadoLookupModal from './EstadoLookupModal';
@@ -39,8 +40,13 @@ export default function CidadeCreateModal({ onCreated, onClose, zBase = 1100 }: 
     try {
       const res = await CidadeService.create(form);
       onCreated(res.data.id, res.data.nomeCidade);
-    } catch {
-      setError('Erro ao salvar. Verifique os dados e tente novamente.');
+    } catch (err) {
+      const axiosErr = err as AxiosError<{ message: string }>;
+      if (axiosErr.response?.status === 409) {
+        setError(axiosErr.response.data?.message ?? 'Já existe uma cidade com este nome para o estado.');
+      } else {
+        setError('Erro ao salvar. Verifique os dados e tente novamente.');
+      }
       setSaving(false);
     }
   }

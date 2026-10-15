@@ -1,16 +1,20 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Plus, Search, X, Eye, Pencil, Trash2, Package } from 'lucide-react';
 import { ProdutoService } from '../services/produtoService';
 import type { ProdutoView } from '../types/entities';
+import ProdutoFormPage from './ProdutoFormPage';
+import ProdutoViewPage from './ProdutoViewPage';
 import './PaisesPage.css';
 
 export default function ProdutoPage() {
-  const navigate = useNavigate();
   const [produtos, setProdutos] = useState<ProdutoView[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<'ativos' | 'inativos' | 'todos'>('ativos');
+
+  const [showCreate, setShowCreate] = useState(false);
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [viewingId, setViewingId] = useState<number | null>(null);
 
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [deleting, setDeleting] = useState(false);
@@ -25,6 +29,13 @@ export default function ProdutoPage() {
     } finally {
       setLoading(false);
     }
+  }
+
+  function fecharModal() {
+    setShowCreate(false);
+    setEditingId(null);
+    setViewingId(null);
+    load();
   }
 
   useEffect(() => { load(); }, []);
@@ -87,7 +98,7 @@ export default function ProdutoPage() {
               </button>
             )}
           </div>
-          <button className="btn-primary" onClick={() => navigate('/produtos/novo')}>
+          <button className="btn-primary" onClick={() => setShowCreate(true)}>
             <Plus size={16} /> Novo Produto
           </button>
         </div>
@@ -140,14 +151,14 @@ export default function ProdutoPage() {
                     <button
                       className="btn-icon btn-view"
                       title="Visualizar"
-                      onClick={() => navigate(`/produtos/visualizar/${produto.id}`)}
+                      onClick={() => setViewingId(produto.id)}
                     >
                       <Eye size={15} />
                     </button>
                     <button
                       className="btn-icon btn-edit"
                       title="Editar"
-                      onClick={() => navigate(`/produtos/editar/${produto.id}`)}
+                      onClick={() => setEditingId(produto.id)}
                     >
                       <Pencil size={15} />
                     </button>
@@ -165,6 +176,28 @@ export default function ProdutoPage() {
           </table>
         )}
       </div>
+
+      {(showCreate || editingId !== null || viewingId !== null) && (
+        <div className="modal-overlay">
+          <div className="modal modal-form-page" role="dialog" aria-modal="true">
+            <div className="modal-header">
+              <h2>{viewingId !== null ? 'Visualizar Produto' : editingId !== null ? 'Editar Produto' : 'Novo Produto'}</h2>
+              <button className="modal-close" type="button" aria-label="Fechar" onClick={fecharModal}><X size={18} /></button>
+            </div>
+            <div className="account-page-modal-body">
+              {viewingId !== null && (
+                <ProdutoViewPage
+                  produtoId={viewingId}
+                  onClose={fecharModal}
+                  onEdit={id => { setEditingId(id); setViewingId(null); }}
+                />
+              )}
+              {editingId !== null && <ProdutoFormPage produtoId={editingId} onClose={fecharModal} />}
+              {showCreate && <ProdutoFormPage onClose={fecharModal} />}
+            </div>
+          </div>
+        </div>
+      )}
 
       {deleteId !== null && (
         <div className="modal-overlay" onClick={() => setDeleteId(null)}>

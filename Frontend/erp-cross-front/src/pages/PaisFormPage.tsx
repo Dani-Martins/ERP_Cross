@@ -8,8 +8,9 @@ import './PaisesPage.css';
 
 const EMPTY_FORM: PaisCreate = { nomePais: '', sigla: '', ddi: '', ativo: true };
 
-export default function PaisFormPage() {
-  const { id } = useParams<{ id: string }>();
+export default function PaisFormPage({ paisId, onClose }: { paisId?: number; onClose?: () => void } = {}) {
+  const routeParams = useParams<{ id: string }>();
+  const id = paisId?.toString() ?? routeParams.id;
   const navigate = useNavigate();
   const isEdit = Boolean(id);
 
@@ -27,7 +28,7 @@ export default function PaisFormPage() {
           setForm({ nomePais: p.nomePais, sigla: p.sigla, ddi: p.ddi, ativo: p.ativo });
           setNextId(String(p.id));
         })
-        .catch(() => navigate('/paises'))
+        .catch(() => onClose ? onClose() : navigate('/paises'))
         .finally(() => setLoading(false));
     } else {
       PaisService.getAll()
@@ -54,7 +55,8 @@ export default function PaisFormPage() {
       } else {
         await PaisService.create(form);
       }
-      navigate('/paises');
+      if (onClose) onClose();
+      else navigate('/paises');
     } catch (err) {
       const axiosErr = err as AxiosError<{ message: string }>;
       if (axiosErr.response?.status === 409) {
@@ -150,7 +152,7 @@ export default function PaisFormPage() {
             <button type="submit" className="btn-primary" disabled={saving}>
               {saving ? 'Salvando...' : 'Salvar'}
             </button>
-            <button type="button" className="btn-secondary" onClick={() => navigate('/paises')}>
+            <button type="button" className="btn-secondary" onClick={() => onClose ? onClose() : navigate('/paises')}>
               Cancelar
             </button>
           </div>

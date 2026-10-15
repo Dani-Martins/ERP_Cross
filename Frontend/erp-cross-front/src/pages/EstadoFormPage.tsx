@@ -9,8 +9,9 @@ import './PaisesPage.css';
 
 const EMPTY_FORM: EstadoCreate = { nomeEstado: '', uf: '', idPais: 0, ativo: true };
 
-export default function EstadoFormPage() {
-  const { id } = useParams<{ id: string }>();
+export default function EstadoFormPage({ estadoId, onClose }: { estadoId?: number; onClose?: () => void } = {}) {
+  const routeParams = useParams<{ id: string }>();
+  const id = estadoId?.toString() ?? routeParams.id;
   const navigate = useNavigate();
   const isEdit = Boolean(id);
 
@@ -31,7 +32,7 @@ export default function EstadoFormPage() {
           setNomePais(e.nomePais ?? '');
           setNextId(String(e.id));
         })
-        .catch(() => navigate('/estados'))
+        .catch(() => onClose ? onClose() : navigate('/estados'))
         .finally(() => setLoading(false));
     } else {
       EstadoService.getAll()
@@ -58,7 +59,8 @@ export default function EstadoFormPage() {
       } else {
         await EstadoService.create(form);
       }
-      navigate('/estados');
+      if (onClose) onClose();
+      else navigate('/estados');
     } catch (err) {
       const axiosErr = err as AxiosError<{ message: string }>;
       if (axiosErr.response?.status === 409) {
@@ -163,7 +165,7 @@ export default function EstadoFormPage() {
             <button type="submit" className="btn-primary" disabled={saving}>
               {saving ? 'Salvando...' : 'Salvar'}
             </button>
-            <button type="button" className="btn-secondary" onClick={() => navigate('/estados')}>
+            <button type="button" className="btn-secondary" onClick={() => onClose ? onClose() : navigate('/estados')}>
               Cancelar
             </button>
           </div>
@@ -172,6 +174,7 @@ export default function EstadoFormPage() {
     </div>
     {showPaisModal && (
       <PaisLookupModal
+        zBase={1001}
         onSelect={(paisId, paisNome) => {
           setForm(prev => ({ ...prev, idPais: paisId }));
           setNomePais(paisNome);

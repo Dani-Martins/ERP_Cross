@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { MapPin, Search } from 'lucide-react';
+import type { AxiosError } from 'axios';
 import { CidadeService } from '../services/cidadeService';
 import type { CidadeCreate } from '../types/entities';
 import EstadoLookupModal from '../components/EstadoLookupModal';
@@ -8,8 +9,9 @@ import './PaisesPage.css';
 
 const EMPTY_FORM: CidadeCreate = { nomeCidade: '', ddd: '', idEstado: 0, ativo: true };
 
-export default function CidadeFormPage() {
-  const { id } = useParams<{ id: string }>();
+export default function CidadeFormPage({ cidadeId, onClose }: { cidadeId?: number; onClose?: () => void } = {}) {
+  const routeParams = useParams<{ id: string }>();
+  const id = cidadeId?.toString() ?? routeParams.id;
   const navigate = useNavigate();
   const isEdit = Boolean(id);
 
@@ -30,7 +32,7 @@ export default function CidadeFormPage() {
           setNomeEstado(c.nomeEstado ?? '');
           setNextId(String(c.id));
         })
-        .catch(() => navigate('/cidades'))
+        .catch(() => onClose ? onClose() : navigate('/cidades'))
         .finally(() => setLoading(false));
     } else {
       CidadeService.getAll()
@@ -57,9 +59,15 @@ export default function CidadeFormPage() {
       } else {
         await CidadeService.create(form);
       }
-      navigate('/cidades');
-    } catch {
-      setError('Erro ao salvar. Verifique os dados e tente novamente.');
+      if (onClose) onClose();
+      else navigate('/cidades');
+    } catch (err) {
+      const axiosErr = err as AxiosError<{ message: string }>;
+      if (axiosErr.response?.status === 409) {
+        setError(axiosErr.response.data?.message ?? 'Já existe uma cidade com este nome para o estado.');
+      } else {
+        setError('Erro ao salvar. Verifique os dados e tente novamente.');
+      }
       setSaving(false);
     }
   }
@@ -157,7 +165,7 @@ export default function CidadeFormPage() {
             <button type="submit" className="btn-primary" disabled={saving}>
               {saving ? 'Salvando...' : 'Salvar'}
             </button>
-            <button type="button" className="btn-secondary" onClick={() => navigate('/cidades')}>
+            <button type="button" className="btn-secondary" onClick={() => onClose ? onClose() : navigate('/cidades')}>
               Cancelar
             </button>
           </div>
@@ -166,6 +174,7 @@ export default function CidadeFormPage() {
     </div>
     {showEstadoModal && (
       <EstadoLookupModal
+        zBase={1001}
         onSelect={(estadoId, estadoNome) => {
           setForm(prev => ({ ...prev, idEstado: estadoId }));
           setNomeEstado(estadoNome);

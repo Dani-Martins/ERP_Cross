@@ -35,6 +35,13 @@ public class CidadeRepository
         return await _connection.QueryFirstOrDefaultAsync<Cidade>(sql, new { Id = id });
     }
 
+    public async Task<bool> NomeExistsAsync(string nomeCidade, int idEstado, int? excludeId = null)
+    {
+        const string sql = "SELECT COUNT(1) FROM Cidades WHERE NomeCidade = @NomeCidade AND IdEstado = @IdEstado AND (@ExcludeId IS NULL OR Id != @ExcludeId)";
+        var count = await _connection.ExecuteScalarAsync<int>(sql, new { NomeCidade = nomeCidade, IdEstado = idEstado, ExcludeId = excludeId });
+        return count > 0;
+    }
+
     public async Task<int> InsertAsync(Cidade cidade)
     {
         const string sql = @"

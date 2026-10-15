@@ -26,13 +26,29 @@ public class CidadeController(CidadeService service) : ControllerBase
     [HttpPost]
     public async Task<ActionResult<CidadeView>> Create([FromBody] CreateCidadeDto dto)
     {
-        var cidade = await _service.CreateAsync(dto);
-        return CreatedAtAction(nameof(GetById), new { id = cidade.Id }, cidade);
+        try
+        {
+            var cidade = await _service.CreateAsync(dto);
+            return CreatedAtAction(nameof(GetById), new { id = cidade.Id }, cidade);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Conflict(new { message = ex.Message });
+        }
     }
 
     [HttpPut("{id:int}")]
     public async Task<IActionResult> Update(int id, [FromBody] UpdateCidadeDto dto)
-        => await _service.UpdateAsync(id, dto) ? NoContent() : NotFound();
+    {
+        try
+        {
+            return await _service.UpdateAsync(id, dto) ? NoContent() : NotFound();
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Conflict(new { message = ex.Message });
+        }
+    }
 
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id)

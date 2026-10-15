@@ -13,8 +13,9 @@ function formatDate(value: string | null | undefined): string {
   return isNaN(d.getTime()) ? '—' : d.toLocaleString('pt-BR');
 }
 
-export default function ProdutoViewPage() {
-  const { id } = useParams<{ id: string }>();
+export default function ProdutoViewPage({ produtoId, onClose, onEdit }: { produtoId?: number; onClose?: () => void; onEdit?: (id: number) => void } = {}) {
+  const routeParams = useParams<{ id: string }>();
+  const id = produtoId?.toString() ?? routeParams.id;
   const navigate = useNavigate();
 
   const [produto, setProduto] = useState<ProdutoView | null>(null);
@@ -213,7 +214,7 @@ export default function ProdutoViewPage() {
 
             <button
               className="btn-primary"
-              onClick={() => navigate(`/produtos/editar/${produto.id}`)}
+              onClick={() => onEdit ? onEdit(produto.id) : navigate(`/produtos/editar/${produto.id}`)}
             >
               <Pencil size={15} />
               Editar
@@ -221,9 +222,9 @@ export default function ProdutoViewPage() {
 
             <button
               className="btn-secondary"
-              onClick={() => navigate('/produtos')}
+              onClick={() => onClose ? onClose() : navigate('/produtos')}
             >
-              Cancelar
+              {onClose ? 'Fechar' : 'Cancelar'}
             </button>
 
           </div>

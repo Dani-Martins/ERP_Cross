@@ -12,8 +12,9 @@ const EMPTY: UnidadeMedidaCreate = {
   ativo: true,
 };
 
-export default function UnidadeMedidaFormPage() {
-  const { id } = useParams<{ id: string }>();
+export default function UnidadeMedidaFormPage({ unidadeId, onClose }: { unidadeId?: number; onClose?: () => void } = {}) {
+  const routeParams = useParams<{ id: string }>();
+  const id = unidadeId?.toString() ?? routeParams.id;
   const navigate = useNavigate();
   const isEdit = !!id;
 
@@ -69,7 +70,8 @@ export default function UnidadeMedidaFormPage() {
       } else {
         await UnidadeMedidaService.create(form);
       }
-      navigate('/unidades');
+      if (onClose) onClose();
+    else navigate('/unidades');
     } catch (err) {
       const axiosErr = err as AxiosError<{ message: string }>;
       if (axiosErr.response?.status === 409) {
@@ -162,7 +164,7 @@ export default function UnidadeMedidaFormPage() {
             <button type="submit" className="btn-primary" disabled={saving}>
               {saving ? 'Salvando...' : 'Salvar'}
             </button>
-            <button type="button" className="btn-secondary" onClick={() => navigate('/unidades')}>
+            <button type="button" className="btn-secondary" onClick={() => onClose ? onClose() : navigate('/unidades')}>
               Cancelar
             </button>
           </div>

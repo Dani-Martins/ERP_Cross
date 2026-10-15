@@ -17,8 +17,9 @@ function formatDate(value: string | null | undefined): string {
   return isNaN(d.getTime()) ? '—' : d.toLocaleString('pt-BR');
 }
 
-export default function CidadeViewPage() {
-  const { id } = useParams<{ id: string }>();
+export default function CidadeViewPage({ cidadeId, onClose, onEdit }: { cidadeId?: number; onClose?: () => void; onEdit?: (id: number) => void } = {}) {
+  const routeParams = useParams<{ id: string }>();
+  const id = cidadeId?.toString() ?? routeParams.id;
   const navigate = useNavigate();
 
   const [cidade, setCidade] = useState<CidadeView | null>(null);
@@ -27,7 +28,7 @@ export default function CidadeViewPage() {
   useEffect(() => {
     CidadeService.getById(Number(id))
       .then((res) => setCidade(res.data))
-      .catch(() => navigate('/cidades'))
+      .catch(() => onClose ? onClose() : navigate('/cidades'))
       .finally(() => setLoading(false));
   }, [id, navigate]);
 
@@ -93,12 +94,12 @@ export default function CidadeViewPage() {
           <div className="form-page-footer">
             <button
               className="btn-primary"
-              onClick={() => navigate(`/cidades/editar/${cidade.id}`)}
+              onClick={() => onEdit ? onEdit(cidade.id) : navigate(`/cidades/editar/${cidade.id}`)}
             >
               <Pencil size={15} /> Editar
             </button>
-            <button className="btn-secondary" onClick={() => navigate('/cidades')}>
-              Cancelar
+            <button className="btn-secondary" onClick={() => onClose ? onClose() : navigate('/cidades')}>
+              {onClose ? 'Fechar' : 'Cancelar'}
             </button>
           </div>
         </div>

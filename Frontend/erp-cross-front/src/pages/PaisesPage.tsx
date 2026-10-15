@@ -1,16 +1,20 @@
 ﻿import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Plus, Pencil, Trash2, Search, X, Globe, Eye } from 'lucide-react';
 import { PaisService } from '../services/paisService';
 import type { PaisView } from '../types/entities';
+import PaisFormPage from './PaisFormPage';
+import PaisViewPage from './PaisViewPage';
 import './PaisesPage.css';
 
 export default function PaisesPage() {
-  const navigate = useNavigate();
   const [paises, setPaises] = useState<PaisView[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<'ativos' | 'inativos' | 'todos'>('ativos');
+
+  const [showCreate, setShowCreate] = useState(false);
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [viewingId, setViewingId] = useState<number | null>(null);
 
   // Estado de ação: qual ID está sendo acionado
   const [deleteId, setDeleteId] = useState<number | null>(null);
@@ -26,6 +30,13 @@ export default function PaisesPage() {
     } finally {
       setLoading(false);
     }
+  }
+
+  function fecharModal() {
+    setShowCreate(false);
+    setEditingId(null);
+    setViewingId(null);
+    load();
   }
 
   useEffect(() => { load(); }, []);
@@ -90,7 +101,7 @@ export default function PaisesPage() {
               </button>
             )}
           </div>
-          <button className="btn-primary" onClick={() => navigate('/paises/novo')}>
+          <button className="btn-primary" onClick={() => setShowCreate(true)}>
             <Plus size={16} /> Novo País
           </button>
         </div>
@@ -132,14 +143,14 @@ export default function PaisesPage() {
                     <button
                       className="btn-icon btn-view"
                       title="Visualizar"
-                      onClick={() => navigate(`/paises/visualizar/${p.id}`)}
+                      onClick={() => setViewingId(p.id)}
                     >
                       <Eye size={15} />
                     </button>
                     <button
                       className="btn-icon btn-edit"
                       title="Editar"
-                      onClick={() => navigate(`/paises/editar/${p.id}`)}
+                      onClick={() => setEditingId(p.id)}
                     >
                       <Pencil size={15} />
                     </button>
@@ -157,6 +168,28 @@ export default function PaisesPage() {
           </table>
         )}
       </div>
+
+      {(showCreate || editingId !== null || viewingId !== null) && (
+        <div className="modal-overlay">
+          <div className="modal modal-form-page" role="dialog" aria-modal="true">
+            <div className="modal-header">
+              <h2>{viewingId !== null ? 'Visualizar País' : editingId !== null ? 'Editar País' : 'Novo País'}</h2>
+              <button className="modal-close" type="button" aria-label="Fechar" onClick={fecharModal}><X size={18} /></button>
+            </div>
+            <div className="account-page-modal-body">
+              {viewingId !== null && (
+                <PaisViewPage
+                  paisId={viewingId}
+                  onClose={fecharModal}
+                  onEdit={id => { setEditingId(id); setViewingId(null); }}
+                />
+              )}
+              {editingId !== null && <PaisFormPage paisId={editingId} onClose={fecharModal} />}
+              {showCreate && <PaisFormPage onClose={fecharModal} />}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Confirmação de exclusão */}
       {deleteId !== null && (

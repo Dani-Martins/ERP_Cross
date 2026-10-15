@@ -1,16 +1,20 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Plus, Search, X, Eye, Pencil, Trash2, Badge } from 'lucide-react';
 import { MarcaService } from '../services/marcaService';
 import type { MarcaView } from '../types/entities';
+import MarcaFormPage from './MarcaFormPage';
+import MarcaViewPage from './MarcaViewPage';
 import './PaisesPage.css';
 
 export default function MarcaPage() {
-  const navigate = useNavigate();
   const [marcas, setMarcas] = useState<MarcaView[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<'ativos' | 'inativos' | 'todos'>('ativos');
+
+  const [showCreate, setShowCreate] = useState(false);
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [viewingId, setViewingId] = useState<number | null>(null);
 
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [deleting, setDeleting] = useState(false);
@@ -25,6 +29,13 @@ export default function MarcaPage() {
     } finally {
       setLoading(false);
     }
+  }
+
+  function fecharModal() {
+    setShowCreate(false);
+    setEditingId(null);
+    setViewingId(null);
+    load();
   }
 
   useEffect(() => { load(); }, []);
@@ -87,7 +98,7 @@ export default function MarcaPage() {
               </button>
             )}
           </div>
-          <button className="btn-primary" onClick={() => navigate('/marcas/nova')}>
+          <button className="btn-primary" onClick={() => setShowCreate(true)}>
             <Plus size={16} /> Nova Marca
           </button>
         </div>
@@ -126,14 +137,14 @@ export default function MarcaPage() {
                     <button
                       className="btn-icon btn-view"
                       title="Visualizar"
-                      onClick={() => navigate(`/marcas/visualizar/${marca.id}`)}
+                      onClick={() => setViewingId(marca.id)}
                     >
                       <Eye size={15} />
                     </button>
                     <button
                       className="btn-icon btn-edit"
                       title="Editar"
-                      onClick={() => navigate(`/marcas/editar/${marca.id}`)}
+                      onClick={() => setEditingId(marca.id)}
                     >
                       <Pencil size={15} />
                     </button>
@@ -151,6 +162,28 @@ export default function MarcaPage() {
           </table>
         )}
       </div>
+
+      {(showCreate || editingId !== null || viewingId !== null) && (
+        <div className="modal-overlay">
+          <div className="modal modal-form-page" role="dialog" aria-modal="true">
+            <div className="modal-header">
+              <h2>{viewingId !== null ? 'Visualizar Marca' : editingId !== null ? 'Editar Marca' : 'Nova Marca'}</h2>
+              <button className="modal-close" type="button" aria-label="Fechar" onClick={fecharModal}><X size={18} /></button>
+            </div>
+            <div className="account-page-modal-body">
+              {viewingId !== null && (
+                <MarcaViewPage
+                  marcaId={viewingId}
+                  onClose={fecharModal}
+                  onEdit={id => { setEditingId(id); setViewingId(null); }}
+                />
+              )}
+              {editingId !== null && <MarcaFormPage marcaId={editingId} onClose={fecharModal} />}
+              {showCreate && <MarcaFormPage onClose={fecharModal} />}
+            </div>
+          </div>
+        </div>
+      )}
 
       {deleteId !== null && (
         <div className="modal-overlay" onClick={() => setDeleteId(null)}>

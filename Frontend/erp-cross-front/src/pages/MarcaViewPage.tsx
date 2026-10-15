@@ -11,8 +11,9 @@ function formatDate(value: string | null | undefined): string {
   return isNaN(d.getTime()) ? '—' : d.toLocaleDateString('pt-BR');
 }
 
-export default function MarcaViewPage() {
-  const { id } = useParams<{ id: string }>();
+export default function MarcaViewPage({ marcaId, onClose, onEdit }: { marcaId?: number; onClose?: () => void; onEdit?: (id: number) => void } = {}) {
+  const routeParams = useParams<{ id: string }>();
+  const id = marcaId?.toString() ?? routeParams.id;
   const navigate = useNavigate();
   const [marca, setMarca] = useState<MarcaView | null>(null);
   const [loading, setLoading] = useState(true);
@@ -82,11 +83,11 @@ export default function MarcaViewPage() {
           </div>
 
           <div className="form-page-footer">
-            <button className="btn-primary" onClick={() => navigate(`/marcas/editar/${marca.id}`)}>
+            <button className="btn-primary" onClick={() => onEdit ? onEdit(marca.id) : navigate(`/marcas/editar/${marca.id}`)}>
               <Pencil size={15} /> Editar
             </button>
-            <button className="btn-secondary" onClick={() => navigate('/marcas')}>
-              Cancelar
+            <button className="btn-secondary" onClick={() => onClose ? onClose() : navigate('/marcas')}>
+              {onClose ? 'Fechar' : 'Cancelar'}
             </button>
           </div>
         </div>

@@ -11,8 +11,9 @@ function formatDate(value: string | null | undefined): string {
   return isNaN(d.getTime()) ? '—' : d.toLocaleDateString('pt-BR');
 }
 
-export default function UnidadeMedidaViewPage() {
-  const { id } = useParams<{ id: string }>();
+export default function UnidadeMedidaViewPage({ unidadeId, onClose, onEdit }: { unidadeId?: number; onClose?: () => void; onEdit?: (id: number) => void } = {}) {
+  const routeParams = useParams<{ id: string }>();
+  const id = unidadeId?.toString() ?? routeParams.id;
   const navigate = useNavigate();
   const [unidade, setUnidade] = useState<UnidadeMedidaView | null>(null);
   const [loading, setLoading] = useState(true);
@@ -82,11 +83,11 @@ export default function UnidadeMedidaViewPage() {
           </div>
 
           <div className="form-page-footer">
-            <button className="btn-primary" onClick={() => navigate(`/unidades/editar/${unidade.id}`)}>
+            <button className="btn-primary" onClick={() => onEdit ? onEdit(unidade.id) : navigate(`/unidades/editar/${unidade.id}`)}>
               <Pencil size={15} /> Editar
             </button>
-            <button className="btn-secondary" onClick={() => navigate('/unidades')}>
-              Cancelar
+            <button className="btn-secondary" onClick={() => onClose ? onClose() : navigate('/unidades')}>
+              {onClose ? 'Fechar' : 'Cancelar'}
             </button>
           </div>
         </div>

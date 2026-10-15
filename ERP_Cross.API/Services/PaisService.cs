@@ -26,6 +26,9 @@ public class PaisService
 
     public async Task<Pais> CreateAsync(CreatePaisDto dto)
     {
+        if (await _repository.NomeExistsAsync(dto.NomePais))
+            throw new InvalidOperationException($"Já existe um país cadastrado com o nome '{dto.NomePais}'.");
+
         if (await _repository.SiglaExistsAsync(dto.Sigla))
             throw new InvalidOperationException($"Já existe um país cadastrado com a sigla '{dto.Sigla}'.");
 
@@ -45,6 +48,9 @@ public class PaisService
     {
         var pais = await _repository.GetByIdAsync(id);
         if (pais == null) return false;
+
+        if (await _repository.NomeExistsAsync(dto.NomePais, excludeId: id))
+            throw new InvalidOperationException($"Já existe um país cadastrado com o nome '{dto.NomePais}'.");
 
         if (await _repository.SiglaExistsAsync(dto.Sigla, excludeId: id))
             throw new InvalidOperationException($"Já existe um país cadastrado com a sigla '{dto.Sigla}'.");

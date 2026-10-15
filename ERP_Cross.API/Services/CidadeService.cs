@@ -26,6 +26,9 @@ public class CidadeService
 
     public async Task<Cidade> CreateAsync(CreateCidadeDto dto)
     {
+        if (await _repository.NomeExistsAsync(dto.NomeCidade, dto.IdEstado))
+            throw new InvalidOperationException($"Já existe uma cidade '{dto.NomeCidade}' cadastrada para este estado.");
+
         var cidade = new Cidade
         {
             NomeCidade = dto.NomeCidade,
@@ -42,6 +45,9 @@ public class CidadeService
     {
         var cidade = await _repository.GetByIdAsync(id);
         if (cidade == null) return false;
+
+        if (await _repository.NomeExistsAsync(dto.NomeCidade, dto.IdEstado, excludeId: id))
+            throw new InvalidOperationException($"Já existe uma cidade '{dto.NomeCidade}' cadastrada para este estado.");
 
         cidade.NomeCidade = dto.NomeCidade;
         cidade.Ddd = dto.Ddd;

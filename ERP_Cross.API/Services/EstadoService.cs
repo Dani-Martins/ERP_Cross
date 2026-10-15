@@ -26,6 +26,9 @@ public class EstadoService
 
     public async Task<Estado> CreateAsync(CreateEstadoDto dto)
     {
+        if (await _repository.NomeExistsAsync(dto.NomeEstado, dto.IdPais))
+            throw new InvalidOperationException($"Já existe um estado com o nome '{dto.NomeEstado}' cadastrado para este país.");
+
         if (await _repository.UfExistsAsync(dto.Uf, dto.IdPais))
             throw new InvalidOperationException($"J\u00e1 existe um estado com a UF '{dto.Uf}' cadastrado para este pa\u00eds.");
 
@@ -45,6 +48,9 @@ public class EstadoService
     {
         var estado = await _repository.GetByIdAsync(id);
         if (estado == null) return false;
+
+        if (await _repository.NomeExistsAsync(dto.NomeEstado, dto.IdPais, excludeId: id))
+            throw new InvalidOperationException($"Já existe um estado com o nome '{dto.NomeEstado}' cadastrado para este país.");
 
         if (await _repository.UfExistsAsync(dto.Uf, dto.IdPais, excludeId: id))
             throw new InvalidOperationException($"J\u00e1 existe um estado com a UF '{dto.Uf}' cadastrado para este pa\u00eds.");

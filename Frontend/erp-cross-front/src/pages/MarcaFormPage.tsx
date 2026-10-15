@@ -12,8 +12,9 @@ const EMPTY: MarcaCreate = {
   ativo: true,
 };
 
-export default function MarcaFormPage() {
-  const { id } = useParams<{ id: string }>();
+export default function MarcaFormPage({ marcaId, onClose }: { marcaId?: number; onClose?: () => void } = {}) {
+  const routeParams = useParams<{ id: string }>();
+  const id = marcaId?.toString() ?? routeParams.id;
   const navigate = useNavigate();
   const isEdit = !!id;
 
@@ -67,7 +68,8 @@ export default function MarcaFormPage() {
       } else {
         await MarcaService.create(form);
       }
-      navigate('/marcas');
+      if (onClose) onClose();
+    else navigate('/marcas');
     } catch (err) {
       const axiosErr = err as AxiosError<{ message: string }>;
       if (axiosErr.response?.status === 409) {
@@ -159,7 +161,7 @@ export default function MarcaFormPage() {
             <button type="submit" className="btn-primary" disabled={saving}>
               {saving ? 'Salvando...' : 'Salvar'}
             </button>
-            <button type="button" className="btn-secondary" onClick={() => navigate('/marcas')}>
+            <button type="button" className="btn-secondary" onClick={() => onClose ? onClose() : navigate('/marcas')}>
               Cancelar
             </button>
           </div>
