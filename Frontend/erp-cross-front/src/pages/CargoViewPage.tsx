@@ -11,9 +11,10 @@ function formatDate(value: string | null | undefined): string {
   return isNaN(d.getTime()) ? '—' : d.toLocaleDateString('pt-BR');
 }
 
-export default function CargoViewPage() {
+export default function CargoViewPage({ cargoId, onClose, onEdit }: { cargoId?: number; onClose?: () => void; onEdit?: (id: number) => void } = {}) {
 
-  const { id } = useParams<{ id: string }>();
+  const routeParams = useParams<{ id: string }>();
+  const id = cargoId?.toString() ?? routeParams.id;
 
   const navigate = useNavigate();
 
@@ -25,7 +26,7 @@ export default function CargoViewPage() {
 
     CargoService.getById(Number(id))
       .then(res => setCargo(res.data))
-      .catch(() => navigate('/cargos'))
+      .catch(() => onClose ? onClose() : navigate('/cargos'))
       .finally(() => setLoading(false));
 
   }, [id, navigate]);
@@ -165,7 +166,7 @@ export default function CargoViewPage() {
 
             <button
               className="btn-primary"
-              onClick={() => navigate(`/cargos/editar/${cargo.id}`)}
+              onClick={() => onEdit ? onEdit(cargo.id) : navigate(`/cargos/editar/${cargo.id}`)}
             >
               <Pencil size={15} />
               Editar
@@ -173,9 +174,9 @@ export default function CargoViewPage() {
 
             <button
               className="btn-secondary"
-              onClick={() => navigate('/cargos')}
+              onClick={() => onClose ? onClose() : navigate('/cargos')}
             >
-              Cancelar
+              {onClose ? 'Fechar' : 'Cancelar'}
             </button>
 
           </div>

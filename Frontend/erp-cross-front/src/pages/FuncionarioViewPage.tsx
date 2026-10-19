@@ -21,9 +21,10 @@ const SEXO: Record<string, string> = {
   O: 'Outro',
 };
 
-export default function FuncionarioViewPage() {
+export default function FuncionarioViewPage({ funcionarioId, onClose, onEdit }: { funcionarioId?: number; onClose?: () => void; onEdit?: (id: number) => void } = {}) {
 
-  const { id } = useParams<{ id: string }>();
+  const routeParams = useParams<{ id: string }>();
+  const id = funcionarioId?.toString() ?? routeParams.id;
 
   const navigate = useNavigate();
 
@@ -39,7 +40,7 @@ export default function FuncionarioViewPage() {
 
       .then(res => setFuncionario(res.data))
 
-      .catch(() => navigate('/funcionarios'))
+      .catch(() => onClose ? onClose() : navigate('/funcionarios'))
 
       .finally(() => setLoading(false));
 
@@ -361,7 +362,7 @@ export default function FuncionarioViewPage() {
             <button
               className="btn-primary"
               onClick={() =>
-                navigate(`/funcionarios/editar/${funcionario.id}`)
+                onEdit ? onEdit(funcionario.id) : navigate(`/funcionarios/editar/${funcionario.id}`)
               }
             >
               <Pencil size={15} />
@@ -370,9 +371,9 @@ export default function FuncionarioViewPage() {
 
             <button
               className="btn-secondary"
-              onClick={() => navigate('/funcionarios')}
+              onClick={() => onClose ? onClose() : navigate('/funcionarios')}
             >
-              Voltar
+              {onClose ? 'Fechar' : 'Voltar'}
             </button>
 
           </div>

@@ -24,8 +24,9 @@ const PARENTESCO: Record<string, string> = {
   RESPONSAVEL_LEGAL: 'Responsável Legal', OUTRO: 'Outro',
 };
 
-export default function ClienteViewPage() {
-  const { id } = useParams<{ id: string }>();
+export default function ClienteViewPage({ clienteId, onClose, onEdit }: { clienteId?: number; onClose?: () => void; onEdit?: (id: number) => void } = {}) {
+  const routeParams = useParams<{ id: string }>();
+  const id = clienteId?.toString() ?? routeParams.id;
   const navigate = useNavigate();
 
   const [cliente, setCliente] = useState<ClienteView | null>(null);
@@ -34,7 +35,7 @@ export default function ClienteViewPage() {
   useEffect(() => {
     ClienteService.getById(Number(id))
       .then(res => setCliente(res.data))
-      .catch(() => navigate('/clientes'))
+      .catch(() => onClose ? onClose() : navigate('/clientes'))
       .finally(() => setLoading(false));
   }, [id, navigate]);
 
@@ -219,10 +220,10 @@ export default function ClienteViewPage() {
           </div>
 
           <div className="form-page-footer">
-            <button className="btn-primary" onClick={() => navigate(`/clientes/editar/${cliente.id}`)}>
+            <button className="btn-primary" onClick={() => onEdit ? onEdit(cliente.id) : navigate(`/clientes/editar/${cliente.id}`)}>
               <Pencil size={15} /> Editar
             </button>
-            <button className="btn-secondary" onClick={() => navigate('/clientes')}>Cancelar</button>
+            <button className="btn-secondary" onClick={() => onClose ? onClose() : navigate('/clientes')}>{onClose ? 'Fechar' : 'Cancelar'}</button>
           </div>
         </div>
       </div>

@@ -109,8 +109,8 @@ export default function PaisFormPage({ paisId, onClose }: { paisId?: number; onC
               />
             </div>
 
-            <div className="form-row">
-              <div className="form-group">
+            <div className="form-row pais-codes-row">
+              <div className="form-group sigla-field">
                 <label htmlFor="sigla">Sigla *</label>
                 <input
                   id="sigla"
@@ -121,7 +121,7 @@ export default function PaisFormPage({ paisId, onClose }: { paisId?: number; onC
                   onChange={(e) => setForm({ ...form, sigla: e.target.value.toUpperCase() })}
                 />
               </div>
-              <div className="form-group">
+              <div className="form-group ddi-field">
                 <label htmlFor="ddi">DDI *</label>
                 <input
                   id="ddi"

@@ -15,8 +15,9 @@ const EMPTY: CargoCreate = {
   ativo: true,
 };
 
-export default function CargoFormPage() {
-  const { id } = useParams<{ id: string }>();
+export default function CargoFormPage({ cargoId, onClose }: { cargoId?: number; onClose?: () => void } = {}) {
+  const routeParams = useParams<{ id: string }>();
+  const id = cargoId?.toString() ?? routeParams.id;
 
   const navigate = useNavigate();
 
@@ -45,7 +46,7 @@ export default function CargoFormPage() {
           });
           setNextId(String(res.data.id));
         })
-        .catch(() => navigate('/cargos'))
+        .catch(() => onClose ? onClose() : navigate('/cargos'))
         .finally(() => setLoading(false));
     } else {
       CargoService.getAll()
@@ -89,7 +90,8 @@ export default function CargoFormPage() {
         await CargoService.create(form);
       }
 
-      navigate('/cargos');
+      if (onClose) onClose();
+      else navigate('/cargos');
 
     } catch (err) {
 
@@ -246,7 +248,7 @@ export default function CargoFormPage() {
             <button
               type="button"
               className="btn-secondary"
-              onClick={() => navigate('/cargos')}
+              onClick={() => onClose ? onClose() : navigate('/cargos')}
             >
               Cancelar
             </button>

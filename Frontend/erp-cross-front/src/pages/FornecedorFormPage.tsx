@@ -34,8 +34,9 @@ const EMPTY: FornecedorFormState = {
   idCidade: 0, idCondicaoPagamento: 0, idTransportadora: undefined, ativo: true, pf: false,
 };
 
-export default function FornecedorFormPage() {
-  const { id } = useParams<{ id: string }>();
+export default function FornecedorFormPage({ fornecedorId, onClose }: { fornecedorId?: number; onClose?: () => void } = {}) {
+  const routeParams = useParams<{ id: string }>();
+  const id = fornecedorId?.toString() ?? routeParams.id;
   const navigate = useNavigate();
   const isEdit = Boolean(id);
 
@@ -75,7 +76,7 @@ export default function FornecedorFormPage() {
           setNomeTransportadora(f.nomeTransportadora ?? '');
           setNextId(String(f.id));
         })
-        .catch(() => navigate('/fornecedores'))
+        .catch(() => onClose ? onClose() : navigate('/fornecedores'))
         .finally(() => setLoading(false));
     } else {
       FornecedorService.getAll()
@@ -167,7 +168,8 @@ export default function FornecedorFormPage() {
       } else {
         await FornecedorService.create(payload);
       }
-      navigate('/fornecedores');
+      if (onClose) onClose();
+      else navigate('/fornecedores');
     } catch (err) {
       const axiosErr = err as AxiosError<{ message: string }>;
       if (axiosErr.response?.status === 409) {
@@ -572,7 +574,7 @@ export default function FornecedorFormPage() {
             <button type="submit" className="btn-primary" disabled={saving}>
               {saving ? 'Salvando...' : 'Salvar'}
             </button>
-            <button type="button" className="btn-secondary" onClick={() => navigate('/fornecedores')}>
+            <button type="button" className="btn-secondary" onClick={() => onClose ? onClose() : navigate('/fornecedores')}>
               Cancelar
             </button>
           </div>
@@ -583,6 +585,7 @@ export default function FornecedorFormPage() {
 
     {showCidadeModal && (
       <CidadeLookupModal
+        zBase={1001}
         onSelect={(idCidade, nomeCidadeSelecionada) => {
           setForm(prev => ({ ...prev, idCidade }));
           setNomeCidade(nomeCidadeSelecionada);
@@ -594,6 +597,7 @@ export default function FornecedorFormPage() {
 
     {showCondicaoModal && (
       <CondicaoPagamentoLookupModal
+        zBase={1001}
         onSelect={(idCondicaoPagamento, nomeCondicaoSelecionada) => {
           setForm(prev => ({ ...prev, idCondicaoPagamento }));
           setNomeCondicao(nomeCondicaoSelecionada);
@@ -605,6 +609,7 @@ export default function FornecedorFormPage() {
 
     {showTransportadoraModal && (
       <TransportadoraLookupModal
+        zBase={1001}
         onSelect={(idTransportadora, nomeTransportadoraSelecionada) => {
           setForm(prev => ({ ...prev, idTransportadora }));
           setNomeTransportadora(nomeTransportadoraSelecionada);

@@ -447,6 +447,10 @@
   max-width: 920px;
 }
 
+.modal.modal-pais {
+  max-width: 720px;
+}
+
 .modal-form-page > .modal-header {
   padding: 16px 24px;
   border-bottom: 1px solid var(--border-card);
@@ -1065,6 +1069,22 @@
 /* ── Country Name Field ───────────────────────────────────────────────────── */
 .form-group.country-field input {
   max-width: 400px;
+}
+
+.pais-codes-row {
+  display: flex;
+  gap: 12px;
+}
+
+.pais-codes-row > .form-group {
+  flex: 0 0 auto;
+}
+
+/* ── Sigla (2 caracteres) e DDI (3 caracteres) ───────────────────────────── */
+.form-group.sigla-field input,
+.form-group.ddi-field input {
+  width: 80px;
+  text-align: center;
 }
 
 /* ── State Name Field ─────────────────────────────────────────────────────── */

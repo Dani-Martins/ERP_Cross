@@ -85,9 +85,10 @@ const EMPTY: FuncionarioCreate = {
 
 };
 
-export default function FuncionarioFormPage() {
+export default function FuncionarioFormPage({ funcionarioId, onClose }: { funcionarioId?: number; onClose?: () => void } = {}) {
 
-    const { id } = useParams<{ id: string }>();
+    const routeParams = useParams<{ id: string }>();
+    const id = funcionarioId?.toString() ?? routeParams.id;
 
     const navigate = useNavigate();
 
@@ -167,7 +168,7 @@ export default function FuncionarioFormPage() {
 
                 })
 
-            .catch(() => navigate('/funcionarios'))
+            .catch(() => onClose ? onClose() : navigate('/funcionarios'))
 
             .finally(() => setLoading(false));
 
@@ -471,7 +472,8 @@ export default function FuncionarioFormPage() {
 
                 await FuncionarioService.create(dataToSend);
 
-            navigate('/funcionarios');
+            if (onClose) onClose();
+            else navigate('/funcionarios');
 
         }
 
@@ -1216,7 +1218,7 @@ export default function FuncionarioFormPage() {
                         <button
                             type="button"
                             className="btn-secondary"
-                            onClick={() => navigate('/funcionarios')}
+                            onClick={() => onClose ? onClose() : navigate('/funcionarios')}
                         >
 
                             Cancelar
@@ -1234,6 +1236,7 @@ export default function FuncionarioFormPage() {
         {showCidadeModal && (
 
             <CidadeLookupModal
+                zBase={1001}
 
                 onSelect={(idCidade, cidadeNome) => {
 
@@ -1260,6 +1263,7 @@ export default function FuncionarioFormPage() {
         {showCargoModal && (
 
             <CargoLookupModal
+                zBase={1001}
 
                 onSelect={(idCargo, cargoNome) => {
 

@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Plus, Search, X, Eye, Pencil, Trash2, Truck } from 'lucide-react';
 import { FornecedorService } from '../services/fornecedorService';
 import type { FornecedorView } from '../types/entities';
+import FornecedorFormPage from './FornecedorFormPage';
+import FornecedorViewPage from './FornecedorViewPage';
 import './PaisesPage.css';
 
 /** Mascara CNPJ → 12.345.678/****-** */
@@ -15,11 +16,14 @@ function maskCnpj(cnpj: string): string {
 }
 
 export default function FornecedoresPage() {
-  const navigate = useNavigate();
   const [fornecedores, setFornecedores] = useState<FornecedorView[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<'ativos' | 'inativos' | 'todos'>('ativos');
+
+  const [showCreate, setShowCreate] = useState(false);
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [viewingId, setViewingId] = useState<number | null>(null);
 
   // Estado de ação: qual ID está sendo acionado
   const [deleteId, setDeleteId] = useState<number | null>(null);
@@ -35,6 +39,13 @@ export default function FornecedoresPage() {
     } finally {
       setLoading(false);
     }
+  }
+
+  function fecharModal() {
+    setShowCreate(false);
+    setEditingId(null);
+    setViewingId(null);
+    load();
   }
 
   useEffect(() => { load(); }, []);
@@ -100,7 +111,7 @@ export default function FornecedoresPage() {
               </button>
             )}
           </div>
-          <button className="btn-primary" onClick={() => navigate('/fornecedores/novo')}>
+          <button className="btn-primary" onClick={() => setShowCreate(true)}>
             <Plus size={16} /> Novo Fornecedor
           </button>
         </div>
@@ -150,14 +161,14 @@ export default function FornecedoresPage() {
                     <button
                       className="btn-icon btn-view"
                       title="Visualizar"
-                      onClick={() => navigate(`/fornecedores/visualizar/${f.id}`)}
+                      onClick={() => setViewingId(f.id)}
                     >
                       <Eye size={15} />
                     </button>
                     <button
                       className="btn-icon btn-edit"
                       title="Editar"
-                      onClick={() => navigate(`/fornecedores/editar/${f.id}`)}
+                      onClick={() => setEditingId(f.id)}
                     >
                       <Pencil size={15} />
                     </button>
@@ -175,6 +186,28 @@ export default function FornecedoresPage() {
           </table>
         )}
       </div>
+
+      {(showCreate || editingId !== null || viewingId !== null) && (
+        <div className="modal-overlay">
+          <div className="modal modal-form-page" role="dialog" aria-modal="true">
+            <div className="modal-header">
+              <h2>{viewingId !== null ? 'Visualizar Fornecedor' : editingId !== null ? 'Editar Fornecedor' : 'Novo Fornecedor'}</h2>
+              <button className="modal-close" type="button" aria-label="Fechar" onClick={fecharModal}><X size={18} /></button>
+            </div>
+            <div className="account-page-modal-body">
+              {viewingId !== null && (
+                <FornecedorViewPage
+                  fornecedorId={viewingId}
+                  onClose={fecharModal}
+                  onEdit={id => { setEditingId(id); setViewingId(null); }}
+                />
+              )}
+              {editingId !== null && <FornecedorFormPage fornecedorId={editingId} onClose={fecharModal} />}
+              {showCreate && <FornecedorFormPage onClose={fecharModal} />}
+            </div>
+          </div>
+        </div>
+      )}
 
       {deleteId !== null && (
         <div className="modal-overlay" onClick={() => setDeleteId(null)}>

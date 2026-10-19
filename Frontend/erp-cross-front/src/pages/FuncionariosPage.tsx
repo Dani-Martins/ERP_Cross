@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { UserCircle, Plus, Search, X, Eye, Pencil, Trash2 } from 'lucide-react';
 import { FuncionarioService } from '../services/funcionarioService';
 import type { FuncionarioView } from '../types/entities';
+import FuncionarioFormPage from './FuncionarioFormPage';
+import FuncionarioViewPage from './FuncionarioViewPage';
 import './PaisesPage.css';
 
 /**
@@ -18,11 +19,14 @@ function maskCpf(cpf: string): string {
 }
 
 export default function FuncionariosPage() {
-  const navigate = useNavigate();
   const [funcionarios, setFuncionarios] = useState<FuncionarioView[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<'ativos' | 'inativos' | 'todos'>('ativos');
+
+  const [showCreate, setShowCreate] = useState(false);
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [viewingId, setViewingId] = useState<number | null>(null);
 
   // Estado de ação: qual ID está sendo acionado
   const [deleteId, setDeleteId] = useState<number | null>(null);
@@ -38,6 +42,13 @@ export default function FuncionariosPage() {
     } finally {
       setLoading(false);
     }
+  }
+
+  function fecharModal() {
+    setShowCreate(false);
+    setEditingId(null);
+    setViewingId(null);
+    load();
   }
 
   useEffect(() => { load(); }, []);
@@ -102,7 +113,7 @@ export default function FuncionariosPage() {
               </button>
             )}
           </div>
-          <button className="btn-primary" onClick={() => navigate('/funcionarios/novo')}>
+          <button className="btn-primary" onClick={() => setShowCreate(true)}>
             <Plus size={16} /> Novo Funcionário
           </button>
         </div>
@@ -151,14 +162,14 @@ export default function FuncionariosPage() {
                     <button
                       className="btn-icon btn-view"
                       title="Visualizar"
-                      onClick={() => navigate(`/funcionarios/visualizar/${f.id}`)}
+                      onClick={() => setViewingId(f.id)}
                     >
                       <Eye size={15} />
                     </button>
                     <button
                       className="btn-icon btn-edit"
                       title="Editar"
-                      onClick={() => navigate(`/funcionarios/editar/${f.id}`)}
+                      onClick={() => setEditingId(f.id)}
                     >
                       <Pencil size={15} />
                     </button>
@@ -176,6 +187,28 @@ export default function FuncionariosPage() {
           </table>
         )}
       </div>
+
+      {(showCreate || editingId !== null || viewingId !== null) && (
+        <div className="modal-overlay">
+          <div className="modal modal-form-page" role="dialog" aria-modal="true">
+            <div className="modal-header">
+              <h2>{viewingId !== null ? 'Visualizar Funcionário' : editingId !== null ? 'Editar Funcionário' : 'Novo Funcionário'}</h2>
+              <button className="modal-close" type="button" aria-label="Fechar" onClick={fecharModal}><X size={18} /></button>
+            </div>
+            <div className="account-page-modal-body">
+              {viewingId !== null && (
+                <FuncionarioViewPage
+                  funcionarioId={viewingId}
+                  onClose={fecharModal}
+                  onEdit={id => { setEditingId(id); setViewingId(null); }}
+                />
+              )}
+              {editingId !== null && <FuncionarioFormPage funcionarioId={editingId} onClose={fecharModal} />}
+              {showCreate && <FuncionarioFormPage onClose={fecharModal} />}
+            </div>
+          </div>
+        </div>
+      )}
 
       {deleteId !== null && (
         <div className="modal-overlay" onClick={() => setDeleteId(null)}>

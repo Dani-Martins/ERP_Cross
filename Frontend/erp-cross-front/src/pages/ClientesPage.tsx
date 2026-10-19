@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { UserCircle, Plus, Search, X, Eye, Pencil, Trash2 } from 'lucide-react';
 import { ClienteService } from '../services/clienteService';
 import type { ClienteView } from '../types/entities';
+import ClienteFormPage from './ClienteFormPage';
+import ClienteViewPage from './ClienteViewPage';
 import './PaisesPage.css';
 
 /** Mascara CPF → ***.456.789-** | CNPJ → 12.345.678/****-** */
@@ -19,15 +20,25 @@ function maskDoc(doc: string, pf: boolean): string {
 }
 
 export default function ClientesPage() {
-  const navigate = useNavigate();
   const [all, setAll] = useState<ClienteView[]>([]);
   const [search, setSearch] = useState('');
   const [filterStatus, setFilterStatus] = useState<'todos' | 'ativos' | 'inativos'>('ativos');
   const [loading, setLoading] = useState(true);
   
+  const [showCreate, setShowCreate] = useState(false);
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [viewingId, setViewingId] = useState<number | null>(null);
+
   // Estado de ação: qual ID está sendo acionado
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [deleting, setDeleting] = useState(false);
+
+  function fecharModal() {
+    setShowCreate(false);
+    setEditingId(null);
+    setViewingId(null);
+    load();
+  }
 
   useEffect(() => { load(); }, []);
 
@@ -90,7 +101,7 @@ export default function ClientesPage() {
               <button className="search-clear" onClick={() => setSearch('')}><X size={14} /></button>
             )}
           </div>
-          <button className="btn-primary" onClick={() => navigate('/clientes/novo')}>
+          <button className="btn-primary" onClick={() => setShowCreate(true)}>
             <Plus size={16} /> Novo Cliente
           </button>
         </div>
@@ -135,10 +146,10 @@ export default function ClientesPage() {
                     </span>
                   </td>
                   <td className="col-actions">
-                    <button className="btn-icon btn-view" title="Visualizar" onClick={() => navigate(`/clientes/visualizar/${c.id}`)}>
+                    <button className="btn-icon btn-view" title="Visualizar" onClick={() => setViewingId(c.id)}>
                       <Eye size={16} />
                     </button>
-                    <button className="btn-icon btn-edit" title="Editar" onClick={() => navigate(`/clientes/editar/${c.id}`)}>
+                    <button className="btn-icon btn-edit" title="Editar" onClick={() => setEditingId(c.id)}>
                       <Pencil size={16} />
                     </button>
                     <button className="btn-icon btn-delete" title="Excluir" onClick={() => setDeleteId(c.id)}>
@@ -151,6 +162,28 @@ export default function ClientesPage() {
           </table>
         )}
       </div>
+
+      {(showCreate || editingId !== null || viewingId !== null) && (
+        <div className="modal-overlay">
+          <div className="modal modal-form-page" role="dialog" aria-modal="true">
+            <div className="modal-header">
+              <h2>{viewingId !== null ? 'Visualizar Cliente' : editingId !== null ? 'Editar Cliente' : 'Novo Cliente'}</h2>
+              <button className="modal-close" type="button" aria-label="Fechar" onClick={fecharModal}><X size={18} /></button>
+            </div>
+            <div className="account-page-modal-body">
+              {viewingId !== null && (
+                <ClienteViewPage
+                  clienteId={viewingId}
+                  onClose={fecharModal}
+                  onEdit={id => { setEditingId(id); setViewingId(null); }}
+                />
+              )}
+              {editingId !== null && <ClienteFormPage clienteId={editingId} onClose={fecharModal} />}
+              {showCreate && <ClienteFormPage onClose={fecharModal} />}
+            </div>
+          </div>
+        </div>
+      )}
 
       {deleteId != null && (
         <div className="modal-overlay" onClick={() => setDeleteId(null)}>

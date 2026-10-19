@@ -171,7 +171,7 @@ export default function PaisesPage() {
 
       {(showCreate || editingId !== null || viewingId !== null) && (
         <div className="modal-overlay">
-          <div className="modal modal-form-page" role="dialog" aria-modal="true">
+          <div className="modal modal-form-page modal-pais" role="dialog" aria-modal="true">
             <div className="modal-header">
               <h2>{viewingId !== null ? 'Visualizar País' : editingId !== null ? 'Editar País' : 'Novo País'}</h2>
               <button className="modal-close" type="button" aria-label="Fechar" onClick={fecharModal}><X size={18} /></button>

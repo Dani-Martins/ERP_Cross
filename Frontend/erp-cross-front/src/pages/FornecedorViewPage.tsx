@@ -5,8 +5,9 @@ import { FornecedorService } from '../services/fornecedorService';
 import type { FornecedorView } from '../types/entities';
 import './PaisesPage.css';
 
-export default function FornecedorViewPage() {
-  const { id } = useParams<{ id: string }>();
+export default function FornecedorViewPage({ fornecedorId, onClose, onEdit }: { fornecedorId?: number; onClose?: () => void; onEdit?: (id: number) => void } = {}) {
+  const routeParams = useParams<{ id: string }>();
+  const id = fornecedorId?.toString() ?? routeParams.id;
   const navigate = useNavigate();
   const [fornecedor, setFornecedor] = useState<FornecedorView | null>(null);
   const [loading, setLoading] = useState(true);
@@ -14,7 +15,7 @@ export default function FornecedorViewPage() {
   useEffect(() => {
     FornecedorService.getById(Number(id))
       .then(res => setFornecedor(res.data))
-      .catch(() => navigate('/fornecedores'))
+      .catch(() => onClose ? onClose() : navigate('/fornecedores'))
       .finally(() => setLoading(false));
   }, [id, navigate]);
 
@@ -173,12 +174,12 @@ export default function FornecedorViewPage() {
           </div>
 
           <div className="form-page-footer">
-            <button className="btn-primary" onClick={() => navigate(`/fornecedores/editar/${fornecedor.id}`)}>
+            <button className="btn-primary" onClick={() => onEdit ? onEdit(fornecedor.id) : navigate(`/fornecedores/editar/${fornecedor.id}`)}>
               <Pencil size={15} />
               Editar
             </button>
-            <button className="btn-secondary" onClick={() => navigate('/fornecedores')}>
-              Cancelar
+            <button className="btn-secondary" onClick={() => onClose ? onClose() : navigate('/fornecedores')}>
+              {onClose ? 'Fechar' : 'Cancelar'}
             </button>
           </div>
 

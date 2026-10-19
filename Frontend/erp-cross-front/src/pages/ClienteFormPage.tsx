@@ -50,8 +50,9 @@ const EMPTY: ClienteCreate = {
   nomeResponsavel: '', cpfResponsavel: '', parentescoResponsavel: '', observacao: '', ativo: true,
 };
 
-export default function ClienteFormPage() {
-  const { id } = useParams<{ id: string }>();
+export default function ClienteFormPage({ clienteId, onClose }: { clienteId?: number; onClose?: () => void } = {}) {
+  const routeParams = useParams<{ id: string }>();
+  const id = clienteId?.toString() ?? routeParams.id;
   const navigate = useNavigate();
   const isEdit = Boolean(id);
 
@@ -90,7 +91,7 @@ export default function ClienteFormPage() {
           setNomeCondicao(c.nomeCondicaoPagamento ?? '');
           setNextId(String(c.id));
         })
-        .catch(() => navigate('/clientes'))
+        .catch(() => onClose ? onClose() : navigate('/clientes'))
         .finally(() => setLoading(false));
     } else {
       ClienteService.getAll()
@@ -207,7 +208,8 @@ export default function ClienteFormPage() {
       } else {
         await ClienteService.create(payload);
       }
-      navigate('/clientes');
+      if (onClose) onClose();
+      else navigate('/clientes');
     } catch (err) {
       const axiosErr = err as AxiosError<{ message: string }>;
       if (axiosErr.response?.status === 409) {
@@ -691,7 +693,7 @@ export default function ClienteFormPage() {
             <button type="submit" className="btn-primary" disabled={saving}>
               {saving ? 'Salvando...' : 'Salvar'}
             </button>
-            <button type="button" className="btn-secondary" onClick={() => navigate('/clientes')}>
+            <button type="button" className="btn-secondary" onClick={() => onClose ? onClose() : navigate('/clientes')}>
               Cancelar
             </button>
           </div>
@@ -701,6 +703,7 @@ export default function ClienteFormPage() {
 
     {showCidadeModal && (
       <CidadeLookupModal
+        zBase={1001}
         onSelect={(cidadeId, cidadeNome) => {
           setForm(prev => ({ ...prev, idCidade: cidadeId }));
           setNomeCidade(cidadeNome);
@@ -712,6 +715,7 @@ export default function ClienteFormPage() {
 
     {showCondicaoModal && (
       <CondicaoPagamentoLookupModal
+        zBase={1001}
         onSelect={(condicaoId, condicaoNome) => {
           setForm(prev => ({ ...prev, idCondicaoPagamento: condicaoId }));
           setNomeCondicao(condicaoNome);
