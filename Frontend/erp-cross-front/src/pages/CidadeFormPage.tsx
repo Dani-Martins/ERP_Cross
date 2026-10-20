@@ -113,7 +113,7 @@ export default function CidadeFormPage({ cidadeId, onClose }: { cidadeId?: numbe
             </div>
 
             <div className="form-row">
-              <div className="form-group">
+              <div className="form-group cidade-ddd-field">
                 <label htmlFor="ddd">DDD *</label>
                 <input
                   id="ddd"
@@ -124,26 +124,38 @@ export default function CidadeFormPage({ cidadeId, onClose }: { cidadeId?: numbe
                   onChange={(e) => setForm({ ...form, ddd: e.target.value.replace(/\D/g, '') })}
                 />
               </div>
-              <div className="form-group">
-                <label htmlFor="idEstado">Estado *</label>
-                <div className="lookup-field">
+              <div className="form-group lookup-code-group">
+                <label>Cód.</label>
+                <div style={{ display: 'flex', gap: '4px' }}>
                   <input
-                    id="idEstado"
                     type="text"
+                    value={form.idEstado > 0 ? form.idEstado : ''}
+                    placeholder="ID"
                     readOnly
-                    placeholder="Selecione um estado..."
-                    value={nomeEstado}
                     className="lookup-input"
+                    style={{ width: '100%', textAlign: 'center' }}
                   />
                   <button
                     type="button"
                     className="btn-lookup"
                     onClick={() => setShowEstadoModal(true)}
                     title="Pesquisar estado"
+                    style={{ padding: '4px 8px' }}
                   >
                     <Search size={16} />
                   </button>
                 </div>
+              </div>
+              <div className="form-group cidade-estado-field" style={{ flex: 1 }}>
+                <label htmlFor="idEstado">Estado *</label>
+                <input
+                  id="idEstado"
+                  type="text"
+                  readOnly
+                  placeholder="Selecione um estado..."
+                  value={nomeEstado}
+                  className="lookup-input"
+                />
               </div>
             </div>
 

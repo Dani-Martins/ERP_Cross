@@ -451,6 +451,14 @@
   max-width: 720px;
 }
 
+.modal.modal-estado {
+  max-width: 720px;
+}
+
+.modal.modal-cidade {
+  max-width: 720px;
+}
+
 .modal-form-page > .modal-header {
   padding: 16px 24px;
   border-bottom: 1px solid var(--border-card);
@@ -1087,8 +1095,26 @@
   text-align: center;
 }
 
+.form-group.estado-uf-field input {
+  width: 80px;
+  text-align: center;
+}
+
+.form-group.cidade-ddd-field input {
+  width: 80px;
+  text-align: center;
+}
+
+.form-group.cidade-estado-field input {
+  max-width: 400px;
+}
+
 /* ── State Name Field ─────────────────────────────────────────────────────── */
 .form-group.state-field input {
+  max-width: 400px;
+}
+
+.form-group.estado-pais-field input {
   max-width: 400px;
 }
 
@@ -1109,6 +1135,14 @@
 }
 
 .form-row:has(> .lookup-code-group) > .form-group.lookup-code-group {
+  flex: 0 0 auto;
+}
+
+.form-row:has(> .lookup-code-group) > .form-group.estado-uf-field {
+  flex: 0 0 auto;
+}
+
+.form-row:has(> .lookup-code-group) > .form-group.cidade-ddd-field {
   flex: 0 0 auto;
 }
 

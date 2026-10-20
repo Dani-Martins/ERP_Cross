@@ -113,7 +113,7 @@ export default function EstadoFormPage({ estadoId, onClose }: { estadoId?: numbe
             </div>
 
             <div className="form-row">
-              <div className="form-group">
+              <div className="form-group estado-uf-field">
                 <label htmlFor="uf">Sigla *</label>
                 <input
                   id="uf"
@@ -124,26 +124,38 @@ export default function EstadoFormPage({ estadoId, onClose }: { estadoId?: numbe
                   onChange={(e) => setForm({ ...form, uf: e.target.value.toUpperCase() })}
                 />
               </div>
-              <div className="form-group">
-                <label htmlFor="idPais">País *</label>
-                <div className="lookup-field">
+              <div className="form-group lookup-code-group">
+                <label>Cód.</label>
+                <div style={{ display: 'flex', gap: '4px' }}>
                   <input
-                    id="idPais"
                     type="text"
+                    value={form.idPais > 0 ? form.idPais : ''}
+                    placeholder="ID"
                     readOnly
-                    placeholder="Selecione um país..."
-                    value={nomePais}
                     className="lookup-input"
+                    style={{ width: '100%', textAlign: 'center' }}
                   />
                   <button
                     type="button"
                     className="btn-lookup"
                     onClick={() => setShowPaisModal(true)}
                     title="Pesquisar país"
+                    style={{ padding: '4px 8px' }}
                   >
                     <Search size={16} />
                   </button>
                 </div>
+              </div>
+              <div className="form-group estado-pais-field" style={{ flex: 1 }}>
+                <label htmlFor="idPais">País *</label>
+                <input
+                  id="idPais"
+                  type="text"
+                  readOnly
+                  placeholder="Selecione um país..."
+                  value={nomePais}
+                  className="lookup-input"
+                />
               </div>
             </div>
 

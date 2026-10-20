@@ -169,7 +169,7 @@ export default function CidadesPage() {
 
       {(showCreate || editingId !== null || viewingId !== null) && (
         <div className="modal-overlay">
-          <div className="modal modal-form-page" role="dialog" aria-modal="true">
+          <div className="modal modal-form-page modal-cidade" role="dialog" aria-modal="true">
             <div className="modal-header">
               <h2>{viewingId !== null ? 'Visualizar Cidade' : editingId !== null ? 'Editar Cidade' : 'Nova Cidade'}</h2>
               <button className="modal-close" type="button" aria-label="Fechar" onClick={fecharModal}><X size={18} /></button>
