@@ -222,6 +222,7 @@ export default function ClienteFormPage({ clienteId, onClose }: { clienteId?: nu
   }
 
   const idadeAtual = form.pf && form.dataNascimento ? calcularIdade(form.dataNascimento) : null;
+  const hoje = new Date().toISOString().split('T')[0];
   const ehMenorProibido = idadeAtual !== null && idadeAtual < IDADE_MINIMA;
   const ehKids = idadeAtual !== null && idadeAtual >= IDADE_MINIMA && idadeAtual < IDADE_KIDS_MAX;
   const ehMenor = idadeAtual !== null && idadeAtual < IDADE_MENOR;
@@ -297,20 +298,22 @@ export default function ClienteFormPage({ clienteId, onClose }: { clienteId?: nu
             </div>
 
             {!form.pf && (
-              <div className="form-group">
-                <label htmlFor="nomeFantasia">Nome Fantasia</label>
-                <input
-                  id="nomeFantasia"
-                  type="text"
-                  placeholder="Ex: EMPRESA COMERCIAL"
-                  value={form.nomeFantasia}
-                  onChange={e => setForm({ ...form, nomeFantasia: e.target.value.toUpperCase() })}
-                />
+              <div className="form-row">
+                <div className="form-group" style={{ gridColumn: 'span 2' }}>
+                  <label htmlFor="nomeFantasia">Nome Fantasia</label>
+                  <input
+                    id="nomeFantasia"
+                    type="text"
+                    placeholder="Ex: EMPRESA COMERCIAL"
+                    value={form.nomeFantasia}
+                    onChange={e => setForm({ ...form, nomeFantasia: e.target.value.toUpperCase() })}
+                  />
+                </div>
               </div>
             )}
 
-            <div className="form-row">
-              <div className="form-group">
+            <div className="form-row cliente-documentos-row">
+              <div className={`form-group ${form.pf ? 'cliente-cpf-field' : 'cliente-cnpj-field'}`}>
                 <label htmlFor="cpfCnpj">{form.pf ? 'CPF *' : 'CNPJ *'}</label>
                 <input
                   id="cpfCnpj"
@@ -324,7 +327,7 @@ export default function ClienteFormPage({ clienteId, onClose }: { clienteId?: nu
                   }}
                 />
               </div>
-              <div className="form-group">
+              <div className={`form-group ${form.pf ? 'cliente-rg-field' : 'cliente-ie-field'}`}>
                 <label htmlFor="rgIe">{form.pf ? 'RG' : 'Inscrição Estadual'}</label>
                 <input
                   id="rgIe"
@@ -338,83 +341,76 @@ export default function ClienteFormPage({ clienteId, onClose }: { clienteId?: nu
                   }}
                 />
               </div>
+              {form.pf && (
+                <>
+                  <div className="form-group cliente-data-field">
+                    <label htmlFor="dataNascimento">Data de Nascimento</label>
+                    <input
+                      id="dataNascimento"
+                      type="date"
+                      max={hoje}
+                      value={form.dataNascimento}
+                      onChange={e => {
+                        const novaData = e.target.value;
+                        const idadeCalc = novaData ? calcularIdade(novaData) : null;
+                        const forcarKids = idadeCalc !== null && idadeCalc >= IDADE_MINIMA && idadeCalc < IDADE_KIDS_MAX;
+                        setForm({ ...form, dataNascimento: novaData, funcionalKids: forcarKids ? true : (idadeCalc !== null && idadeCalc >= IDADE_KIDS_MAX ? form.funcionalKids : false) });
+                      }}
+                    />
+                    {idadeAtual !== null && ehMenorProibido && (
+                      <span style={{ fontSize: '0.78rem', color: 'var(--danger, #dc3545)', marginTop: 4, display: 'block' }}>
+                        ⚠ Idade mínima para cadastro é {IDADE_MINIMA} anos.
+                      </span>
+                    )}
+                    {idadeAtual !== null && ehKids && (
+                      <span style={{ fontSize: '0.78rem', color: '#D4A017', marginTop: 4, display: 'block', fontWeight: 600 }}>
+                        ⭐ Criança ({idadeAtual} anos) — apenas Funcional Kids permitido.
+                      </span>
+                    )}
+                    {idadeAtual !== null && !ehMenorProibido && !ehKids && (
+                      <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: 4, display: 'block' }}>
+                        Idade: {idadeAtual} anos
+                      </span>
+                    )}
+                  </div>
+                  <div className="form-group cliente-sexo-field">
+                    <label htmlFor="sexo">Sexo</label>
+                    <select
+                      id="sexo"
+                      value={form.sexo}
+                      onChange={e => setForm({ ...form, sexo: e.target.value })}
+                    >
+                      <option value="">Não informado</option>
+                      <option value="M">Masculino</option>
+                      <option value="F">Feminino</option>
+                      <option value="O">Outro</option>
+                    </select>
+                  </div>
+                </>
+              )}
             </div>
 
-            {form.pf && (() => {
-              const hoje = new Date().toISOString().split('T')[0];
-              return (
-                <>
-                  <div className="form-row">
-                    <div className="form-group">
-                      <label htmlFor="dataNascimento">Data de Nascimento</label>
-                      <input
-                        id="dataNascimento"
-                        type="date"
-                        max={hoje}
-                        value={form.dataNascimento}
-                        onChange={e => {
-                          const novaData = e.target.value;
-                          const idadeCalc = novaData ? calcularIdade(novaData) : null;
-                          const forcarKids = idadeCalc !== null && idadeCalc >= IDADE_MINIMA && idadeCalc < IDADE_KIDS_MAX;
-                          setForm({ ...form, dataNascimento: novaData, funcionalKids: forcarKids ? true : (idadeCalc !== null && idadeCalc >= IDADE_KIDS_MAX ? form.funcionalKids : false) });
-                        }}
-                      />
-                      {idadeAtual !== null && ehMenorProibido && (
-                        <span style={{ fontSize: '0.78rem', color: 'var(--danger, #dc3545)', marginTop: 4, display: 'block' }}>
-                          ⚠ Idade mínima para cadastro é {IDADE_MINIMA} anos.
-                        </span>
-                      )}
-                      {idadeAtual !== null && ehKids && (
-                        <span style={{ fontSize: '0.78rem', color: '#D4A017', marginTop: 4, display: 'block', fontWeight: 600 }}>
-                          ⭐ Criança ({idadeAtual} anos) — apenas Funcional Kids permitido.
-                        </span>
-                      )}
-                      {idadeAtual !== null && !ehMenorProibido && !ehKids && (
-                        <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: 4, display: 'block' }}>
-                          Idade: {idadeAtual} anos
-                        </span>
-                      )}
-                    </div>
-                    <div className="form-group">
-                      <label htmlFor="sexo">Sexo</label>
-                      <select
-                        id="sexo"
-                        value={form.sexo}
-                        onChange={e => setForm({ ...form, sexo: e.target.value })}
-                      >
-                        <option value="">Não informado</option>
-                        <option value="M">Masculino</option>
-                        <option value="F">Feminino</option>
-                        <option value="O">Outro</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  {/* Funcional Kids — só aparece para idades entre 6 e 14 anos */}
-                  {idadeAtual !== null && idadeAtual >= IDADE_MINIMA && idadeAtual <= IDADE_KIDS_MAX && (
-                  <div className="form-group form-check" style={{ marginTop: 4 }}>
-                    <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: ehKids ? 'default' : 'pointer', opacity: ehMenorProibido ? 0.5 : 1 }}>
-                      <input
-                        type="checkbox"
-                        checked={form.funcionalKids}
-                        disabled={ehKids}
-                        onChange={e => setForm({ ...form, funcionalKids: e.target.checked })}
-                        style={{ accentColor: '#D4A017', width: 16, height: 16 }}
-                      />
-                      <span>
-                        Aluno de Funcional Kids
-                        {ehKids && (
-                          <span style={{ color: '#D4A017', fontSize: '0.78rem', marginLeft: 6 }}>
-                            (obrigatório para menores de {IDADE_KIDS_MAX} anos)
-                          </span>
-                        )}
+            {form.pf && idadeAtual !== null && idadeAtual >= IDADE_MINIMA && idadeAtual <= IDADE_KIDS_MAX && (
+              <div className="form-group form-check" style={{ marginTop: 4 }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: ehKids ? 'default' : 'pointer', opacity: ehMenorProibido ? 0.5 : 1 }}>
+                  <input
+                    type="checkbox"
+                    checked={form.funcionalKids}
+                    disabled={ehKids}
+                    onChange={e => setForm({ ...form, funcionalKids: e.target.checked })}
+                    style={{ accentColor: '#D4A017', width: 16, height: 16 }}
+                  />
+                  <span>
+                    Aluno de Funcional Kids
+                    {ehKids && (
+                      <span style={{ color: '#D4A017', fontSize: '0.78rem', marginLeft: 6 }}>
+                        (obrigatório para menores de {IDADE_KIDS_MAX} anos)
                       </span>
-                    </label>
-                  </div>
-                  )}
-                </>
-              );
-            })()}
+                    )}
+                  </span>
+                </label>
+              </div>
+            )}
           </div>
 
           {/* Seção 2: Dados do Responsável — para menores de 18 anos */}
@@ -472,8 +468,8 @@ export default function ClienteFormPage({ clienteId, onClose }: { clienteId?: nu
           {/* Seção 3: Contato */}
           <div className="form-section">
             <h2 className="form-section-title">{ehMenor ? 'Contato do Responsável' : 'Contato'}</h2>
-            <div className="form-row">
-              <div className="form-group">
+            <div className="form-row cliente-contato-row">
+              <div className="form-group cliente-celular-field">
                 <label htmlFor="celular">{ehMenor ? 'Celular do Responsável *' : 'Celular *'}</label>
                 <input
                   id="celular"
@@ -484,7 +480,7 @@ export default function ClienteFormPage({ clienteId, onClose }: { clienteId?: nu
                   onChange={e => setForm({ ...form, celular: formatPhone(e.target.value) })}
                 />
               </div>
-              <div className="form-group">
+              <div className="form-group cliente-contato2-field">
                 <label htmlFor="contato2">Telefone / Contato 2</label>
                 <input
                   id="contato2"
@@ -495,24 +491,24 @@ export default function ClienteFormPage({ clienteId, onClose }: { clienteId?: nu
                   onChange={e => setForm({ ...form, contato2: formatPhone(e.target.value) })}
                 />
               </div>
-            </div>
-            <div className="form-group">
+              <div className="form-group cliente-email-field">
                 <label htmlFor="email">{ehMenor ? 'E-mail do Responsável *' : 'E-mail *'}</label>
-              <input
-                id="email"
-                type="text"
-                placeholder="Ex: contato@email.com"
-                value={form.email}
-                onChange={e => setForm({ ...form, email: e.target.value })}
-              />
+                <input
+                  id="email"
+                  type="text"
+                  placeholder="Ex: contato@email.com"
+                  value={form.email}
+                  onChange={e => setForm({ ...form, email: e.target.value })}
+                />
+              </div>
             </div>
           </div>
 
           {/* Seção 3: Endereço */}
           <div className="form-section">
             <h2 className="form-section-title">Endereço</h2>
-            <div className="form-row">
-              <div className="form-group">
+            <div className="form-row cliente-endereco-row">
+              <div className="form-group cliente-cep-field">
                 <label htmlFor="cep">CEP *</label>
                 <input
                   id="cep"
@@ -532,7 +528,7 @@ export default function ClienteFormPage({ clienteId, onClose }: { clienteId?: nu
                   </span>
                 )}
               </div>
-              <div className="form-group">
+              <div className="form-group cliente-bairro-field">
                 <label htmlFor="bairro">Bairro *</label>
                 <input
                   id="bairro"
@@ -543,8 +539,8 @@ export default function ClienteFormPage({ clienteId, onClose }: { clienteId?: nu
                 />
               </div>
             </div>
-            <div className="form-row">
-              <div className="form-group" style={{ gridColumn: 'span 2' }}>
+            <div className="form-row cliente-logradouro-row">
+              <div className="form-group cliente-logradouro-field">
                 <label htmlFor="endereco">Logradouro *</label>
                 <input
                   id="endereco"
@@ -555,19 +551,19 @@ export default function ClienteFormPage({ clienteId, onClose }: { clienteId?: nu
                 />
               </div>
             </div>
-            <div className="form-row">
-              <div className="form-group">
+            <div className="form-row cliente-endereco-row">
+              <div className="form-group cliente-numero-field">
                 <label htmlFor="numero">Número *</label>
                 <input
                   id="numero"
                   type="text"
                   placeholder="Ex: 123"
-                  maxLength={10}
+                  maxLength={4}
                   value={form.numero}
                   onChange={e => setForm({ ...form, numero: e.target.value })}
                 />
               </div>
-              <div className="form-group">
+              <div className="form-group cliente-complemento-field">
                 <label htmlFor="complemento">Complemento</label>
                 <input
                   id="complemento"
@@ -578,7 +574,7 @@ export default function ClienteFormPage({ clienteId, onClose }: { clienteId?: nu
                 />
               </div>
             </div>
-            <div className="form-row">
+            <div className="form-row cliente-cidade-lookup-row">
               <div className="form-group lookup-code-group">
                 <label>Cód.</label>
                 <div style={{ display: 'flex', gap: '4px' }}>
@@ -602,7 +598,7 @@ export default function ClienteFormPage({ clienteId, onClose }: { clienteId?: nu
                 </div>
               </div>
 
-              <div className="form-group" style={{ flex: 1 }}>
+              <div className="form-group cliente-cidade-lookup-field" style={{ flex: 1 }}>
                 <label htmlFor="idCidade">Cidade *</label>
                 <input
                   id="idCidade"
@@ -620,8 +616,8 @@ export default function ClienteFormPage({ clienteId, onClose }: { clienteId?: nu
           <div className="form-section">
             <h2 className="form-section-title">Dados Comerciais</h2>
 
-            <div className="form-row">
-              <div className="form-group">
+            <div className="form-row cliente-dados-comerciais-row">
+              <div className="form-group cliente-limite-credito-field">
                 <label htmlFor="limiteCredito">Limite de Crédito</label>
                 <CurrencyInput
                   id="limiteCredito"
@@ -629,7 +625,7 @@ export default function ClienteFormPage({ clienteId, onClose }: { clienteId?: nu
                   onChange={value => setForm({ ...form, limiteCredito: value })}
                 />
               </div>
-              <div className="form-group lookup-code-group">
+              <div className="form-group lookup-code-group cliente-condicao-code-group">
                 <label>Cód.</label>
                 <div style={{ display: 'flex', gap: '4px' }}>
                   <input
@@ -651,7 +647,7 @@ export default function ClienteFormPage({ clienteId, onClose }: { clienteId?: nu
                   </button>
                 </div>
               </div>
-              <div className="form-group" style={{ flex: 1 }}>
+              <div className="form-group cliente-condicao-name-field">
                 <label htmlFor="idCondicao">Condição de Pagamento</label>
                 <input
                   id="idCondicao"

@@ -459,6 +459,14 @@
   max-width: 720px;
 }
 
+.modal.modal-cliente {
+  max-width: 820px;
+}
+
+.modal.modal-funcionario {
+  max-width: 800px;
+}
+
 .modal-form-page > .modal-header {
   padding: 16px 24px;
   border-bottom: 1px solid var(--border-card);
@@ -1109,6 +1117,341 @@
   max-width: 400px;
 }
 
+.cliente-documentos-row,
+.form-row.cliente-nascimento-sexo-row {
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.cliente-documentos-row > .form-group,
+.cliente-nascimento-sexo-row > .form-group {
+  flex: 0 0 auto;
+}
+
+.form-group.cliente-cpf-field input {
+  width: 18ch;
+}
+
+.form-group.cliente-cnpj-field input {
+  width: calc(18ch + 26px);
+}
+
+.form-group.cliente-rg-field input {
+  width: 20ch;
+}
+
+.form-group.cliente-ie-field input {
+  width: calc(14ch + 26px);
+}
+
+.form-group.cliente-data-field input {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.form-group.cliente-data-field {
+  width: 180px;
+  flex: 0 0 180px;
+}
+
+.form-group.cliente-sexo-field select {
+  width: 18ch;
+}
+
+.funcionario-documentos-row {
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.funcionario-documentos-row > .form-group {
+  flex: 0 0 auto;
+}
+
+.form-group.funcionario-cpf-field input {
+  width: 18ch;
+}
+
+.form-group.funcionario-rg-field input {
+  width: 20ch;
+}
+
+.form-group.funcionario-sexo-field select {
+  width: 18ch;
+}
+
+.form-group.funcionario-pis-field input {
+  width: calc(14ch + 26px);
+}
+
+.funcionario-remuneracao-row {
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.funcionario-remuneracao-row > .form-group {
+  flex: 0 0 auto;
+}
+
+.funcionario-cargo-salario-row {
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.funcionario-cargo-salario-row > .form-group {
+  flex: 0 0 auto;
+}
+
+.funcionario-salario-field {
+  width: 180px;
+  min-width: 0;
+  flex: 0 0 180px;
+}
+
+.funcionario-carga-horaria-field {
+  width: 120px;
+}
+
+.funcionario-carga-horaria-field input {
+  width: 90px;
+}
+
+.funcionario-data-admissao-field,
+.funcionario-data-demissao-field {
+  width: 180px;
+}
+
+.funcionario-salario-field input,
+.funcionario-data-admissao-field input,
+.funcionario-data-demissao-field input {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.funcionario-remuneracao-row > .form-group:not(.form-check) label {
+  min-height: 30px;
+}
+
+.funcionario-remuneracao-row > .form-group.funcionario-data-admissao-field,
+.funcionario-remuneracao-row > .form-group.funcionario-data-demissao-field {
+  flex: 0 0 180px;
+}
+
+.funcionario-ativo-field {
+  align-self: flex-end;
+  flex: 0 0 auto;
+  padding-bottom: 9px;
+}
+
+.form-row:has(> .lookup-code-group) > .form-group.funcionario-sexo-field {
+  flex: 0 0 auto;
+}
+
+.form-row:has(> .lookup-code-group) > .form-group.funcionario-cargo-name-field {
+  flex: 0 0 260px;
+  min-width: 0;
+}
+
+.form-row:has(> .lookup-code-group) > .form-group.funcionario-salario-field {
+  flex: 0 0 160px;
+  width: 160px;
+  min-width: 0;
+}
+
+.form-group.funcionario-cargo-name-field input {
+  width: 100%;
+  max-width: none;
+  box-sizing: border-box;
+}
+
+.form-group.funcionario-cargo-code-group .lookup-input {
+  width: 70px !important;
+}
+
+.cliente-contato-row,
+.cliente-endereco-row,
+.cliente-logradouro-row {
+  display: flex;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.cliente-contato-row > .form-group,
+.cliente-endereco-row > .form-group,
+.cliente-logradouro-row > .form-group {
+  flex: 0 1 auto;
+}
+
+.cliente-contato-row {
+  flex-wrap: nowrap;
+}
+
+.cliente-celular-field,
+.cliente-contato2-field {
+  width: 150px;
+  flex: 0 0 150px;
+}
+
+.funcionario-contato-row,
+.funcionario-endereco-row,
+.funcionario-logradouro-row {
+  display: flex;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.funcionario-contato-row > .form-group,
+.funcionario-endereco-row > .form-group,
+.funcionario-logradouro-row > .form-group {
+  flex: 0 1 auto;
+}
+
+.funcionario-contato-row {
+  flex-wrap: nowrap;
+}
+
+.funcionario-celular-field,
+.funcionario-contato2-field {
+  width: 150px;
+  flex: 0 0 150px;
+}
+
+.funcionario-email-field {
+  width: 280px;
+  flex: 0 1 280px;
+  min-width: 0;
+}
+
+.funcionario-cep-field {
+  width: 150px;
+}
+
+.funcionario-bairro-field,
+.funcionario-complemento-field {
+  width: 280px;
+}
+
+.funcionario-logradouro-field {
+  width: min(480px, 100%);
+}
+
+.funcionario-numero-field {
+  width: 100px;
+}
+
+.funcionario-celular-field input,
+.funcionario-contato2-field input,
+.funcionario-email-field input,
+.funcionario-cep-field input,
+.funcionario-bairro-field input,
+.funcionario-logradouro-field input,
+.funcionario-numero-field input,
+.funcionario-complemento-field input {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+@media (max-width: 700px) {
+  .funcionario-contato-row {
+    flex-wrap: wrap;
+  }
+}
+
+.form-row.funcionario-cidade-lookup-row > .form-group.funcionario-cidade-name-field {
+  flex: 0 1 400px;
+}
+
+.funcionario-cidade-name-field input {
+  width: 100%;
+  max-width: 400px;
+  box-sizing: border-box;
+}
+
+.cliente-email-field {
+  width: 280px;
+  flex: 0 1 280px;
+  min-width: 0;
+}
+
+@media (max-width: 700px) {
+  .cliente-contato-row {
+    flex-wrap: wrap;
+  }
+}
+
+.cliente-cep-field {
+  width: 150px;
+}
+
+.cliente-bairro-field,
+.cliente-complemento-field {
+  width: 280px;
+}
+
+.cliente-logradouro-field {
+  width: min(480px, 100%);
+}
+
+.cliente-numero-field {
+  width: 100px;
+}
+
+.form-row.cliente-cidade-lookup-row > .form-group.cliente-cidade-lookup-field {
+  flex: 0 1 400px;
+}
+
+.cliente-cidade-lookup-field input {
+  width: 100%;
+  max-width: 400px;
+  box-sizing: border-box;
+}
+
+.cliente-dados-comerciais-row {
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.cliente-dados-comerciais-row > .form-group {
+  flex: 0 0 auto;
+}
+
+.cliente-limite-credito-field {
+  width: 160px;
+}
+
+.cliente-condicao-code-group .lookup-input {
+  width: 90px !important;
+}
+
+.cliente-dados-comerciais-row > .cliente-condicao-name-field {
+  flex: 0 0 300px;
+}
+
+.cliente-celular-field input,
+.cliente-contato2-field input,
+.cliente-email-field input,
+.cliente-cep-field input,
+.cliente-bairro-field input,
+.cliente-logradouro-field input,
+.cliente-numero-field input,
+.cliente-complemento-field input {
+  width: 100%;
+  box-sizing: border-box;
+}
+
 /* ── State Name Field ─────────────────────────────────────────────────────── */
 .form-group.state-field input {
   max-width: 400px;
@@ -1150,4 +1493,8 @@
   flex: none;
   width: 120px !important;
   text-align: center;
+}
+
+.form-group.funcionario-lookup-name-field input {
+  max-width: 400px;
 }

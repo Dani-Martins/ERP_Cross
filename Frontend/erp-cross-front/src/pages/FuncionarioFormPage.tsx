@@ -593,9 +593,9 @@ export default function FuncionarioFormPage({ funcionarioId, onClose }: { funcio
 
                         </div>
 
-                        <div className="form-row">
+                        <div className="form-row funcionario-documentos-row">
 
-                            <div className="form-group">
+                            <div className="form-group funcionario-cpf-field">
 
                                 <label>
 
@@ -618,7 +618,7 @@ export default function FuncionarioFormPage({ funcionarioId, onClose }: { funcio
 
                             </div>
 
-                            <div className="form-group">
+                            <div className="form-group funcionario-rg-field">
 
                                 <label>
 
@@ -641,95 +641,7 @@ export default function FuncionarioFormPage({ funcionarioId, onClose }: { funcio
 
                             </div>
 
-                        </div>
-
-                        <div className="form-row">
-
-                            <div className="form-group">
-
-                                <label>
-
-                                    Sexo
-
-                                </label>
-
-                                <select
-                                    value={form.sexo}
-                                    onChange={e =>
-                                        setForm({
-                                            ...form,
-                                            sexo: e.target.value
-                                        })
-                                    }
-                                >
-
-                                    <option value="">
-
-                                        Não informado
-
-                                    </option>
-
-                                    <option value="M">
-
-                                        Masculino
-
-                                    </option>
-
-                                    <option value="F">
-
-                                        Feminino
-
-                                    </option>
-
-                                    <option value="O">
-
-                                        Outro
-
-                                    </option>
-
-                                </select>
-
-                            </div>
-
-                            <div className="form-group">
-
-                                <label>
-
-                                    Cargo *
-
-                                </label>
-
-                                <div className="lookup-field">
-
-                                    <input
-                                        type="text"
-                                        readOnly
-                                        className="lookup-input"
-                                        placeholder="Selecione um cargo..."
-                                        value={nomeCargo}
-                                    />
-
-                                    <button
-                                        type="button"
-                                        className="btn-lookup"
-                                        onClick={() =>
-                                            setShowCargoModal(true)
-                                        }
-                                    >
-
-                                        <Search size={16} />
-
-                                    </button>
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                        <div className="form-row">
-
-                            <div className="form-group">
+                            <div className="form-group funcionario-pis-field">
 
                                 <label htmlFor="pis">
 
@@ -752,11 +664,64 @@ export default function FuncionarioFormPage({ funcionarioId, onClose }: { funcio
 
                             </div>
 
+                            <div className="form-group funcionario-sexo-field">
+                                <label>Sexo</label>
+                                <select
+                                    value={form.sexo}
+                                    onChange={e =>
+                                        setForm({
+                                            ...form,
+                                            sexo: e.target.value
+                                        })
+                                    }
+                                >
+                                    <option value="">Não informado</option>
+                                    <option value="M">Masculino</option>
+                                    <option value="F">Feminino</option>
+                                    <option value="O">Outro</option>
+                                </select>
+                            </div>
+
                         </div>
 
-                        <div className="form-row">
+                        <div className="form-row funcionario-cargo-salario-row">
 
-                            <div className="form-group">
+                            <div className="form-group lookup-code-group funcionario-cargo-code-group">
+                                <label>Cód.</label>
+                                <div style={{ display: 'flex', gap: '4px' }}>
+                                    <input
+                                        type="text"
+                                        value={(form.idCargo ?? 0) > 0 ? form.idCargo : ''}
+                                        placeholder="ID"
+                                        readOnly
+                                        className="lookup-input"
+                                        style={{ width: '100%', textAlign: 'center' }}
+                                    />
+                                    <button
+                                        type="button"
+                                        className="btn-lookup"
+                                        onClick={() => setShowCargoModal(true)}
+                                        title="Pesquisar cargo"
+                                        style={{ padding: '4px 8px' }}
+                                    >
+                                        <Search size={16} />
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div className="form-group funcionario-lookup-name-field funcionario-cargo-name-field">
+                                <label htmlFor="idCargo">Cargo *</label>
+                                <input
+                                    id="idCargo"
+                                    type="text"
+                                    readOnly
+                                    className="lookup-input"
+                                    placeholder="Selecione um cargo..."
+                                    value={nomeCargo}
+                                />
+                            </div>
+
+                            <div className="form-group funcionario-salario-field">
 
                                 <label htmlFor="salario">
 
@@ -781,7 +746,11 @@ export default function FuncionarioFormPage({ funcionarioId, onClose }: { funcio
 
                             </div>
 
-                            <div className="form-group">
+                        </div>
+
+                        <div className="form-row funcionario-remuneracao-row">
+
+                            <div className="form-group funcionario-carga-horaria-field">
 
                                 <label htmlFor="carregaHoraria">
 
@@ -793,7 +762,7 @@ export default function FuncionarioFormPage({ funcionarioId, onClose }: { funcio
                                     id="carregaHoraria"
                                     type="number"
                                     min="1"
-                                    max="100"
+                                    max="99"
                                     placeholder="Ex: 40"
                                     value={form.carregaHoraria ?? 0}
                                     onChange={e => setForm({ ...form, carregaHoraria: Number(e.target.value) })}
@@ -801,7 +770,7 @@ export default function FuncionarioFormPage({ funcionarioId, onClose }: { funcio
 
                             </div>
 
-                            <div className="form-group">
+                            <div className="form-group funcionario-data-admissao-field">
 
                                 <label htmlFor="dataAdmissao">
 
@@ -828,11 +797,7 @@ export default function FuncionarioFormPage({ funcionarioId, onClose }: { funcio
 
                             </div>
 
-                        </div>
-
-                        <div className="form-row">
-
-                            <div className="form-group">
+                            <div className="form-group funcionario-data-demissao-field">
 
                                 <label htmlFor="dataDemissao">
 
@@ -859,33 +824,23 @@ export default function FuncionarioFormPage({ funcionarioId, onClose }: { funcio
 
                             </div>
 
-                            <div
-                                className="form-group form-check"
-                                style={{
-                                    justifyContent: 'center'
-                                }}
-                            >
-
-                                <label htmlFor="ativo">
-
-                                    <input
-                                        id="ativo"
-                                        type="checkbox"
-                                        checked={form.ativo}
-                                        onChange={e => {
-                                            const novoStatus = e.target.checked;
-                                            setForm(prev => ({
-                                                ...prev,
-                                                ativo: novoStatus,
-                                                dataDemissao: !novoStatus ? getHoje() : ''
-                                            }));
-                                        }}
-                                    />
-
-                                    Ativo
-
-                                </label>
-
+                            <div className="form-group form-check funcionario-ativo-field">
+                            <label htmlFor="ativo">
+                                <input
+                                    id="ativo"
+                                    type="checkbox"
+                                    checked={form.ativo}
+                                    onChange={e => {
+                                        const novoStatus = e.target.checked;
+                                        setForm(prev => ({
+                                            ...prev,
+                                            ativo: novoStatus,
+                                            dataDemissao: !novoStatus ? getHoje() : ''
+                                        }));
+                                    }}
+                                />
+                                Ativo
+                            </label>
                             </div>
 
                         </div>
@@ -903,9 +858,9 @@ export default function FuncionarioFormPage({ funcionarioId, onClose }: { funcio
 
                         </h2>
 
-                        <div className="form-row">
+                        <div className="form-row funcionario-contato-row">
 
-                            <div className="form-group">
+                            <div className="form-group funcionario-celular-field">
 
                                 <label>
 
@@ -928,7 +883,7 @@ export default function FuncionarioFormPage({ funcionarioId, onClose }: { funcio
 
                             </div>
 
-                            <div className="form-group">
+                            <div className="form-group funcionario-contato2-field">
 
                                 <label>
 
@@ -951,27 +906,20 @@ export default function FuncionarioFormPage({ funcionarioId, onClose }: { funcio
 
                             </div>
 
-                        </div>
-
-                        <div className="form-group">
-
-                            <label>
-
-                                E-mail
-
-                            </label>
-
-                            <input
-                                type="email"
-                                placeholder="email@empresa.com"
-                                value={form.email}
-                                onChange={e =>
-                                    setForm({
-                                        ...form,
-                                        email: e.target.value.toUpperCase()
-                                    })
-                                }
-                            />
+                            <div className="form-group funcionario-email-field">
+                                <label>E-mail</label>
+                                <input
+                                    type="email"
+                                    placeholder="email@empresa.com"
+                                    value={form.email}
+                                    onChange={e =>
+                                        setForm({
+                                            ...form,
+                                            email: e.target.value.toUpperCase()
+                                        })
+                                    }
+                                />
+                            </div>
 
                         </div>
 
@@ -989,9 +937,9 @@ export default function FuncionarioFormPage({ funcionarioId, onClose }: { funcio
 
                         </h2>
 
-                        <div className="form-row">
+                        <div className="form-row funcionario-endereco-row">
 
-                            <div className="form-group">
+                            <div className="form-group funcionario-cep-field">
 
                                 <label>
 
@@ -1043,7 +991,7 @@ export default function FuncionarioFormPage({ funcionarioId, onClose }: { funcio
 
                             </div>
 
-                            <div className="form-group">
+                            <div className="form-group funcionario-bairro-field">
 
                                 <label>
 
@@ -1070,10 +1018,10 @@ export default function FuncionarioFormPage({ funcionarioId, onClose }: { funcio
 
                         </div>
 
-                        <div className="form-row">
+                        <div className="form-row funcionario-logradouro-row">
 
                             <div
-                                className="form-group"
+                                className="form-group funcionario-logradouro-field"
                                 style={{
                                     gridColumn: 'span 2'
                                 }}
@@ -1104,9 +1052,9 @@ export default function FuncionarioFormPage({ funcionarioId, onClose }: { funcio
 
                         </div>
 
-                        <div className="form-row">
+                        <div className="form-row funcionario-endereco-row">
 
-                            <div className="form-group">
+                            <div className="form-group funcionario-numero-field">
 
                                 <label>
 
@@ -1131,7 +1079,7 @@ export default function FuncionarioFormPage({ funcionarioId, onClose }: { funcio
 
                             </div>
 
-                            <div className="form-group">
+                            <div className="form-group funcionario-complemento-field">
 
                                 <label>
 
@@ -1157,36 +1105,40 @@ export default function FuncionarioFormPage({ funcionarioId, onClose }: { funcio
                             </div>
 
                         </div>
-                                                <div className="form-group">
-
-                            <label>
-
-                                Cidade *
-
-                            </label>
-
-                            <div className="lookup-field">
-
+                        <div className="form-row funcionario-cidade-lookup-row">
+                            <div className="form-group lookup-code-group">
+                                <label>Cód.</label>
+                                <div style={{ display: 'flex', gap: '4px' }}>
+                                    <input
+                                        type="text"
+                                        value={(form.idCidade ?? 0) > 0 ? form.idCidade : ''}
+                                        placeholder="ID"
+                                        readOnly
+                                        className="lookup-input"
+                                        style={{ width: '100%', textAlign: 'center' }}
+                                    />
+                                    <button
+                                        type="button"
+                                        className="btn-lookup"
+                                        onClick={() => setShowCidadeModal(true)}
+                                        title="Pesquisar cidade"
+                                        style={{ padding: '4px 8px' }}
+                                    >
+                                        <Search size={16} />
+                                    </button>
+                                </div>
+                            </div>
+                            <div className="form-group funcionario-lookup-name-field funcionario-cidade-name-field">
+                                <label htmlFor="idCidade">Cidade *</label>
                                 <input
+                                    id="idCidade"
                                     type="text"
                                     readOnly
                                     className="lookup-input"
                                     placeholder="Selecione uma cidade..."
                                     value={nomeCidade}
                                 />
-
-                                <button
-                                    type="button"
-                                    className="btn-lookup"
-                                    onClick={() => setShowCidadeModal(true)}
-                                >
-
-                                    <Search size={16} />
-
-                                </button>
-
                             </div>
-
                         </div>
 
                     </div>
