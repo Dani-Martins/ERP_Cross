@@ -32,11 +32,6 @@ export default function CondicaoPagamentoLookupModal({ onSelect, onClose, zBase 
     ? all.filter(c => c.nomeCondicao.toLowerCase().includes(search.toLowerCase()))
     : all;
 
-  function handleCreated() {
-    setShowCreate(false);
-    load();
-  }
-
   function handleSelectCondicao(condicao: CondicaoPagamentoView) {
     onSelect(condicao.id, condicao.nomeCondicao);
     onClose();
@@ -45,23 +40,12 @@ export default function CondicaoPagamentoLookupModal({ onSelect, onClose, zBase 
   return (
     <>
       <div className="modal-overlay" style={{ zIndex: zBase }} onClick={onClose}>
-        <div
-          className="modal modal-lookup"
-          onClick={e => e.stopPropagation()}
-          style={{
-            maxWidth: '950px',
-            width: 'min(950px, 92vw)',
-            height: '90vh',
-            display: 'flex',
-            flexDirection: 'column',
-            padding: 0,
-          }}
-        >
+        <div className="modal modal-lookup" onClick={e => e.stopPropagation()}>
           <div className="modal-header">
             <h2>Selecionar Condição de Pagamento</h2>
             <button className="modal-close" onClick={onClose}><X size={18} /></button>
           </div>
-          <div className="modal-body lookup-modal-body" style={{ flex: 1, overflowY: 'auto', padding: '16px 20px 20px' }}>
+          <div className="modal-body lookup-modal-body">
             <>
                 <div className="lookup-search-bar">
                   <Search size={15} className="lookup-search-icon" />
@@ -122,7 +106,10 @@ export default function CondicaoPagamentoLookupModal({ onSelect, onClose, zBase 
 
       {showCreate && (
         <CondicaoPagamentoCreateModal
-          onCreated={() => handleCreated()}
+          onCreated={(id, nome) => {
+            setShowCreate(false);
+            onSelect(id, nome);
+          }}
           onClose={() => setShowCreate(false)}
           zBase={zBase + 100}
         />

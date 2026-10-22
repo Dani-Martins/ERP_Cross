@@ -143,7 +143,7 @@ export default function CargoFormPage({ cargoId, onClose }: { cargoId?: number; 
               <input id="id" type="text" readOnly value={nextId} />
             </div>
 
-            <div className="form-group">
+            <div className="form-group cargo-text-field">
               <label htmlFor="nomeCargo">Cargo *</label>
               <input
                 id="nomeCargo"
@@ -160,7 +160,7 @@ export default function CargoFormPage({ cargoId, onClose }: { cargoId?: number; 
               />
             </div>
 
-            <div className="form-group">
+            <div className="form-group cargo-text-field">
               <label htmlFor="setor">Setor *</label>
               <input
                 id="setor"

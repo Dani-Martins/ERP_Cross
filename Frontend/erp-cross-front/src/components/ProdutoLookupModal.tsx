@@ -57,7 +57,7 @@ export default function ProdutoLookupModal({ onSelect, onClose, tipo = 'venda', 
           ) : filtered.length === 0 ? (
             <div className="table-empty">Nenhum produto encontrado.</div>
           ) : (
-            <div className="lookup-table-wrap">
+            <div className="lookup-table-wrap lookup-table-wrap-produto">
               <table className="data-table">
                 <thead>
                   <tr>

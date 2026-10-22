@@ -21,7 +21,7 @@ interface ProdutoCarrinho {
   quantidade: number;
   unidadeId?: number;
   nomeUnidade?: string;
-  precoVenda?: number;
+  custoCompra?: number;
 }
 
 let _key = 1;
@@ -252,20 +252,22 @@ export default function FornecedorFormPage({ fornecedorId, onClose }: { forneced
             </div>
 
             {!pessoaFisica && (
-              <div className="form-group">
-                <label htmlFor="nomeFantasia">Nome Fantasia</label>
-                <input
-                  id="nomeFantasia"
-                  type="text"
-                  placeholder="Ex: EMPRESA COMERCIAL"
-                  value={form.nomeFantasia}
-                  onChange={e => setForm({ ...form, nomeFantasia: e.target.value.toUpperCase() })}
-                />
+              <div className="form-row">
+                <div className="form-group" style={{ gridColumn: 'span 2' }}>
+                  <label htmlFor="nomeFantasia">Nome Fantasia</label>
+                  <input
+                    id="nomeFantasia"
+                    type="text"
+                    placeholder="Ex: EMPRESA COMERCIAL"
+                    value={form.nomeFantasia}
+                    onChange={e => setForm({ ...form, nomeFantasia: e.target.value.toUpperCase() })}
+                  />
+                </div>
               </div>
             )}
 
-            <div className="form-row">
-              <div className="form-group">
+            <div className="form-row cliente-documentos-row">
+              <div className={`form-group ${pessoaFisica ? 'cliente-cpf-field' : 'cliente-cnpj-field'}`}>
                 <label htmlFor="cpfCnpj">{pessoaFisica ? 'CPF *' : 'CNPJ *'}</label>
                 <input
                   id="cpfCnpj"
@@ -279,13 +281,13 @@ export default function FornecedorFormPage({ fornecedorId, onClose }: { forneced
                   }}
                 />
               </div>
-              <div className="form-group">
+              <div className={`form-group ${pessoaFisica ? 'cliente-rg-field' : 'cliente-ie-field'}`}>
                 <label htmlFor="rgIe">{pessoaFisica ? 'RG' : 'Inscrição Estadual'}</label>
                 <input
                   id="rgIe"
                   type="text"
-                  placeholder={pessoaFisica ? 'Ex: 00.000.000-0' : 'Ex: 90.233.073-99'}
-                  maxLength={12}
+                  placeholder={pessoaFisica ? 'Ex: 00.000.000-0' : 'Ex: 000.000.000.000'}
+                  maxLength={pessoaFisica ? 12 : 14}
                   value={form.rgIe}
                   onChange={e => {
                     const val = pessoaFisica ? formatRG(e.target.value) : formatIE(e.target.value);
@@ -300,8 +302,8 @@ export default function FornecedorFormPage({ fornecedorId, onClose }: { forneced
           <div className="form-section">
             <h2 className="form-section-title">Contato</h2>
 
-            <div className="form-row">
-              <div className="form-group">
+            <div className="form-row cliente-contato-row">
+              <div className="form-group cliente-celular-field">
                 <label htmlFor="celular">Celular *</label>
                 <input
                   id="celular"
@@ -312,8 +314,8 @@ export default function FornecedorFormPage({ fornecedorId, onClose }: { forneced
                   onChange={e => setForm({ ...form, celular: formatPhone(e.target.value) })}
                 />
               </div>
-              <div className="form-group">
-                <label htmlFor="contato2">Contato 2</label>
+              <div className="form-group cliente-contato2-field">
+                <label htmlFor="contato2">Telefone / Contato 2</label>
                 <input
                   id="contato2"
                   type="text"
@@ -323,17 +325,16 @@ export default function FornecedorFormPage({ fornecedorId, onClose }: { forneced
                   onChange={e => setForm({ ...form, contato2: formatPhone(e.target.value) })}
                 />
               </div>
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="email">E-mail *</label>
-              <input
-                id="email"
-                type="email"
-                placeholder="Ex: contato@email.com"
-                value={form.email}
-                onChange={e => setForm({ ...form, email: e.target.value.toUpperCase() })}
-              />
+              <div className="form-group cliente-email-field">
+                <label htmlFor="email">E-mail *</label>
+                <input
+                  id="email"
+                  type="text"
+                  placeholder="Ex: contato@email.com"
+                  value={form.email}
+                  onChange={e => setForm({ ...form, email: e.target.value })}
+                />
+              </div>
             </div>
           </div>
 
@@ -341,8 +342,8 @@ export default function FornecedorFormPage({ fornecedorId, onClose }: { forneced
           <div className="form-section">
             <h2 className="form-section-title">Endereço</h2>
 
-            <div className="form-row">
-              <div className="form-group">
+            <div className="form-row cliente-endereco-row">
+              <div className="form-group cliente-cep-field">
                 <label htmlFor="cep">CEP *</label>
                 <input
                   id="cep"
@@ -357,12 +358,12 @@ export default function FornecedorFormPage({ fornecedorId, onClose }: { forneced
                   }}
                 />
                 {buscandoCEP && (
-                  <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: 3, display: 'block' }}>
                     Buscando endereço...
                   </span>
                 )}
               </div>
-              <div className="form-group">
+              <div className="form-group cliente-bairro-field">
                 <label htmlFor="bairro">Bairro *</label>
                 <input
                   id="bairro"
@@ -374,29 +375,32 @@ export default function FornecedorFormPage({ fornecedorId, onClose }: { forneced
               </div>
             </div>
 
-            <div className="form-group">
-              <label htmlFor="endereco">Logradouro *</label>
-              <input
-                id="endereco"
-                type="text"
-                placeholder="Ex: RUA DAS FLORES"
-                value={form.endereco}
-                onChange={e => setForm({ ...form, endereco: e.target.value.toUpperCase() })}
-              />
+            <div className="form-row cliente-logradouro-row">
+              <div className="form-group cliente-logradouro-field">
+                <label htmlFor="endereco">Logradouro *</label>
+                <input
+                  id="endereco"
+                  type="text"
+                  placeholder="Ex: RUA DAS FLORES"
+                  value={form.endereco}
+                  onChange={e => setForm({ ...form, endereco: e.target.value.toUpperCase() })}
+                />
+              </div>
             </div>
 
-            <div className="form-row">
-              <div className="form-group">
+            <div className="form-row cliente-endereco-row">
+              <div className="form-group cliente-numero-field">
                 <label htmlFor="numero">Número *</label>
                 <input
                   id="numero"
                   type="text"
                   placeholder="Ex: 123"
+                  maxLength={4}
                   value={form.numero}
                   onChange={e => setForm({ ...form, numero: e.target.value })}
                 />
               </div>
-              <div className="form-group">
+              <div className="form-group cliente-complemento-field">
                 <label htmlFor="complemento">Complemento</label>
                 <input
                   id="complemento"
@@ -408,9 +412,31 @@ export default function FornecedorFormPage({ fornecedorId, onClose }: { forneced
               </div>
             </div>
 
-            <div className="form-group">
-              <label htmlFor="cidade">Cidade *</label>
-              <div className="lookup-field">
+            <div className="form-row cliente-cidade-lookup-row">
+              <div className="form-group lookup-code-group">
+                <label>Cód.</label>
+                <div style={{ display: 'flex', gap: '4px' }}>
+                  <input
+                    type="text"
+                    value={(form.idCidade ?? 0) > 0 ? form.idCidade ?? 0 : ''}
+                    placeholder="ID"
+                    readOnly
+                    className="lookup-input"
+                    style={{ width: '100%', textAlign: 'center' }}
+                  />
+                  <button
+                    type="button"
+                    className="btn-lookup"
+                    onClick={() => setShowCidadeModal(true)}
+                    title="Pesquisar cidade"
+                    style={{ padding: '4px 8px' }}
+                  >
+                    <Search size={16} />
+                  </button>
+                </div>
+              </div>
+              <div className="form-group cliente-cidade-lookup-field" style={{ flex: 1 }}>
+                <label htmlFor="cidade">Cidade *</label>
                 <input
                   id="cidade"
                   type="text"
@@ -419,14 +445,6 @@ export default function FornecedorFormPage({ fornecedorId, onClose }: { forneced
                   value={nomeCidade}
                   className="lookup-input"
                 />
-                <button
-                  type="button"
-                  className="btn-lookup"
-                  onClick={() => setShowCidadeModal(true)}
-                  title="Pesquisar cidade"
-                >
-                  <Search size={16} />
-                </button>
               </div>
             </div>
           </div>
@@ -435,45 +453,75 @@ export default function FornecedorFormPage({ fornecedorId, onClose }: { forneced
           <div className="form-section">
             <h2 className="form-section-title">Dados Comerciais</h2>
 
-            <div className="form-group">
-              <label>Condição de Pagamento *</label>
-              <div className="lookup-field">
+            <div className="form-row cliente-dados-comerciais-row">
+              <div className="form-group lookup-code-group cliente-condicao-code-group">
+                <label>Cód.</label>
+                <div style={{ display: 'flex', gap: '4px' }}>
+                  <input
+                    type="text"
+                    value={(form.idCondicaoPagamento ?? 0) > 0 ? form.idCondicaoPagamento ?? 0 : ''}
+                    placeholder="ID"
+                    readOnly
+                    className="lookup-input"
+                    style={{ width: '100%', textAlign: 'center' }}
+                  />
+                  <button
+                    type="button"
+                    className="btn-lookup"
+                    onClick={() => setShowCondicaoModal(true)}
+                    title="Pesquisar condição de pagamento"
+                    style={{ padding: '4px 8px' }}
+                  >
+                    <Search size={16} />
+                  </button>
+                </div>
+              </div>
+              <div className="form-group cliente-condicao-name-field">
+                <label htmlFor="idCondicao">Condição de Pagamento *</label>
                 <input
+                  id="idCondicao"
                   type="text"
                   readOnly
                   placeholder="Selecione uma condição..."
                   value={nomeCondicao}
                   className="lookup-input"
                 />
-                <button
-                  type="button"
-                  className="btn-lookup"
-                  onClick={() => setShowCondicaoModal(true)}
-                  title="Pesquisar condição de pagamento"
-                >
-                  <Search size={16} />
-                </button>
               </div>
             </div>
 
-            <div className="form-group">
-              <label>Transportadora</label>
-              <div className="lookup-field">
+            <div className="form-row cliente-dados-comerciais-row">
+              <div className="form-group lookup-code-group cliente-transportadora-code-group">
+                <label>Cód.</label>
+                <div style={{ display: 'flex', gap: '4px' }}>
+                  <input
+                    type="text"
+                    value={(form.idTransportadora ?? 0) > 0 ? form.idTransportadora ?? 0 : ''}
+                    placeholder="ID"
+                    readOnly
+                    className="lookup-input"
+                    style={{ width: '100%', textAlign: 'center' }}
+                  />
+                  <button
+                    type="button"
+                    className="btn-lookup"
+                    onClick={() => setShowTransportadoraModal(true)}
+                    title="Pesquisar transportadora"
+                    style={{ padding: '4px 8px' }}
+                  >
+                    <Search size={16} />
+                  </button>
+                </div>
+              </div>
+              <div className="form-group cliente-transportadora-name-field">
+                <label htmlFor="idTransportadora">Transportadora</label>
                 <input
+                  id="idTransportadora"
                   type="text"
                   readOnly
                   placeholder="Selecione uma transportadora..."
                   value={nomeTransportadora}
                   className="lookup-input"
                 />
-                <button
-                  type="button"
-                  className="btn-lookup"
-                  onClick={() => setShowTransportadoraModal(true)}
-                  title="Pesquisar transportadora"
-                >
-                  <Search size={16} />
-                </button>
               </div>
             </div>
 
@@ -490,10 +538,10 @@ export default function FornecedorFormPage({ fornecedorId, onClose }: { forneced
                     <thead>
                       <tr>
                         <th style={{ textAlign: 'left' }}>Produto</th>
-                        <th style={{ width: 80, textAlign: 'center' }}>Qtd</th>
-                        <th style={{ width: 120, textAlign: 'center' }}>Preço Unit.</th>
-                        <th style={{ width: 120, textAlign: 'center' }}>Subtotal</th>
-                        <th style={{ width: 80, textAlign: 'center' }}>Ação</th>
+                        <th style={{ width: 64, textAlign: 'center' }}>Qtd</th>
+                        <th style={{ width: 100, textAlign: 'center' }}>Custo Unit.</th>
+                        <th style={{ width: 100, textAlign: 'center' }}>Subtotal</th>
+                        <th style={{ width: 56, textAlign: 'center' }}>Ação</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -513,10 +561,10 @@ export default function FornecedorFormPage({ fornecedorId, onClose }: { forneced
                             />
                           </td>
                           <td style={{ textAlign: 'center' }}>
-                            {p.precoVenda ? `R$ ${Number(p.precoVenda).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '—'}
+                            {p.custoCompra ? `R$ ${Number(p.custoCompra).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '—'}
                           </td>
                           <td style={{ textAlign: 'center' }}>
-                            {p.precoVenda ? `R$ ${(p.precoVenda * p.quantidade).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '—'}
+                            {p.custoCompra ? `R$ ${(p.custoCompra * p.quantidade).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '—'}
                           </td>
                           <td style={{ textAlign: 'center' }}>
                             <button
@@ -537,7 +585,7 @@ export default function FornecedorFormPage({ fornecedorId, onClose }: { forneced
                     <strong style={{ fontSize: '1.1rem' }}>
                       Total: R$ {
                         produtos
-                          .reduce((sum, p) => sum + (p.precoVenda ? p.precoVenda * p.quantidade : 0), 0)
+                          .reduce((sum, p) => sum + (p.custoCompra ? p.custoCompra * p.quantidade : 0), 0)
                           .toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
                       }
                     </strong>
@@ -621,13 +669,14 @@ export default function FornecedorFormPage({ fornecedorId, onClose }: { forneced
 
     {showProdutoModal && (
       <ProdutoLookupModal
-        onSelect={(id, nomeProduto, unidadeId, nomeUnidade, precoVenda) => {
+        tipo="compra"
+        onSelect={(id, nomeProduto, unidadeId, nomeUnidade, _precoVenda, custoCompra) => {
           setProdutos(prev => {
             const exists = prev.find(p => p.produtoId === id);
             if (exists) {
               return prev.map(p => p.produtoId === id ? { ...p, quantidade: p.quantidade + 1 } : p);
             } else {
-              return [...prev, { _key: nextKey(), produtoId: id, nomeProduto, quantidade: 1, unidadeId, nomeUnidade, precoVenda }];
+              return [...prev, { _key: nextKey(), produtoId: id, nomeProduto, quantidade: 1, unidadeId, nomeUnidade, custoCompra }];
             }
           });
           setShowProdutoModal(false);

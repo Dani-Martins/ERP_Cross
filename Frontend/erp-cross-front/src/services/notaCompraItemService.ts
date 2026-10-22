@@ -1,9 +1,5 @@
-import axios from 'axios';
+import api from './api';
 import type { NotaCompraItemCreate, NotaCompraItemView } from '../types/entities';
-
-const api = axios.create({
-  baseURL: 'http://localhost:5015/api',
-});
 
 export const NotaCompraItemService = {
   async getAll() {
