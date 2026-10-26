@@ -141,6 +141,9 @@ public class ContaReceberService
         return await _repository.CancelarDaParcelaEmDianteAsync(parcela) > 0;
     }
 
+    public async Task<bool> CancelarDaNotaAsync(string numeroNota, string modelo, string serie, int clienteId)
+        => await _repository.CancelarNotaSemRecebimentosAsync(numeroNota, modelo, serie, clienteId);
+
     public async Task<int> SincronizarNotasDeVendaAsync()
     {
         var parcelasCriadas = 0;

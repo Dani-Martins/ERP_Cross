@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigate, useParams } from 'react-router-dom';
 import type { AxiosError } from 'axios';
 import { FileDown, Search, Trash2 } from 'lucide-react';
@@ -47,8 +48,7 @@ interface ProdutoFormulario {
   produtoId?: number;
   quantidade: number;
   precoUnit: number;
-  desconto: number; // em percentual
-  descontoUnit?: number; // em reais
+  descontoEntrada: string;
   idNotaCompra?: number;
   notaCompraId?: number;
   nomeProduto?: string;
@@ -101,6 +101,9 @@ export default function NotaCompraFormPage({ onClose }: { onClose?: () => void }
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const [descontoFocado, setDescontoFocado] = useState<number | null>(null);
+  const [descontoTooltipPos, setDescontoTooltipPos] = useState<{ top: number; left: number; placement: 'top' | 'bottom' } | null>(null);
+  const descontoInputRef = useRef<HTMLInputElement | null>(null);
   const [showCondicaoModal, setShowCondicaoModal] = useState(false);
   const [showFornecedorModal, setShowFornecedorModal] = useState(false);
   const [showTransportadoraModal, setShowTransportadoraModal] = useState(false);
@@ -109,6 +112,30 @@ export default function NotaCompraFormPage({ onClose }: { onClose?: () => void }
   const [notaValidada, setNotaValidada] = useState(false);
   const [parcelas, setParcelas] = useState<ParcelaNotaCompra[]>([]);
   const [unidades, setUnidades] = useState<UnidadeMedidaView[]>([]);
+
+  useEffect(() => {
+    if (descontoFocado === null) return;
+
+    const atualizarPosicao = () => {
+      const input = descontoInputRef.current;
+      if (!input) return;
+      const rect = input.getBoundingClientRect();
+      const placement = rect.top >= 80 ? 'top' : 'bottom';
+      setDescontoTooltipPos({
+        top: placement === 'top' ? rect.top - 8 : rect.bottom + 8,
+        left: Math.min(window.innerWidth - 90, Math.max(90, rect.left + rect.width / 2)),
+        placement,
+      });
+    };
+
+    atualizarPosicao();
+    window.addEventListener('scroll', atualizarPosicao, true);
+    window.addEventListener('resize', atualizarPosicao);
+    return () => {
+      window.removeEventListener('scroll', atualizarPosicao, true);
+      window.removeEventListener('resize', atualizarPosicao);
+    };
+  }, [descontoFocado]);
 
   useEffect(() => {
     UnidadeMedidaService.getAll()
@@ -159,8 +186,7 @@ export default function NotaCompraFormPage({ onClose }: { onClose?: () => void }
           produtoId: item.produtoId,
           quantidade: item.quantidade,
           precoUnit: item.precoUnit,
-          descontoUnit: item.descontoUnit,
-          desconto: item.precoUnit > 0 ? Math.round((item.descontoUnit / item.precoUnit) * 10000) / 100 : 0,
+          descontoEntrada: item.descontoUnit.toFixed(2).replace('.', ','),
           idNotaCompra: item.notaCompraId,
           notaCompraId: item.notaCompraId,
           nomeProduto: item.nomeProduto,
@@ -182,7 +208,7 @@ export default function NotaCompraFormPage({ onClose }: { onClose?: () => void }
     }
 
     const calculatedTotalProd = produtos.reduce(
-      (sum, p) => sum + calcularLinhaProduto(p.quantidade, p.precoUnit, p.desconto).total,
+      (sum, p) => sum + calcularLinhaProduto(p.quantidade, p.precoUnit, p.descontoEntrada).total,
       0,
     );
 
@@ -263,6 +289,11 @@ export default function NotaCompraFormPage({ onClose }: { onClose?: () => void }
       return;
     }
 
+    if (form.dataEmissao > maxDataPermitida) {
+      setError('A data de emissão não pode ser posterior à data atual.');
+      return;
+    }
+
     if (!form.dataChegada) {
       setError('Data de chegada é obrigatória.');
       return;
@@ -333,7 +364,7 @@ export default function NotaCompraFormPage({ onClose }: { onClose?: () => void }
 
       // Salvar produtos
       for (const produto of produtos) {
-        const { descontoUnit } = calcularLinhaProduto(produto.quantidade, produto.precoUnit, produto.desconto);
+        const { descontoUnit } = calcularLinhaProduto(produto.quantidade, produto.precoUnit, produto.descontoEntrada);
         await NotaCompraItemService.create({
           notaCompraId: notaId,
           produtoId: produto.idProduto,
@@ -376,7 +407,7 @@ export default function NotaCompraFormPage({ onClose }: { onClose?: () => void }
   }
 
   const calculatedTotalProdutos = produtos.reduce(
-    (sum, p) => sum + calcularLinhaProduto(p.quantidade, p.precoUnit, p.desconto).total,
+    (sum, p) => sum + calcularLinhaProduto(p.quantidade, p.precoUnit, p.descontoEntrada).total,
     0,
   );
 
@@ -627,6 +658,7 @@ export default function NotaCompraFormPage({ onClose }: { onClose?: () => void }
                     type="date"
                     value={form.dataEmissao}
                     max={maxDataPermitida}
+                    aria-invalid={form.dataEmissao > maxDataPermitida}
                     disabled={!notaValidada}
                     onChange={e =>
                       setForm({
@@ -635,6 +667,9 @@ export default function NotaCompraFormPage({ onClose }: { onClose?: () => void }
                       })
                     }
                   />
+                  {form.dataEmissao > maxDataPermitida && (
+                    <div className="form-error">A data de emissão não pode ser posterior à data atual.</div>
+                  )}
                 </div>
 
                 <div className="form-group">
@@ -644,6 +679,7 @@ export default function NotaCompraFormPage({ onClose }: { onClose?: () => void }
                     type="date"
                     value={form.dataChegada ?? ''}
                     max={maxDataPermitida}
+                    aria-invalid={Boolean(form.dataChegada && form.dataChegada > maxDataPermitida)}
                     disabled={!notaValidada}
                     onChange={e =>
                       setForm({
@@ -652,6 +688,9 @@ export default function NotaCompraFormPage({ onClose }: { onClose?: () => void }
                       })
                     }
                   />
+                  {form.dataChegada && form.dataChegada > maxDataPermitida && (
+                    <div className="form-error">A data de chegada não pode ser posterior à data atual.</div>
+                  )}
                 </div>
 
               </div>
@@ -684,10 +723,10 @@ export default function NotaCompraFormPage({ onClose }: { onClose?: () => void }
                     <tr>
                       <th style={{ width: 40 }}>CÓDIGO</th>
                       <th>PRODUTO</th>
-                      <th style={{ width: 90 }}>UNIDADE</th>
+                      <th style={{ width: 100 }}>UNIDADE</th>
                       <th style={{ width: 100 }}>QTD</th>
                       <th style={{ width: 140 }}>VALOR UN.</th>
-                      <th style={{ width: 90 }}>DESC. %</th>
+                      <th style={{ width: 100 }}>DESCONTO</th>
                       <th style={{ width: 120 }}>PREÇO LÍQ. UN.</th>
                       <th style={{ width: 100 }}>TOTAL</th>
                       <th style={{ width: 100 }}>RATEIO</th>
@@ -701,7 +740,9 @@ export default function NotaCompraFormPage({ onClose }: { onClose?: () => void }
                       </tr>
                     ) : (
                       produtos.map((p, idx) => {
-                        const { liquidoUnit, total } = calcularLinhaProduto(p.quantidade, p.precoUnit, p.desconto);
+                        const calculo = calcularLinhaProduto(p.quantidade, p.precoUnit, p.descontoEntrada);
+                        const { liquidoUnit, total } = calculo;
+                        const unidadeSelecionada = unidades.find(unidade => unidade.id === p.unidadeMedidaId);
 
                         const custoAditional = (form.tipoFrete === 'FOB' ? Number(form.valorFrete) : 0) + Number(form.valorSeguro) + Number(form.outrasDespesas);
                         const rateioProd = total > 0 ? (Number(p.quantidade) / total) * custoAditional : 0;
@@ -711,23 +752,7 @@ export default function NotaCompraFormPage({ onClose }: { onClose?: () => void }
                           <td className="col-code" data-label="Código">{p.idProduto}</td>
                           <td className="col-name" data-label="Produto">{p.nomeProduto || 'Produto ' + (idx + 1)}</td>
                           <td data-label="Unidade">
-                            <select
-                              disabled={!notaValidada}
-                              value={p.unidadeMedidaId || ''}
-                              onChange={e => {
-                                const newProdutos = [...produtos];
-                                const unidadeSelecionada = unidades.find(u => u.id === Number(e.target.value));
-                                newProdutos[idx].unidadeMedidaId = Number(e.target.value);
-                                newProdutos[idx].nomeUnidade = unidadeSelecionada?.nomeUnidade;
-                                setProdutos(newProdutos);
-                              }}
-                              className="produto-table-select"
-                            >
-                              <option value="">Selecione...</option>
-                              {unidades.map(u => (
-                                <option key={u.id} value={u.id}>{u.sigla}</option>
-                              ))}
-                            </select>
+                            {unidadeSelecionada?.sigla ?? p.nomeUnidade ?? '—'}
                           </td>
                           <td data-label="Quantidade">
                             <input
@@ -756,22 +781,31 @@ export default function NotaCompraFormPage({ onClose }: { onClose?: () => void }
                               className="produto-table-input"
                             />
                           </td>
-                          <td data-label="Desconto (%)">
-                            <input
-                              type="number"
-                              step="1"
-                              min="0"
-                              max="100"
-                              disabled={!notaValidada}
-                              value={p.desconto || 0}
-                              onChange={e => {
-                                const newProdutos = [...produtos];
-                                newProdutos[idx].desconto = Number(e.target.value);
-                                setProdutos(newProdutos);
-                              }}
-                              className="produto-table-input"
-                              title="Porcentagem de desconto (0-100%)"
-                            />
+                          <td data-label="Desconto">
+                            <div className="discount-input-wrap">
+                              <input
+                                type="text"
+                                inputMode="text"
+                                disabled={!notaValidada}
+                                value={p.descontoEntrada}
+                                placeholder="Ex.: 10 ou 10,50"
+                                onFocus={event => {
+                                  descontoInputRef.current = event.currentTarget;
+                                  setDescontoFocado(idx);
+                                }}
+                                onBlur={() => {
+                                  descontoInputRef.current = null;
+                                  setDescontoFocado(null);
+                                  setDescontoTooltipPos(null);
+                                }}
+                                onChange={e => {
+                                  const newProdutos = [...produtos];
+                                  newProdutos[idx].descontoEntrada = e.target.value;
+                                  setProdutos(newProdutos);
+                                }}
+                                className="produto-table-input"
+                              />
+                            </div>
                           </td>
                           <td data-label="Preço líquido unitário">
                             R$ {liquidoUnit.toFixed(2).replace('.', ',')}
@@ -835,7 +869,7 @@ export default function NotaCompraFormPage({ onClose }: { onClose?: () => void }
                 Transporte
               </h2>
 
-              <div className="form-row">
+              <div className="form-row nota-transporte-row">
                 <div className="form-group lookup-code-group">
                   <label>Cód.</label>
                   <div style={{ display: 'flex', gap: '4px' }}>
@@ -860,7 +894,7 @@ export default function NotaCompraFormPage({ onClose }: { onClose?: () => void }
                   </div>
                 </div>
 
-                <div className="form-group" style={{ flex: 1 }}>
+                <div className="form-group nota-transportadora-field">
                   <label>Transportadora *</label>
                   <input
                     type="text"
@@ -871,10 +905,7 @@ export default function NotaCompraFormPage({ onClose }: { onClose?: () => void }
                     className="lookup-input"
                   />
                 </div>
-              </div>
-
-              <div className="form-row">
-                <div className="form-group">
+                <div className="form-group nota-veiculo-field">
                   <label>Placa do Veículo *</label>
                   <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                     <input
@@ -905,32 +936,31 @@ export default function NotaCompraFormPage({ onClose }: { onClose?: () => void }
                 Valores
               </h2>
 
-              <div className="form-group" style={{ fontSize: '0.9em', marginBottom: '16px' }}>
-                <label style={{ display: 'block', marginBottom: '8px' }}>Tipo Frete</label>
-                <div className="tipo-frete-selector">
-                  <button
-                    type="button"
-                    className={`tipo-frete-btn ${form.tipoFrete === 'CIF' ? 'active' : ''}`}
-                    onClick={() => setForm({ ...form, tipoFrete: 'CIF' })}
-                    disabled={!notaValidada}
-                  >
-                    CIF
-                  </button>
-                  <button
-                    type="button"
-                    className={`tipo-frete-btn ${form.tipoFrete === 'FOB' ? 'active' : ''}`}
-                    onClick={() => setForm({ ...form, tipoFrete: 'FOB' })}
-                    disabled={!notaValidada}
-                  >
-                    FOB
-                  </button>
+              <div className="nota-valores-row">
+                <div className="form-group nota-tipo-frete-field">
+                  <label>Tipo Frete</label>
+                  <div className="tipo-frete-selector">
+                    <button
+                      type="button"
+                      className={`tipo-frete-btn ${form.tipoFrete === 'CIF' ? 'active' : ''}`}
+                      onClick={() => setForm({ ...form, tipoFrete: 'CIF' })}
+                      disabled={!notaValidada}
+                    >
+                      CIF
+                    </button>
+                    <button
+                      type="button"
+                      className={`tipo-frete-btn ${form.tipoFrete === 'FOB' ? 'active' : ''}`}
+                      onClick={() => setForm({ ...form, tipoFrete: 'FOB' })}
+                      disabled={!notaValidada}
+                    >
+                      FOB
+                    </button>
+                  </div>
                 </div>
-              </div>
-
-              <div className="form-row">
 
                 {form.tipoFrete === 'FOB' && (
-                  <div className="form-group" style={{ fontSize: '0.9em' }}>
+                  <div className="form-group nota-valor-frete-field">
                     <label>Valor do Frete</label>
                     <CurrencyInput
                       disabled={!notaValidada}
@@ -939,7 +969,7 @@ export default function NotaCompraFormPage({ onClose }: { onClose?: () => void }
                     />
                   </div>
                 )}
-                <div className="form-group" style={{ fontSize: '0.9em' }}>
+                <div className="form-group nota-valor-despesa-field">
                   <label>Valor Seguro</label>
                   <CurrencyInput
                     disabled={!notaValidada}
@@ -947,7 +977,7 @@ export default function NotaCompraFormPage({ onClose }: { onClose?: () => void }
                     onChange={value => setForm({ ...form, valorSeguro: value })}
                   />
                 </div>
-                <div className="form-group" style={{ fontSize: '0.9em' }}>
+                <div className="form-group nota-valor-despesa-field">
                   <label>Outras Despesas</label>
                   <CurrencyInput
                     disabled={!notaValidada}
@@ -1115,12 +1145,14 @@ export default function NotaCompraFormPage({ onClose }: { onClose?: () => void }
       {showFornecedorModal && (
         <FornecedorLookupModal
           onClose={() => setShowFornecedorModal(false)}
-          onSelect={(id, nome) => {
-            setForm({
-              ...form,
+          onSelect={(id, nome, idCondicaoPagamento, nomeCondicaoPagamento) => {
+            setForm(current => ({
+              ...current,
+              condicaoPagamentoId: idCondicaoPagamento || undefined,
               fornecedorId: id
-            });
+            }));
             setNomeFornecedor(nome);
+            setNomeCondicao(nomeCondicaoPagamento ?? '');
             setShowFornecedorModal(false);
           }}
         />
@@ -1163,16 +1195,16 @@ export default function NotaCompraFormPage({ onClose }: { onClose?: () => void }
         <ProdutoLookupModal
           tipo="compra"
           onClose={() => setShowProdutoModal(false)}
-          onSelect={(id, nomeProduto) => {
+          onSelect={(id, nomeProduto, unidadeId, nomeUnidade) => {
             setProdutos([...produtos, {
               idProduto: id,
               quantidade: 1,
               precoUnit: 0,
-              desconto: 0,
+              descontoEntrada: '',
               idNotaCompra: 0,
               nomeProduto: nomeProduto,
-              unidadeMedidaId: unidades.length > 0 ? unidades[0].id : undefined,
-              nomeUnidade: unidades.length > 0 ? unidades[0].nomeUnidade : undefined,
+              unidadeMedidaId: unidadeId,
+              nomeUnidade,
               rateioCusto: 0,
             }]);
             setShowProdutoModal(false);
@@ -1188,6 +1220,32 @@ export default function NotaCompraFormPage({ onClose }: { onClose?: () => void }
             setShowVeiculoModal(false);
           }}
         />
+      )}
+
+      {descontoFocado !== null && descontoTooltipPos && produtos[descontoFocado] && createPortal(
+        <div
+          className="discount-tooltip"
+          data-placement={descontoTooltipPos.placement}
+          role="tooltip"
+          style={{
+            left: descontoTooltipPos.left,
+            top: descontoTooltipPos.top,
+            transform: descontoTooltipPos.placement === 'top' ? 'translate(-50%, -100%)' : 'translateX(-50%)',
+          }}
+        >
+          <span>Inteiro = percentual. Use vírgula para reais.</span>
+          {produtos[descontoFocado].descontoEntrada.trim() && (() => {
+            const produto = produtos[descontoFocado];
+            const calculo = calcularLinhaProduto(produto.quantidade, produto.precoUnit, produto.descontoEntrada);
+            return (
+              <>
+                <strong>{produto.descontoEntrada.includes(',') ? 'Valor informado' : 'Percentual informado'}: {produto.descontoEntrada.includes(',') ? `R$ ${calculo.descontoUnit.toFixed(2).replace('.', ',')}` : `${calculo.descontoPercentual.toFixed(2).replace('.', ',')}%`}</strong>
+                <span>Equivale a {produto.descontoEntrada.includes(',') ? `${calculo.descontoPercentual.toFixed(2).replace('.', ',')}%` : `R$ ${calculo.descontoUnit.toFixed(2).replace('.', ',')}`}</span>
+              </>
+            );
+          })()}
+        </div>,
+        document.body,
       )}
 
     </>

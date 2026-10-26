@@ -32,6 +32,62 @@ public class ContaReceberRepository
             $"SELECT {SelectColumns} {FromJoin} WHERE cr.NumeroNota=@NumeroNota AND cr.Modelo=@Modelo AND cr.Serie=@Serie AND cr.ClienteId=@ClienteId AND cr.Ativo=1 ORDER BY cr.NumParcela, cr.Id",
             new { NumeroNota = numeroNota, Modelo = modelo, Serie = serie, ClienteId = clienteId });
 
+    public async Task<bool> CancelarNotaSemRecebimentosAsync(string numeroNota, string modelo, string serie, int clienteId)
+    {
+        var abriuConexao = _db.State == ConnectionState.Closed;
+        if (abriuConexao) _db.Open();
+
+        using var transaction = _db.BeginTransaction();
+        try
+        {
+            var parcelas = (await _db.QueryAsync<long>(
+                @"SELECT Id FROM ContaReceber
+                  WHERE NumeroNota=@NumeroNota AND Modelo=@Modelo AND Serie=@Serie AND ClienteId=@ClienteId
+                  FOR UPDATE",
+                new { NumeroNota = numeroNota, Modelo = modelo, Serie = serie, ClienteId = clienteId }, transaction)).ToList();
+            if (parcelas.Count == 0)
+            {
+                transaction.Rollback();
+                return false;
+            }
+
+            var recebidas = await _db.ExecuteScalarAsync<int>(
+                @"SELECT COUNT(*) FROM ContaReceber
+                  WHERE NumeroNota=@NumeroNota AND Modelo=@Modelo AND Serie=@Serie AND ClienteId=@ClienteId
+                    AND (Status IN ('PAGO', 'RECEBIDO') OR DataRecebimento IS NOT NULL)",
+                new { NumeroNota = numeroNota, Modelo = modelo, Serie = serie, ClienteId = clienteId }, transaction);
+            if (recebidas > 0)
+            {
+                transaction.Rollback();
+                return false;
+            }
+
+            var canceladas = await _db.ExecuteAsync(
+                @"UPDATE ContaReceber SET Status='CANCELADO', DataCancelamento=NOW(), AtualizadoEm=NOW()
+                  WHERE NumeroNota=@NumeroNota AND Modelo=@Modelo AND Serie=@Serie AND ClienteId=@ClienteId
+                    AND Ativo=1 AND Status NOT IN ('PAGO', 'RECEBIDO', 'CANCELADO')
+                    AND DataRecebimento IS NULL AND DataCancelamento IS NULL",
+                new { NumeroNota = numeroNota, Modelo = modelo, Serie = serie, ClienteId = clienteId }, transaction);
+            if (canceladas == 0)
+            {
+                transaction.Rollback();
+                return false;
+            }
+
+            transaction.Commit();
+            return true;
+        }
+        catch
+        {
+            transaction.Rollback();
+            throw;
+        }
+        finally
+        {
+            if (abriuConexao) _db.Close();
+        }
+    }
+
     public async Task<long> InsertAsync(ContaReceber c)
         => await _db.ExecuteScalarAsync<long>(
             @"INSERT INTO ContaReceber (NumeroNota, Modelo, Serie, ClienteId, NumParcela, ValorParcela,

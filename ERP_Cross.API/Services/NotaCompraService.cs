@@ -58,6 +58,16 @@ public class NotaCompraService
         return await _repository.UpdateAsync(n);
     }
 
+    public async Task<string?> CancelarContaPagarAsync(long id)
+    {
+        var nota = await _repository.GetByIdAsync(id);
+        if (nota == null) return "Nota de compra não encontrada.";
+        if (!nota.Ativo) return "A nota de compra está inativa.";
+        if (!await _contasPagar.CancelarDaNotaCompraAsync(id))
+            return "Não é possível cancelar a conta: ela não está aberta, já foi cancelada ou possui parcela paga.";
+        return null;
+    }
+
     public async Task<bool> DeleteAsync(long id)
     {
         var n = await _repository.GetByIdAsync(id);

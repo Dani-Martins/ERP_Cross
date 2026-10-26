@@ -34,6 +34,64 @@ public class ContaPagarRepository
     public async Task<ContaPagar?> GetByNotaCompraIdAsync(long notaCompraId)
         => await _db.QueryFirstOrDefaultAsync<ContaPagar>($"SELECT {SelectColumns} {FromJoin} WHERE cp.NotaCompraId = @NotaCompraId", new { NotaCompraId = notaCompraId });
 
+    public async Task<bool> CancelarSemPagamentosAsync(long id)
+    {
+        var abriuConexao = _db.State == ConnectionState.Closed;
+        if (abriuConexao) _db.Open();
+
+        using var transaction = _db.BeginTransaction();
+        try
+        {
+            var status = await _db.QueryFirstOrDefaultAsync<string>(
+                "SELECT Status FROM ContaPagar WHERE Id=@Id FOR UPDATE", new { Id = id }, transaction);
+            if (status != "ABERTO")
+            {
+                transaction.Rollback();
+                return false;
+            }
+
+            var parcelas = (await _db.QueryAsync<long>(
+                "SELECT Id FROM ContaPagarParcela WHERE ContaPagarId=@Id FOR UPDATE", new { Id = id }, transaction)).ToList();
+            if (parcelas.Count == 0)
+            {
+                transaction.Rollback();
+                return false;
+            }
+
+            var pagas = await _db.ExecuteScalarAsync<int>(
+                "SELECT COUNT(*) FROM ContaPagarParcela WHERE ContaPagarId=@Id AND Pago=1", new { Id = id }, transaction);
+            if (pagas > 0)
+            {
+                transaction.Rollback();
+                return false;
+            }
+
+            await _db.ExecuteAsync(
+                @"UPDATE ContaPagarParcela SET Cancelada=1, DataCancelamento=NOW()
+                  WHERE ContaPagarId=@Id AND Pago=0 AND Cancelada=0", new { Id = id }, transaction);
+            var atualizada = await _db.ExecuteAsync(
+                "UPDATE ContaPagar SET Status='CANCELADO', AtualizadoEm=NOW() WHERE Id=@Id AND Status='ABERTO'",
+                new { Id = id }, transaction);
+            if (atualizada == 0)
+            {
+                transaction.Rollback();
+                return false;
+            }
+
+            transaction.Commit();
+            return true;
+        }
+        catch
+        {
+            transaction.Rollback();
+            throw;
+        }
+        finally
+        {
+            if (abriuConexao) _db.Close();
+        }
+    }
+
     public async Task<long> InsertAsync(ContaPagar c)
         => await _db.ExecuteScalarAsync<long>(
             @"INSERT INTO ContaPagar (NotaCompraId, FornecedorId, Modelo, Serie, NumeroNota, NumParcela, ValorParcela,

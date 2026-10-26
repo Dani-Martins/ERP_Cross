@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { TrendingDown, Eye, CheckCircle, XCircle, Plus, Search, X } from 'lucide-react';
+import { TrendingDown, Eye, CheckCircle, Plus, Search, X } from 'lucide-react';
 import { ContaPagarService } from '../services/contasService';
 import type { ContaPagarParcela, ContaPagarView } from '../types/entities';
 import ContaPagarFormPage from './ContaPagarFormPage';
@@ -29,9 +29,6 @@ export default function ContasPagarPage() {
   const [paymentAction, setPaymentAction] = useState<ContaPagarLinha | null>(null);
   const [paymentActioning, setPaymentActioning] = useState(false);
   const [paymentError, setPaymentError] = useState('');
-  const [cancelAction, setCancelAction] = useState<ContaPagarLinha | null>(null);
-  const [cancelActioning, setCancelActioning] = useState(false);
-  const [cancelError, setCancelError] = useState('');
 
   async function load() {
     setLoading(true);
@@ -94,22 +91,6 @@ export default function ContasPagarPage() {
       setPaymentError(apiError.response?.data?.message ?? 'Não foi possível registrar o pagamento. A parcela pode já estar encerrada.');
     } finally {
       setPaymentActioning(false);
-    }
-  }
-
-  async function handleCancelParcela() {
-    if (!cancelAction) return;
-    setCancelActioning(true);
-    try {
-      await ContaPagarService.cancelarParcela(cancelAction.parcela.id);
-      setCancelAction(null);
-      await load();
-    } catch (err) {
-      console.error('Erro ao cancelar parcela:', err);
-      const apiError = err as { response?: { data?: { message?: string } } };
-      setCancelError(apiError.response?.data?.message ?? 'Não foi possível cancelar. Verifique se a migração do banco foi aplicada e se a parcela continua aberta.');
-    } finally {
-      setCancelActioning(false);
     }
   }
 
@@ -206,9 +187,6 @@ export default function ContasPagarPage() {
                           <button className="btn-icon btn-success" title="Confirmar pagamento" onClick={() => setPaymentAction({ conta, parcela })}>
                             <CheckCircle size={15} />
                           </button>
-                          <button className="btn-icon btn-danger" title="Cancelar parcela e próximas em aberto" onClick={() => { setCancelError(''); setCancelAction({ conta, parcela }); }}>
-                            <XCircle size={15} />
-                          </button>
                         </>
                       )}
                     </td>
@@ -245,36 +223,6 @@ export default function ContasPagarPage() {
               </button>
               <button className="btn-secondary" onClick={() => setPaymentAction(null)}>
                 Cancelar
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {cancelAction !== null && (
-        <div className="modal-overlay" onClick={() => setCancelAction(null)}>
-          <div className="modal modal-sm" onClick={(ev) => ev.stopPropagation()}>
-            <div className="modal-header">
-              <h2>Confirmar Cancelamento</h2>
-              <button className="modal-close" onClick={() => setCancelAction(null)}>
-                <X size={20} />
-              </button>
-            </div>
-            <div className="modal-body">
-              <p>Cancelar irreversivelmente a parcela {cancelAction.parcela.numParcela} da nota {cancelAction.conta.numeroNota}?</p>
-              <p>Esta parcela e as seguintes em aberto serão canceladas. Parcelas já pagas serão preservadas. A data de cancelamento será automática.</p>
-              {cancelError && <p className="form-error">{cancelError}</p>}
-            </div>
-            <div className="modal-footer">
-              <button
-                className="btn-danger"
-                onClick={handleCancelParcela}
-                disabled={cancelActioning}
-              >
-                {cancelActioning ? 'Processando...' : 'Confirmar Cancelamento'}
-              </button>
-              <button className="btn-secondary" onClick={() => setCancelAction(null)}>
-                Voltar
               </button>
             </div>
           </div>

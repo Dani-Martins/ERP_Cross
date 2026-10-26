@@ -6,7 +6,7 @@ import ClienteCreateModal from './ClienteCreateModal';
 import '../pages/PaisesPage.css';
 
 interface Props {
-  onSelect: (id: number, nome: string) => void;
+  onSelect: (id: number, nome: string, idCondicaoPagamento?: number, nomeCondicaoPagamento?: string) => void;
   onClose: () => void;
   zBase?: number;
 }
@@ -30,10 +30,15 @@ export default function ClienteLookupModal({ onSelect, onClose, zBase = 1000 }: 
     ? all.filter(c => c.nome.toLowerCase().includes(search.toLowerCase()))
     : all;
 
-  function handleCreated(id: number, nome: string) {
+  async function handleCreated(id: number, nome: string) {
     setShowCreate(false);
     load();
-    onSelect(id, nome);
+    try {
+      const res = await ClienteService.getById(id);
+      onSelect(id, nome, res.data.idCondicaoPagamento, res.data.nomeCondicaoPagamento);
+    } catch {
+      onSelect(id, nome);
+    }
   }
 
   return (
@@ -75,7 +80,7 @@ export default function ClienteLookupModal({ onSelect, onClose, zBase = 1000 }: 
                         <td className="col-name">{c.nome}</td>
                         <td>{c.cpfCnpj}</td>
                         <td>
-                          <button className="btn-select" onClick={() => onSelect(c.id, c.nome)}>
+                          <button className="btn-select" onClick={() => onSelect(c.id, c.nome, c.idCondicaoPagamento, c.nomeCondicaoPagamento)}>
                             Selecionar
                           </button>
                         </td>

@@ -51,11 +51,4 @@ public class ContaPagarController(ContaPagarService service) : ControllerBase
     public async Task<IActionResult> PagarParcela(long parcelaId, PagarParcelaDto dto)
         => await _service.PagarParcelaAsync(parcelaId, dto.DataPagamento) ? NoContent() : BadRequest(new ApiErrorResponse("PAGAMENTO_INVALIDO", "Parcela não encontrada, já paga ou conta não está em aberto."));
 
-    [HttpPost("parcelas/{parcelaId:long}/cancelar")]
-    public async Task<IActionResult> CancelarParcela(long parcelaId)
-        => await _service.CancelarParcelaAsync(parcelaId) ? NoContent() : BadRequest(new ApiErrorResponse("CANCELAMENTO_INVALIDO", "Parcela não encontrada, já paga ou cancelada, ou conta não está em aberto."));
-
-    [HttpPost("{id:long}/cancelar")]
-    public async Task<IActionResult> Cancelar(long id)
-        => await _service.CancelarAsync(id) ? NoContent() : NotFound();
 }

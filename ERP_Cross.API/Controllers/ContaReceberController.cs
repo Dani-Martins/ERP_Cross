@@ -76,10 +76,6 @@ public class ContaReceberController(ContaReceberService service) : ControllerBas
     public async Task<IActionResult> RegistrarRecebimento(long id, RegistrarRecebimentoDto dto)
         => await _service.RegistrarRecebimentoAsync(id, dto.DataRecebimento) ? NoContent() : BadRequest();
 
-    [HttpPost("{id:long}/cancelar")]
-    public async Task<IActionResult> Cancelar(long id)
-        => await _service.CancelarAsync(id) ? NoContent() : BadRequest();
-
     [HttpPut("{id:long}")]
     public async Task<IActionResult> Update(long id, UpdateContaReceberDto dto)
         => await _service.UpdateAsync(id, dto) ? NoContent() : NotFound();

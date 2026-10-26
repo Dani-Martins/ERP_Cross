@@ -27,6 +27,10 @@ export const NotaVendaService = {
     return api.post<NotaVendaView>('/NotaVenda', data);
   },
 
+  cancelarConta(numeroNota: string, modelo: string, serie: string, clienteId: number) {
+    return api.post<void>(`/NotaVenda/${numeroNota}/${modelo}/${serie}/${clienteId}/cancelar-conta`);
+  },
+
   update(
     numeroNota: string,
     modelo: string,

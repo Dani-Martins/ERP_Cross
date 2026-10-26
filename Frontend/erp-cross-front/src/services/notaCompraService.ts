@@ -9,6 +9,7 @@ export const NotaCompraService = {
   getById: (id: number) => api.get<NotaCompraView>(`/NotaCompra/${id}`),
   create: (data: NotaCompraCreate) => api.post<NotaCompraView>('/NotaCompra', data),
   update: (id: number, data: NotaCompraUpdate) => api.put<void>(`/NotaCompra/${id}`, data),
+  cancelarConta: (id: number) => api.post<void>(`/NotaCompra/${id}/cancelar-conta`),
   remove: (id: number) => api.delete<void>(`/NotaCompra/${id}`),
 };
 

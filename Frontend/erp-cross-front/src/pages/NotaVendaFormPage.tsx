@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigate, useParams } from 'react-router-dom';
 import type { AxiosError } from 'axios';
 import { FileDown, Search, Trash2 } from 'lucide-react';
@@ -36,14 +37,17 @@ function toInputDate(value: string | null |undefined): string {
   return d.toISOString().split('T')[0];
 }
 
+function today(): string {
+  return new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().split('T')[0];
+}
+
 // Tipo interno para uso no formulário (diferente do NotaVendaItemCreate)
 interface ProdutoFormulario {
   idProduto: number;
   produtoId?: number;
   quantidade: number;
   precoUnit: number;
-  desconto: number; // em percentual
-  descontoUnit?: number; // em reais
+  descontoEntrada: string;
   idNotaVenda?: number;
   notaVendaId?: number;
   nomeProduto?: string;
@@ -59,7 +63,7 @@ const EMPTY: NotaVendaCreate = {
   modelo: '',
   serie: '',
 
-  dataEmissao: new Date().toISOString().split('T')[0],
+  dataEmissao: today(),
   dataChegada: '',
 
   tipoFrete: 'CIF',
@@ -102,6 +106,9 @@ export default function NotaVendaFormPage({ onClose }: { onClose?: () => void } 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const [descontoFocado, setDescontoFocado] = useState<number | null>(null);
+  const [descontoTooltipPos, setDescontoTooltipPos] = useState<{ top: number; left: number; placement: 'top' | 'bottom' } | null>(null);
+  const descontoInputRef = useRef<HTMLInputElement | null>(null);
   const [showCondicaoModal, setShowCondicaoModal] = useState(false);
   const [showClienteModal, setShowClienteModal] = useState(false);
   const [showTransportadoraModal, setShowTransportadoraModal] = useState(false);
@@ -110,6 +117,30 @@ export default function NotaVendaFormPage({ onClose }: { onClose?: () => void } 
   const [notaValidada, setNotaValidada] = useState(false);
   const [parcelas, setParcelas] = useState<ParcelaNotaCompra[]>([]);
   const [unidades, setUnidades] = useState<UnidadeMedidaView[]>([]);
+
+  useEffect(() => {
+    if (descontoFocado === null) return;
+
+    const atualizarPosicao = () => {
+      const input = descontoInputRef.current;
+      if (!input) return;
+      const rect = input.getBoundingClientRect();
+      const placement = rect.top >= 80 ? 'top' : 'bottom';
+      setDescontoTooltipPos({
+        top: placement === 'top' ? rect.top - 8 : rect.bottom + 8,
+        left: Math.min(window.innerWidth - 90, Math.max(90, rect.left + rect.width / 2)),
+        placement,
+      });
+    };
+
+    atualizarPosicao();
+    window.addEventListener('scroll', atualizarPosicao, true);
+    window.addEventListener('resize', atualizarPosicao);
+    return () => {
+      window.removeEventListener('scroll', atualizarPosicao, true);
+      window.removeEventListener('resize', atualizarPosicao);
+    };
+  }, [descontoFocado]);
 
   useEffect(() => {
     UnidadeMedidaService.getAll()
@@ -132,7 +163,7 @@ export default function NotaVendaFormPage({ onClose }: { onClose?: () => void } 
           modelo: n.modelo,
           serie: n.serie,
           dataEmissao: toInputDate(n.dataEmissao),
-          dataChegada: '',
+          dataChegada: toInputDate(n.dataChegada),
           tipoFrete: 'CIF',
           valorFrete: 0,
           valorSeguro: 0,
@@ -167,8 +198,9 @@ export default function NotaVendaFormPage({ onClose }: { onClose?: () => void } 
           produtoId: item.idProduto,
           quantidade: item.quantidade,
           precoUnit: item.precoUnit,
-          descontoUnit: item.desconto ? item.precoUnit * (item.desconto / 100) : 0,
-          desconto: item.desconto || 0,
+          descontoEntrada: item.desconto
+            ? ((item.precoUnit * item.desconto) / 100).toFixed(2).replace('.', ',')
+            : '',
           idNotaVenda: item.idNotaVenda,
           notaVendaId: item.idNotaVenda,
           nomeProduto: item.nomeProduto,
@@ -186,7 +218,7 @@ export default function NotaVendaFormPage({ onClose }: { onClose?: () => void } 
     }
 
     const calculatedTotalProd = produtos.reduce(
-      (sum, p) => sum + calcularLinhaProduto(p.quantidade, p.precoUnit, p.desconto).total,
+      (sum, p) => sum + calcularLinhaProduto(p.quantidade, p.precoUnit, p.descontoEntrada).total,
       0,
     );
 
@@ -263,6 +295,16 @@ export default function NotaVendaFormPage({ onClose }: { onClose?: () => void } 
       return;
     }
 
+    if (form.dataEmissao > maxDataPermitida) {
+      setError('A data de emissão não pode ser posterior à data atual.');
+      return;
+    }
+
+    if (form.dataChegada && form.dataChegada > maxDataPermitida) {
+      setError('A data de chegada não pode ser posterior à data atual.');
+      return;
+    }
+
     if (!form.condicaoPagamentoId) {
       setError('Condição de pagamento é obrigatória.');
       return;
@@ -333,7 +375,7 @@ export default function NotaVendaFormPage({ onClose }: { onClose?: () => void } 
   }
 
   const calculatedTotalProdutos = produtos.reduce(
-    (sum, p) => sum + calcularLinhaProduto(p.quantidade, p.precoUnit, p.desconto).total,
+    (sum, p) => sum + calcularLinhaProduto(p.quantidade, p.precoUnit, p.descontoEntrada).total,
     0,
   );
   const totalPagar = calculatedTotalProdutos;
@@ -344,7 +386,7 @@ export default function NotaVendaFormPage({ onClose }: { onClose?: () => void } 
 
   const canValidateNota = canFillForm && form.clienteId > 0 && !notaValidada;
 
-  const maxDataPermitida = new Date().toISOString().split('T')[0];
+  const maxDataPermitida = today();
 
   async function handleValidateNota() {
     if (!form.numeroNota.trim()) {
@@ -572,6 +614,7 @@ export default function NotaVendaFormPage({ onClose }: { onClose?: () => void } 
                     type="date"
                     value={form.dataEmissao}
                     max={maxDataPermitida}
+                    aria-invalid={form.dataEmissao > maxDataPermitida}
                     disabled={!notaValidada}
                     onChange={e =>
                       setForm({
@@ -580,6 +623,24 @@ export default function NotaVendaFormPage({ onClose }: { onClose?: () => void } 
                       })
                     }
                   />
+                  {form.dataEmissao > maxDataPermitida && (
+                    <div className="form-error">A data de emissão não pode ser posterior à data atual.</div>
+                  )}
+                </div>
+
+                <div className="form-group">
+                  <label>Data de Chegada</label>
+                  <input
+                    type="date"
+                    value={form.dataChegada ?? ''}
+                    max={maxDataPermitida}
+                    aria-invalid={Boolean(form.dataChegada && form.dataChegada > maxDataPermitida)}
+                    disabled={!notaValidada}
+                    onChange={e => setForm({ ...form, dataChegada: e.target.value })}
+                  />
+                  {form.dataChegada && form.dataChegada > maxDataPermitida && (
+                    <div className="form-error">A data de chegada não pode ser posterior à data atual.</div>
+                  )}
                 </div>
 
               </div>
@@ -609,7 +670,7 @@ export default function NotaVendaFormPage({ onClose }: { onClose?: () => void } 
                 Transporte
               </h2>
 
-              <div className="form-row">
+              <div className="form-row nota-transporte-row">
                 <div className="form-group lookup-code-group">
                   <label>Cód.</label>
                   <div style={{ display: 'flex', gap: '4px' }}>
@@ -634,7 +695,7 @@ export default function NotaVendaFormPage({ onClose }: { onClose?: () => void } 
                   </div>
                 </div>
 
-                <div className="form-group" style={{ flex: 1 }}>
+                <div className="form-group nota-transportadora-field">
                   <label>Transportadora</label>
                   <input
                     type="text"
@@ -645,10 +706,7 @@ export default function NotaVendaFormPage({ onClose }: { onClose?: () => void } 
                     className="lookup-input"
                   />
                 </div>
-              </div>
-
-              <div className="form-row">
-                <div className="form-group">
+                <div className="form-group nota-veiculo-field">
                   <label>Placa do Veículo</label>
                   <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                     <input
@@ -681,10 +739,10 @@ export default function NotaVendaFormPage({ onClose }: { onClose?: () => void } 
                     <tr>
                       <th style={{ width: 40 }}>CÓDIGO</th>
                       <th>PRODUTO</th>
-                      <th style={{ width: 90 }}>UNIDADE</th>
+                      <th style={{ width: 100 }}>UNIDADE</th>
                       <th style={{ width: 100 }}>QTD</th>
                       <th style={{ width: 140 }}>VALOR UN.</th>
-                      <th style={{ width: 90 }}>DESC. %</th>
+                      <th style={{ width: 100 }}>DESCONTO</th>
                       <th style={{ width: 120 }}>PREÇO LÍQ. UN.</th>
                       <th style={{ width: 100 }}>TOTAL</th>
                       <th style={{ width: 50 }}></th>
@@ -697,30 +755,16 @@ export default function NotaVendaFormPage({ onClose }: { onClose?: () => void } 
                       </tr>
                     ) : (
                       produtos.map((p, idx) => {
-                        const { liquidoUnit, total } = calcularLinhaProduto(p.quantidade, p.precoUnit, p.desconto);
+                        const calculo = calcularLinhaProduto(p.quantidade, p.precoUnit, p.descontoEntrada);
+                        const { liquidoUnit, total } = calculo;
+                        const unidadeSelecionada = unidades.find(unidade => unidade.id === p.unidadeMedidaId);
                         
                         return (
                         <tr key={idx}>
                           <td className="col-code">{p.idProduto}</td>
                           <td className="col-name">{p.nomeProduto || 'Produto ' + (idx + 1)}</td>
                           <td>
-                            <select
-                              disabled={!notaValidada}
-                              value={p.unidadeMedidaId || ''}
-                              onChange={e => {
-                                const newProdutos = [...produtos];
-                                const unidadeSelecionada = unidades.find(u => u.id === Number(e.target.value));
-                                newProdutos[idx].unidadeMedidaId = Number(e.target.value);
-                                newProdutos[idx].nomeUnidade = unidadeSelecionada?.nomeUnidade;
-                                setProdutos(newProdutos);
-                              }}
-                              className="produto-table-select"
-                            >
-                              <option value="">Selecione...</option>
-                              {unidades.map(u => (
-                                <option key={u.id} value={u.id}>{u.sigla}</option>
-                              ))}
-                            </select>
+                            {unidadeSelecionada?.sigla ?? p.nomeUnidade ?? '—'}
                           </td>
                           <td>
                             <input
@@ -750,21 +794,30 @@ export default function NotaVendaFormPage({ onClose }: { onClose?: () => void } 
                             />
                           </td>
                           <td>
-                            <input
-                              type="number"
-                              step="1"
-                              min="0"
-                              max="100"
-                              disabled={!notaValidada}
-                              value={p.desconto || 0}
-                              onChange={e => {
-                                const newProdutos = [...produtos];
-                                newProdutos[idx].desconto = Number(e.target.value);
-                                setProdutos(newProdutos);
-                              }}
-                              className="produto-table-input"
-                              title="Porcentagem de desconto (0-100%)"
-                            />
+                            <div className="discount-input-wrap">
+                              <input
+                                type="text"
+                                inputMode="text"
+                                disabled={!notaValidada}
+                                value={p.descontoEntrada}
+                                placeholder="Ex.: 10 ou 10,50"
+                                onFocus={event => {
+                                  descontoInputRef.current = event.currentTarget;
+                                  setDescontoFocado(idx);
+                                }}
+                                onBlur={() => {
+                                  descontoInputRef.current = null;
+                                  setDescontoFocado(null);
+                                  setDescontoTooltipPos(null);
+                                }}
+                                onChange={e => {
+                                  const newProdutos = [...produtos];
+                                  newProdutos[idx].descontoEntrada = e.target.value;
+                                  setProdutos(newProdutos);
+                                }}
+                                className="produto-table-input"
+                              />
+                            </div>
                           </td>
                           <td>
                             R$ {liquidoUnit.toFixed(2).replace('.', ',')}
@@ -966,12 +1019,14 @@ export default function NotaVendaFormPage({ onClose }: { onClose?: () => void } 
       {showClienteModal && (
         <ClienteLookupModal
           onClose={() => setShowClienteModal(false)}
-          onSelect={(id, nome) => {
-            setForm({
-              ...form,
+          onSelect={(id, nome, idCondicaoPagamento, nomeCondicaoPagamento) => {
+            setForm(current => ({
+              ...current,
+              condicaoPagamentoId: idCondicaoPagamento || undefined,
               clienteId: id
-            });
+            }));
             setNomeCliente(nome);
+            setNomeCondicao(nomeCondicaoPagamento ?? '');
             setShowClienteModal(false);
           }}
         />
@@ -1014,16 +1069,16 @@ export default function NotaVendaFormPage({ onClose }: { onClose?: () => void } 
         <ProdutoLookupModal
           tipo="venda"
           onClose={() => setShowProdutoModal(false)}
-          onSelect={(id, nomeProduto) => {
+          onSelect={(id, nomeProduto, unidadeId, nomeUnidade) => {
             setProdutos([...produtos, {
               idProduto: id,
               quantidade: 1,
               precoUnit: 0,
-              desconto: 0,
+              descontoEntrada: '',
               idNotaVenda: 0,
               nomeProduto: nomeProduto,
-              unidadeMedidaId: unidades.length > 0 ? unidades[0].id : undefined,
-              nomeUnidade: unidades.length > 0 ? unidades[0].nomeUnidade : undefined,
+              unidadeMedidaId: unidadeId,
+              nomeUnidade,
             }]);
             setShowProdutoModal(false);
           }}
@@ -1038,6 +1093,32 @@ export default function NotaVendaFormPage({ onClose }: { onClose?: () => void } 
             setShowVeiculoModal(false);
           }}
         />
+      )}
+
+      {descontoFocado !== null && descontoTooltipPos && produtos[descontoFocado] && createPortal(
+        <div
+          className="discount-tooltip"
+          data-placement={descontoTooltipPos.placement}
+          role="tooltip"
+          style={{
+            left: descontoTooltipPos.left,
+            top: descontoTooltipPos.top,
+            transform: descontoTooltipPos.placement === 'top' ? 'translate(-50%, -100%)' : 'translateX(-50%)',
+          }}
+        >
+          <span>Inteiro = percentual. Use vírgula para reais.</span>
+          {produtos[descontoFocado].descontoEntrada.trim() && (() => {
+            const produto = produtos[descontoFocado];
+            const calculo = calcularLinhaProduto(produto.quantidade, produto.precoUnit, produto.descontoEntrada);
+            return (
+              <>
+                <strong>{produto.descontoEntrada.includes(',') ? 'Valor informado' : 'Percentual informado'}: {produto.descontoEntrada.includes(',') ? `R$ ${calculo.descontoUnit.toFixed(2).replace('.', ',')}` : `${calculo.descontoPercentual.toFixed(2).replace('.', ',')}%`}</strong>
+                <span>Equivale a {produto.descontoEntrada.includes(',') ? `${calculo.descontoPercentual.toFixed(2).replace('.', ',')}%` : `R$ ${calculo.descontoUnit.toFixed(2).replace('.', ',')}`}</span>
+              </>
+            );
+          })()}
+        </div>,
+        document.body,
       )}
 
     </>

@@ -91,29 +91,12 @@ public class ContaPagarService
     }
 
     public async Task<bool> CancelarAsync(long id)
-    {
-        var c = await _repository.GetByIdAsync(id);
-        if (c == null || c.Status == "FINALIZADO" || c.Status == "CANCELADO") return false;
-        var abertas = (await _parcelas.GetByContaAsync(id)).Where(p => !p.Pago && !p.Cancelada).ToList();
-        if (abertas.Count == 0) return false;
-        foreach (var parcela in abertas)
-            await _parcelas.CancelarAsync(parcela.Id);
-        c.Status = "CANCELADO";
-        return await _repository.UpdateAsync(c);
-    }
+        => await _repository.CancelarSemPagamentosAsync(id);
 
-    public async Task<bool> CancelarParcelaAsync(long parcelaId)
+    public async Task<bool> CancelarDaNotaCompraAsync(long notaCompraId)
     {
-        var parcela = await _parcelas.GetByIdAsync(parcelaId);
-        if (parcela == null || parcela.Pago || parcela.Cancelada) return false;
-        var conta = await _repository.GetByIdAsync(parcela.ContaPagarId);
-        if (conta == null || conta.Status != "ABERTO") return false;
-        if (await _parcelas.CancelarDaParcelaEmDianteAsync(conta.Id, parcela.NumParcela) == 0) return false;
-
-        var parcelas = (await _parcelas.GetByContaAsync(conta.Id)).ToList();
-        if (parcelas.All(p => p.Pago || p.Cancelada))
-            conta.Status = parcelas.Any(p => p.Cancelada) ? "CANCELADO" : "FINALIZADO";
-        return await _repository.UpdateAsync(conta);
+        var conta = await _repository.GetByNotaCompraIdAsync(notaCompraId);
+        return conta != null && await CancelarAsync(conta.Id);
     }
 
     public async Task<bool> DeleteAsync(long id)

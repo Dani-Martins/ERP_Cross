@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { TrendingUp, Eye, CheckCircle, XCircle, Plus, Search, X } from 'lucide-react';
+import { TrendingUp, Eye, CheckCircle, Plus, Search, X } from 'lucide-react';
 import { ContaReceberService } from '../services/contasService';
 import type { ContaReceberView } from '../types/entities';
 import ContaReceberFormPage from './ContaReceberFormPage';
@@ -24,7 +24,7 @@ function hojeLocal() {
 export default function ContasReceberPage() {
   const [contas, setContas] = useState<ContaReceberView[]>([]);
   const [busca, setBusca] = useState('');
-  const [filterStatus, setFilterStatus] = useState<'todos' | 'abertos' | 'pagos'>('todos');
+  const [filterStatus, setFilterStatus] = useState<'todos' | 'abertos' | 'pagos' | 'cancelados'>('todos');
   const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
@@ -32,9 +32,6 @@ export default function ContasReceberPage() {
   const [paymentAction, setPaymentAction] = useState<ContaReceberView | null>(null);
   const [paymentActioning, setPaymentActioning] = useState(false);
   const [paymentError, setPaymentError] = useState('');
-  const [cancelAction, setCancelAction] = useState<ContaReceberView | null>(null);
-  const [cancelActioning, setCancelActioning] = useState(false);
-  const [cancelError, setCancelError] = useState('');
 
   async function load() {
     setLoading(true);
@@ -69,6 +66,7 @@ export default function ContasReceberPage() {
     const matchStatus =
       filterStatus === 'todos' ? true :
       filterStatus === 'pagos' ? (c.status === 'PAGO' || c.status === 'RECEBIDO') :
+      filterStatus === 'cancelados' ? c.status === 'CANCELADO' :
       c.status !== 'PAGO' && c.status !== 'RECEBIDO' && c.status !== 'CANCELADO';
     const matchBusca = !busca ||
       (c.nomeCliente ?? '').toLowerCase().includes(busca.toLowerCase()) ||
@@ -97,21 +95,6 @@ export default function ContasReceberPage() {
     }
   }
 
-  async function handleCancel() {
-    if (!cancelAction) return;
-    setCancelActioning(true);
-    try {
-      await ContaReceberService.cancelar(cancelAction.id);
-      setCancelAction(null);
-      await load();
-    } catch (err) {
-      const apiError = err as { response?: { data?: { message?: string } } };
-      setCancelError(apiError.response?.data?.message ?? 'Não foi possível cancelar. Verifique se a migração do banco foi aplicada e se a parcela continua aberta.');
-    } finally {
-      setCancelActioning(false);
-    }
-  }
-
   return (
     <>
       <div className="page-container">
@@ -128,6 +111,7 @@ export default function ContasReceberPage() {
                 <option value="todos">Todos</option>
                 <option value="abertos">Em Aberto</option>
                 <option value="pagos">Pagos</option>
+                <option value="cancelados">Cancelados</option>
               </select>
             </div>
             <div className="search-box">
@@ -194,9 +178,6 @@ export default function ContasReceberPage() {
                           <button className="btn-icon btn-success" title="Confirmar recebimento" onClick={() => { setPaymentError(''); setPaymentAction(c); }}>
                             <CheckCircle size={16} />
                           </button>
-                          <button className="btn-icon btn-danger" title="Cancelar parcela e próximas em aberto" onClick={() => { setCancelError(''); setCancelAction(c); }}>
-                            <XCircle size={16} />
-                          </button>
                         </>
                       )}
                     </td>
@@ -226,28 +207,6 @@ export default function ContasReceberPage() {
                 {paymentActioning ? 'Processando...' : 'Confirmar Recebimento'}
               </button>
               <button className="btn-secondary" onClick={() => setPaymentAction(null)}>Voltar</button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {cancelAction && (
-        <div className="modal-overlay" onClick={() => setCancelAction(null)}>
-          <div className="modal modal-sm" onClick={e => e.stopPropagation()}>
-            <div className="modal-header">
-              <h2>Confirmar Cancelamento</h2>
-              <button className="modal-close" onClick={() => setCancelAction(null)}><X size={20} /></button>
-            </div>
-            <div className="modal-body">
-              <p>Cancelar irreversivelmente a parcela {cancelAction.numParcela} da nota {cancelAction.numeroNota}?</p>
-              <p>Esta parcela e as seguintes em aberto serão canceladas. Parcelas já recebidas serão preservadas. A data de cancelamento será automática.</p>
-              {cancelError && <p className="form-error">{cancelError}</p>}
-            </div>
-            <div className="modal-footer">
-              <button className="btn-danger" onClick={handleCancel} disabled={cancelActioning}>
-                {cancelActioning ? 'Processando...' : 'Confirmar Cancelamento'}
-              </button>
-              <button className="btn-secondary" onClick={() => setCancelAction(null)}>Voltar</button>
             </div>
           </div>
         </div>

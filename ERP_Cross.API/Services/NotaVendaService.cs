@@ -60,6 +60,16 @@ public class NotaVendaService
         return atualizado;
     }
 
+    public async Task<string?> CancelarContaReceberAsync(string numeroNota, string modelo, string serie, int clienteId)
+    {
+        var nota = await _repository.GetByKeyAsync(numeroNota, modelo, serie);
+        if (nota == null || nota.ClienteId != clienteId) return "Nota de venda não encontrada.";
+        if (!nota.Ativo) return "A nota de venda está inativa.";
+        if (!await _contasReceber.CancelarDaNotaAsync(numeroNota, modelo, serie, clienteId))
+            return "Não é possível cancelar a conta: ela não está aberta, já foi cancelada ou possui parcela paga.";
+        return null;
+    }
+
     public async Task<bool> DeleteAsync(string numeroNota, string modelo, string serie)
     {
         var nota = await _repository.GetByKeyAsync(numeroNota, modelo, serie);

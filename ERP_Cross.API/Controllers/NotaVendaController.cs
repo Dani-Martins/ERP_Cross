@@ -1,5 +1,6 @@
 ﻿#nullable enable
 using ERP_Cross.API.Entities;
+using ERP_Cross.API.Errors;
 using ERP_Cross.API.Models;
 using ERP_Cross.API.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -30,6 +31,9 @@ public class NotaVendaController(NotaVendaService service) : ControllerBase
     [HttpPost]
     public async Task<ActionResult<NotaVendaView>> Create(CreateNotaVendaDto dto)
     {
+        var erroData = ValidarDatas(dto.DataEmissao, dto.DataChegada);
+        if (erroData != null) return BadRequest(erroData);
+
         try
         {
             var item = await _service.CreateAsync(dto);
@@ -43,7 +47,18 @@ public class NotaVendaController(NotaVendaService service) : ControllerBase
 
     [HttpPut("{numeroNota}/{modelo}/{serie}")]
     public async Task<IActionResult> Update(string numeroNota, string modelo, string serie, UpdateNotaVendaDto dto)
-        => await _service.UpdateAsync(numeroNota, modelo, serie, dto) ? NoContent() : NotFound();
+    {
+        var erroData = ValidarDatas(dto.DataEmissao, dto.DataChegada);
+        if (erroData != null) return BadRequest(erroData);
+        return await _service.UpdateAsync(numeroNota, modelo, serie, dto) ? NoContent() : NotFound();
+    }
+
+    [HttpPost("{numeroNota}/{modelo}/{serie}/{clienteId:int}/cancelar-conta")]
+    public async Task<IActionResult> CancelarConta(string numeroNota, string modelo, string serie, int clienteId)
+    {
+        var erro = await _service.CancelarContaReceberAsync(numeroNota, modelo, serie, clienteId);
+        return erro == null ? NoContent() : Conflict(new { message = erro });
+    }
 
     [HttpDelete("{numeroNota}/{modelo}/{serie}")]
     public async Task<IActionResult> Delete(string numeroNota, string modelo, string serie)
@@ -54,6 +69,15 @@ public class NotaVendaController(NotaVendaService service) : ControllerBase
     {
         var proximoNumero = await _service.GetNextNumeroNotaAsync(modelo, serie);
         return Ok(proximoNumero);
+    }
+
+    private static ApiErrorResponse? ValidarDatas(DateTime emissao, DateTime? chegada)
+    {
+        if (emissao.Date > DateTime.Today)
+            return new ApiErrorResponse("DATA_EMISSAO_FUTURA", "A data de emissão não pode ser posterior à data atual.");
+        if (chegada?.Date > DateTime.Today)
+            return new ApiErrorResponse("DATA_CHEGADA_FUTURA", "A data de chegada não pode ser posterior à data atual.");
+        return null;
     }
 }
 
