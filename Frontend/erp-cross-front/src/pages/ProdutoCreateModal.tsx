@@ -139,7 +139,7 @@ export default function ProdutoCreateModal({ onCreated, onClose, zBase = 1000 }:
                 />
               </div>
 
-              <div className="form-group">
+              <div className="form-group produto-nome-field">
                 <label htmlFor="nomeProduto">Produto *</label>
                 <input
                   id="nomeProduto"
@@ -178,8 +178,8 @@ export default function ProdutoCreateModal({ onCreated, onClose, zBase = 1000 }:
                 />
               </div>
 
-              <div className="form-row">
-                <div className="form-group">
+              <div className="form-row produto-identificacao-row">
+                <div className="form-group produto-codigo-barras-field">
                   <label htmlFor="codigoBarras">Código de Barras (EAN-13) *</label>
                   <input
                     id="codigoBarras"
@@ -196,7 +196,7 @@ export default function ProdutoCreateModal({ onCreated, onClose, zBase = 1000 }:
                   />
                 </div>
 
-                <div className="form-group">
+                <div className="form-group produto-referencia-field">
                   <label htmlFor="referencia">Referência</label>
                   <input
                     id="referencia"
@@ -222,10 +222,10 @@ export default function ProdutoCreateModal({ onCreated, onClose, zBase = 1000 }:
                 Classificação
               </h2>
 
-              <div className="form-group">
+              <div className="form-group produto-classificacao-modal-field">
                 <label>Categoria *</label>
 
-                <div className="lookup-field">
+                <div className="lookup-field produto-classificacao-lookup-field">
 
                   <input
                     readOnly
@@ -248,10 +248,10 @@ export default function ProdutoCreateModal({ onCreated, onClose, zBase = 1000 }:
                 </div>
               </div>
 
-              <div className="form-group">
+              <div className="form-group produto-classificacao-modal-field">
                 <label>Marca *</label>
 
-                <div className="lookup-field">
+                <div className="lookup-field produto-classificacao-lookup-field">
 
                   <input
                     readOnly
@@ -274,10 +274,10 @@ export default function ProdutoCreateModal({ onCreated, onClose, zBase = 1000 }:
                 </div>
               </div>
 
-              <div className="form-group">
+              <div className="form-group produto-classificacao-modal-field">
                 <label>Unidade *</label>
 
-                <div className="lookup-field">
+                <div className="lookup-field produto-classificacao-lookup-field">
 
                   <input
                     readOnly
@@ -306,13 +306,14 @@ export default function ProdutoCreateModal({ onCreated, onClose, zBase = 1000 }:
             <div className="form-section">
               <h2 className="form-section-title">Valores</h2>
 
-              <div className="form-row">
+              <div className="form-row produto-valores-row">
 
-                <div className="form-group">
+                <div className="form-group produto-custo-field">
                   <label htmlFor="custoCompra">Custo de Compra *</label>
                   <CurrencyInput
                     id="custoCompra"
                     value={form.custoCompra}
+                    className="produto-currency-input"
                     onChange={value =>
                       setForm({
                         ...form,
@@ -322,12 +323,13 @@ export default function ProdutoCreateModal({ onCreated, onClose, zBase = 1000 }:
                   />
                 </div>
 
-                <div className="form-group">
+                <div className="form-group produto-lucro-field">
                   <label htmlFor="lucroPercentual">Lucro (%) *</label>
                   <input
                     id="lucroPercentual"
                     type="number"
                     min="0"
+                    max="999"
                     step="0.01"
                     placeholder="0.00"
                     value={form.lucroPercentual}
@@ -342,9 +344,9 @@ export default function ProdutoCreateModal({ onCreated, onClose, zBase = 1000 }:
 
               </div>
 
-              <div className="form-row">
+              <div className="form-row produto-valores-row">
 
-                <div className="form-group">
+                <div className="form-group produto-preco-field">
                   <label>Preço de Venda *</label>
                   <input
                     type="text"
@@ -354,18 +356,18 @@ export default function ProdutoCreateModal({ onCreated, onClose, zBase = 1000 }:
                       style: 'currency',
                       currency: 'BRL'
                     })}
-                    style={{ fontSize: '0.9em' }}
+                    className="produto-currency-input"
                   />
                 </div>
 
-                <div className="form-group">
+                <div className="form-group produto-estoque-field">
                   <label htmlFor="estoque">Quantidade em Estoque</label>
                   <input
                     id="estoque"
                     type="number"
                     value={0}
                     disabled
-                    style={{ fontSize: '0.9em' }}
+                    max="9"
                   />
                 </div>
 

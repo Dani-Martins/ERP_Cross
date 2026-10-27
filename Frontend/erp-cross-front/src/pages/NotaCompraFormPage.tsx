@@ -736,7 +736,7 @@ export default function NotaCompraFormPage({ onClose }: { onClose?: () => void }
                   <tbody>
                     {produtos.length === 0 ? (
                       <tr>
-                        <td colSpan={10} className="table-empty">Nenhum produto adicionado.</td>
+                          <td colSpan={10} className="table-empty">Nenhum produto adicionado.</td>
                       </tr>
                     ) : (
                       produtos.map((p, idx) => {
@@ -744,8 +744,10 @@ export default function NotaCompraFormPage({ onClose }: { onClose?: () => void }
                         const { liquidoUnit, total } = calculo;
                         const unidadeSelecionada = unidades.find(unidade => unidade.id === p.unidadeMedidaId);
 
-                        const custoAditional = (form.tipoFrete === 'FOB' ? Number(form.valorFrete) : 0) + Number(form.valorSeguro) + Number(form.outrasDespesas);
-                        const rateioProd = total > 0 ? (Number(p.quantidade) / total) * custoAditional : 0;
+                        const despesasAdicionais = (form.tipoFrete === 'FOB' ? Number(form.valorFrete) : 0) + Number(form.valorSeguro) + Number(form.outrasDespesas);
+                        const rateioProd = calculatedTotalProdutos > 0 && p.quantidade > 0
+                          ? (total / calculatedTotalProdutos * despesasAdicionais) / p.quantidade
+                          : 0;
                         
                         return (
                         <tr key={idx}>
@@ -814,7 +816,7 @@ export default function NotaCompraFormPage({ onClose }: { onClose?: () => void }
                             R$ {total.toFixed(2).replace('.', ',')}
                           </td>
                           <td data-label="Rateio">
-                            R$ {rateioProd.toFixed(2).replace('.', ',')}
+                            R$ {(p.precoUnit + rateioProd).toFixed(2).replace('.', ',')}
                           </td>
                           <td className="nota-produto-actions">
                             <button

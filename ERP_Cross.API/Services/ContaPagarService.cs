@@ -111,7 +111,7 @@ public class ContaPagarService
     private static bool NotaAberta(NotaCompra n)
         => n.Ativo && string.Equals(n.Status ?? "ABERTA", "ABERTA", StringComparison.OrdinalIgnoreCase);
 
-    // Monta as parcelas pela condição de pagamento da nota (dias + percentual), aplicando juros e desconto da condição
+    // Mantém os valores das parcelas iguais aos exibidos na Nota de Compra.
     private async Task<(List<ContaPagarParcelaInput> Parcelas, CondicaoPagamento? Condicao, int? FormaPagamentoId)> GerarParcelasDaNotaAsync(NotaCompra nota)
     {
         var condicao = nota.CondicaoPagamentoId.HasValue ? await _condicoes.GetByIdAsync(nota.CondicaoPagamentoId.Value) : null;
@@ -121,8 +121,6 @@ public class ContaPagarService
         if (defs.Count == 0)
             defs.Add(new CondicaoPagamentoRepository.ParcelaCondicaoPagamento { Numero = 1, Dias = 0, Percentual = 100 });
 
-        var juros = condicao?.TaxaJuros ?? 0m;
-        var desconto = condicao?.Desconto ?? 0m;
         var total = nota.TotalPagar;
         var lista = new List<ContaPagarParcelaInput>();
         decimal acumulado = 0;
@@ -132,11 +130,10 @@ public class ContaPagarService
                 ? Math.Round(total - acumulado, 2)
                 : Math.Round(total * defs[i].Percentual / 100m, 2);
             acumulado += valor;
-            var fator = (decimal)Math.Pow((double)(1 + juros / 100m), i) * (1 - desconto / 100m);
             lista.Add(new ContaPagarParcelaInput
             {
                 DataVencimento = nota.DataEmissao.Date.AddDays(defs[i].Dias),
-                ValorParcela = Math.Round(valor * fator, 2)
+                ValorParcela = valor
             });
         }
         return (lista, condicao, defs[0].FormaPagamentoId);
@@ -194,9 +191,10 @@ public class ContaPagarService
         foreach (var nota in await _notas.GetAllAsync())
         {
             if (!NotaAberta(nota)) continue;
-            if (await _repository.GetByNotaCompraIdAsync(nota.Id) != null) continue;
+            var existente = await _repository.GetByNotaCompraIdAsync(nota.Id);
+            if (existente != null && (existente.Status != "ABERTO" || existente.ParcelasPagas > 0)) continue;
             await SincronizarDaNotaAsync(nota);
-            criadas++;
+            if (existente == null) criadas++;
         }
         return criadas;
     }

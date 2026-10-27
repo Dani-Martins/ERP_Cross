@@ -476,6 +476,10 @@
   max-width: 560px;
 }
 
+.modal.modal-produto {
+  max-width: 760px;
+}
+
 .modal-form-page > .modal-header {
   padding: 16px 24px;
   border-bottom: 1px solid var(--border-card);
@@ -817,6 +821,74 @@
   min-width: 0;
   background: var(--bg-input) !important;
   cursor: default !important;
+}
+
+.produto-nome-field {
+  width: 100%;
+  max-width: 600px;
+}
+
+.produto-identificacao-row {
+  grid-template-columns: minmax(180px, 200px) minmax(130px, 160px);
+}
+
+.produto-identificacao-row > .form-group,
+.produto-classificacao-row > .form-group {
+  min-width: 0;
+}
+
+.produto-classificacao-row {
+  grid-template-columns: 150px minmax(0, 280px);
+}
+
+.produto-classificacao-value-field > input,
+.produto-classificacao-modal-field {
+  width: 100%;
+  max-width: 360px;
+}
+
+.produto-classificacao-modal-field .produto-classificacao-lookup-field {
+  width: 100%;
+}
+
+.produto-valores-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.produto-valores-row .produto-custo-field,
+.produto-valores-row .produto-preco-field {
+  flex: 0 1 180px;
+  width: 180px;
+}
+
+.produto-valores-row .produto-lucro-field,
+.produto-valores-row .produto-estoque-field {
+  flex: 0 0 86px;
+  width: 86px;
+}
+
+.produto-valores-row .produto-estoque-field {
+  flex-basis: 140px;
+  width: 140px;
+}
+
+.produto-valores-row .produto-estoque-field label {
+  white-space: nowrap;
+}
+
+.produto-currency-input {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+@media (max-width: 640px) {
+  .produto-identificacao-row,
+  .produto-classificacao-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 .btn-lookup {

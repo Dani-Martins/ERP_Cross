@@ -58,10 +58,14 @@ public class NotaCompraItemService
     {
         i.LiquidoUnit = i.PrecoUnit - i.DescontoUnit;
         i.Total = i.LiquidoUnit * i.Quantidade;
-        i.Rateio = nota.TotalProdutos > 0
-            ? i.LiquidoUnit * nota.ValorFrete / nota.TotalProdutos
+        var despesasAdicionais =
+            (string.Equals(nota.TipoFrete, "FOB", StringComparison.OrdinalIgnoreCase) ? nota.ValorFrete : 0)
+            + nota.ValorSeguro
+            + nota.OutrasDespesas;
+        i.Rateio = nota.TotalProdutos > 0 && i.Quantidade > 0
+            ? i.LiquidoUnit * despesasAdicionais / nota.TotalProdutos
             : 0;
-        i.CustoFinalUnit = i.LiquidoUnit + i.Rateio;
+        i.CustoFinalUnit = i.PrecoUnit + i.Rateio;
         i.CustoFinal = i.CustoFinalUnit * i.Quantidade;
     }
 }
