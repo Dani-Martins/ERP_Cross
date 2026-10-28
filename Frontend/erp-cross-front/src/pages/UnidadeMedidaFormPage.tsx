@@ -122,7 +122,7 @@ export default function UnidadeMedidaFormPage({ unidadeId, onClose }: { unidadeI
               />
             </div>
 
-            <div className="form-group">
+            <div className="form-group unidade-medida-nome-field">
               <label htmlFor="nomeUnidade">Unidade de Medida *</label>
               <input
                 id="nomeUnidade"
@@ -134,7 +134,7 @@ export default function UnidadeMedidaFormPage({ unidadeId, onClose }: { unidadeI
               />
             </div>
 
-            <div className="form-group">
+            <div className="form-group unidade-medida-sigla-field">
               <label htmlFor="sigla">Sigla *</label>
               <input
                 id="sigla"

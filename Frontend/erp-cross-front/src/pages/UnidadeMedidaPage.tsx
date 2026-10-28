@@ -165,7 +165,7 @@ export default function UnidadeMedidaPage() {
 
       {(showCreate || editingId !== null || viewingId !== null) && (
         <div className="modal-overlay">
-          <div className="modal modal-form-page" role="dialog" aria-modal="true">
+          <div className="modal modal-form-page modal-unidade-medida" role="dialog" aria-modal="true">
             <div className="modal-header">
               <h2>{viewingId !== null ? 'Visualizar Unidade de Medida' : editingId !== null ? 'Editar Unidade de Medida' : 'Nova Unidade de Medida'}</h2>
               <button className="modal-close" type="button" aria-label="Fechar" onClick={fecharModal}><X size={18} /></button>

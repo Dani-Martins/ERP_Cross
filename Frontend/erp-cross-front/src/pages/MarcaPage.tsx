@@ -165,7 +165,7 @@ export default function MarcaPage() {
 
       {(showCreate || editingId !== null || viewingId !== null) && (
         <div className="modal-overlay">
-          <div className="modal modal-form-page" role="dialog" aria-modal="true">
+          <div className="modal modal-form-page modal-marca" role="dialog" aria-modal="true">
             <div className="modal-header">
               <h2>{viewingId !== null ? 'Visualizar Marca' : editingId !== null ? 'Editar Marca' : 'Nova Marca'}</h2>
               <button className="modal-close" type="button" aria-label="Fechar" onClick={fecharModal}><X size={18} /></button>

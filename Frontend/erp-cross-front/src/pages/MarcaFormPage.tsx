@@ -120,7 +120,7 @@ export default function MarcaFormPage({ marcaId, onClose }: { marcaId?: number; 
               />
             </div>
 
-            <div className="form-group">
+            <div className="form-group marca-nome-field">
               <label htmlFor="nomeMarca">Marca *</label>
               <input
                 id="nomeMarca"
@@ -132,7 +132,7 @@ export default function MarcaFormPage({ marcaId, onClose }: { marcaId?: number; 
               />
             </div>
 
-            <div className="form-group">
+            <div className="form-group marca-descricao-field">
               <label htmlFor="descricao">Descrição</label>
               <textarea
                 id="descricao"

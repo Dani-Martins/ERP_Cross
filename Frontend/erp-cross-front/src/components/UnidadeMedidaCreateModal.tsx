@@ -73,7 +73,7 @@ export default function UnidadeMedidaCreateModal({ onCreated, onClose, zBase = 1
                 }}
               />
             </div>
-            <div className="form-group">
+            <div className="form-group unidade-medida-nome-field">
               <label htmlFor="nomeUnidade">Unidade *</label>
               <input
                 id="nomeUnidade"
@@ -84,7 +84,7 @@ export default function UnidadeMedidaCreateModal({ onCreated, onClose, zBase = 1
                 autoFocus
               />
             </div>
-            <div className="form-group">
+            <div className="form-group unidade-medida-sigla-field">
               <label htmlFor="sigla">Sigla *</label>
               <input
                 id="sigla"
