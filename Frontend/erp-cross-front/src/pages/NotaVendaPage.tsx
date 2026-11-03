@@ -8,20 +8,17 @@ import type { ContaReceberView, NotaVendaView } from '../types/entities';
 import './PaisesPage.css';
 import './NotaCompraPage.css';
 
-type StatusNota = 'Em andamento' | 'Pago' | 'Cancelado';
-type FiltroStatusNota = 'todos' | 'em-andamento' | 'pago' | 'cancelado';
+type FiltroStatusNota = 'todos' | 'em-andamento' | 'cancelado';
 
-function obterStatusNota(nota: NotaVendaView, contasReceber: ContaReceberView[]): StatusNota {
+function obterStatusNota(nota: NotaVendaView, contasReceber: ContaReceberView[]): 'Cancelado' | '' {
   const parcelas = contasReceber.filter(conta =>
     conta.numeroNota === nota.numeroNota && conta.modelo === nota.modelo &&
     conta.serie === nota.serie && conta.clienteId === nota.clienteId
   );
-  if (!nota.ativo || nota.status?.toUpperCase() === 'CANCELADO' ||
-    parcelas.some(conta => conta.status === 'CANCELADO' || Boolean(conta.dataCancelamento))) return 'Cancelado';
-  if (parcelas.length > 0 && parcelas.every(conta =>
-    conta.status === 'PAGO' || conta.status === 'RECEBIDO' || Boolean(conta.dataRecebimento)
-  )) return 'Pago';
-  return 'Em andamento';
+  return !nota.ativo || nota.status?.toUpperCase() === 'CANCELADO' ||
+    parcelas.some(conta => conta.status === 'CANCELADO' || Boolean(conta.dataCancelamento))
+    ? 'Cancelado'
+    : '';
 }
 
 export default function NotaVendaPage() {
@@ -86,8 +83,7 @@ export default function NotaVendaPage() {
       (nota.nomeCliente ?? '').toLowerCase().includes(search.toLowerCase());
     const status = obterStatusNota(nota, contasReceber);
     const matchStatus = statusFilter === 'todos' ||
-      (statusFilter === 'em-andamento' && status === 'Em andamento') ||
-      (statusFilter === 'pago' && status === 'Pago') ||
+      (statusFilter === 'em-andamento' && status !== 'Cancelado') ||
       (statusFilter === 'cancelado' && status === 'Cancelado');
     return matchBusca && matchStatus;
   });
@@ -106,7 +102,6 @@ export default function NotaVendaPage() {
             <select id="statusFilter" value={statusFilter} onChange={event => setStatusFilter(event.target.value as FiltroStatusNota)}>
               <option value="todos">Todos</option>
               <option value="em-andamento">Em andamento</option>
-              <option value="pago">Pago</option>
               <option value="cancelado">Cancelado</option>
             </select>
           </div>
@@ -193,9 +188,7 @@ export default function NotaVendaPage() {
                     })}
                   </td>
                   <td>
-                    <span className={`status-badge ${statusFinanceiro === 'Pago' ? 'status-active' : statusFinanceiro === 'Cancelado' ? 'status-inactive' : 'status-progress'}`}>
-                      {statusFinanceiro}
-                    </span>
+                    {statusFinanceiro === 'Cancelado' && <span className="status-badge status-inactive">Cancelado</span>}
                   </td>
                   <td className="col-actions">
                     <button

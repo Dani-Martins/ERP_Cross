@@ -254,6 +254,7 @@ export interface ProdutoView {
   dataCriacao: string;
   dataAtualizacao: string;
   nomeUnidade?: string;
+  siglaUnidade?: string;
   nomeMarca?: string;
   nomeCategoria?: string;
 }
@@ -266,6 +267,7 @@ export interface ProdutoCreate {
   descricao?: string;
   codigoBarras?: string;
   custoCompra: number;
+  precoVenda: number;
   lucroPercentual: number;
   ativo: boolean;
 }

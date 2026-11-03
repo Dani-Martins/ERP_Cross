@@ -20,6 +20,7 @@ const EMPTY: ProdutoCreate = {
   descricao: '',
   codigoBarras: '',
   custoCompra: 0,
+  precoVenda: 0,
   lucroPercentual: 0,
   ativo: true,
 };
@@ -71,13 +72,14 @@ export default function ProdutoFormPage({ produtoId, onClose }: { produtoId?: nu
           descricao: p.descricao ?? '',
           codigoBarras: p.codigoBarras ?? '',
           custoCompra: p.custoCompra,
+          precoVenda: p.precoVenda,
           lucroPercentual: p.lucroPercentual,
           ativo: p.ativo
         });
         setNextId(String(p.id));
         setNomeCategoria(p.nomeCategoria ?? '');
         setNomeMarca(p.nomeMarca ?? '');
-        setNomeUnidade(p.nomeUnidade ?? '');
+        setNomeUnidade(p.siglaUnidade ?? p.nomeUnidade ?? '');
       })
       .catch(() => navigate('/produtos'))
       .finally(() => setLoading(false));
@@ -112,13 +114,7 @@ export default function ProdutoFormPage({ produtoId, onClose }: { produtoId?: nu
       return;
     }
 
-    if (!form.custoCompra || form.custoCompra <= 0) {
-      setError('Custo de Compra é obrigatório e deve ser maior que zero.');
-      return;
-    }
-
-    const precoVendaValidacao = form.custoCompra + (form.custoCompra * form.lucroPercentual / 100);
-    if (precoVendaValidacao <= 0) {
+    if (form.precoVenda <= 0) {
       setError('Preço de Venda é obrigatório e deve ser maior que zero.');
       return;
     }
@@ -149,10 +145,6 @@ export default function ProdutoFormPage({ produtoId, onClose }: { produtoId?: nu
       setSaving(false);
     }
   }
-
-  const precoVenda =
-    form.custoCompra +
-    (form.custoCompra * form.lucroPercentual / 100);
 
   if (loading) {
     return (
@@ -213,28 +205,6 @@ export default function ProdutoFormPage({ produtoId, onClose }: { produtoId?: nu
                     nomeProduto: e.target.value.toUpperCase()
                   })
                 }
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="descricao">Descrição</label>
-              <textarea
-                id="descricao"
-                rows={4}
-                placeholder="Descrição do produto..."
-                value={form.descricao}
-                onChange={e =>
-                  setForm({
-                    ...form,
-                    descricao: e.target.value.toUpperCase()
-                  })
-                }
-                style={{
-                  resize: 'vertical',
-                  width: '100%',
-                  fontFamily: 'inherit',
-                  fontSize: 'inherit'
-                }}
               />
             </div>
 
@@ -399,11 +369,12 @@ export default function ProdutoFormPage({ produtoId, onClose }: { produtoId?: nu
             <div className="form-row produto-valores-row">
 
               <div className="form-group produto-custo-field">
-                <label htmlFor="custoCompra">Custo de Compra *</label>
+                <label htmlFor="custoCompra">Custo de Compra</label>
                 <CurrencyInput
                   id="custoCompra"
                   value={form.custoCompra}
                   className="produto-currency-input"
+                  disabled
                   onChange={value =>
                     setForm({
                       ...form,
@@ -418,31 +389,36 @@ export default function ProdutoFormPage({ produtoId, onClose }: { produtoId?: nu
                 <input
                   id="lucroPercentual"
                   type="number"
-                  min="0"
-                  max="999"
                   step="0.01"
                   placeholder="0.00"
                   value={form.lucroPercentual}
-                  onChange={e =>
-                    setForm({
-                      ...form,
-                      lucroPercentual: Number(e.target.value)
-                    })
-                  }
+                  onChange={e => {
+                    const lucroPercentual = Number(e.target.value);
+                    setForm(current => ({
+                      ...current,
+                      lucroPercentual,
+                      precoVenda: current.custoCompra > 0
+                        ? current.custoCompra * (1 + lucroPercentual / 100)
+                        : current.precoVenda,
+                    }));
+                  }}
                 />
               </div>
 
               <div className="form-group produto-preco-field">
                 <label>Preço de Venda *</label>
-                <input
-                  type="text"
-                  readOnly
-                  placeholder="Preço de Venda"
-                  value={precoVenda.toLocaleString('pt-BR', {
-                    style: 'currency',
-                    currency: 'BRL'
-                  })}
+                <CurrencyInput
+                  value={form.precoVenda}
                   className="produto-currency-input"
+                  onChange={value => {
+                    setForm(current => ({
+                      ...current,
+                      precoVenda: value,
+                      lucroPercentual: current.custoCompra > 0
+                        ? ((value / current.custoCompra) - 1) * 100
+                        : current.lucroPercentual,
+                    }));
+                  }}
                 />
               </div>
 
@@ -530,9 +506,9 @@ export default function ProdutoFormPage({ produtoId, onClose }: { produtoId?: nu
 
       {showUnidadeModal && (
         <UnidadeMedidaLookupModal
-          onSelect={(id, nome) => {
+          onSelect={(id, nome, sigla) => {
             setForm({ ...form, unidadeId: id });
-            setNomeUnidade(nome);
+            setNomeUnidade(sigla || nome);
             setShowUnidadeModal(false);
           }}
           onClose={() => setShowUnidadeModal(false)}

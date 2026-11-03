@@ -20,10 +20,9 @@ public class NotaCompraService
 
     public async Task<NotaCompra> CreateAsync(CreateNotaCompraDto dto)
     {
-        // Validar unicidade de Número, Modelo e Série
-        var existing = await _repository.GetByNumeroModeloSerieAsync(dto.NumeroNota, dto.Modelo, dto.Serie);
+        var existing = await _repository.GetByNumeroModeloSerieAsync(dto.NumeroNota, dto.Modelo, dto.Serie, dto.FornecedorId);
         if (existing != null)
-            throw new InvalidOperationException($"Já existe uma nota de compra com os dados: Número '{dto.NumeroNota}', Modelo '{dto.Modelo}', Série '{dto.Serie}'.");
+            throw new InvalidOperationException($"Este fornecedor já possui uma nota com Número '{dto.NumeroNota}', Modelo '{dto.Modelo}' e Série '{dto.Serie}'.");
 
         var n = new NotaCompra
         {
@@ -45,6 +44,10 @@ public class NotaCompraService
     {
         var n = await _repository.GetByIdAsync(id);
         if (n == null) return false;
+
+        var duplicada = await _repository.GetByNumeroModeloSerieAsync(dto.NumeroNota, dto.Modelo, dto.Serie, dto.FornecedorId, id);
+        if (duplicada != null)
+            throw new InvalidOperationException($"Este fornecedor já possui uma nota com Número '{dto.NumeroNota}', Modelo '{dto.Modelo}' e Série '{dto.Serie}'.");
 
         n.FornecedorId = dto.FornecedorId; n.Modelo = dto.Modelo; n.Serie = dto.Serie; n.NumeroNota = dto.NumeroNota;
         n.DataEmissao = dto.DataEmissao; n.DataChegada = dto.DataChegada; n.ChaveAcesso = dto.ChaveAcesso; n.TipoFrete = dto.TipoFrete;

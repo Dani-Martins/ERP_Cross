@@ -16,10 +16,11 @@ export const NotaVendaService = {
   getByKey(
     numeroNota: string,
     modelo: string,
-    serie: string
+    serie: string,
+    clienteId: number
   ) {
     return api.get<NotaVendaView>(
-      `/NotaVenda/${numeroNota}/${modelo}/${serie}`
+      `/NotaVenda/${numeroNota}/${modelo}/${serie}/${clienteId}`
     );
   },
 

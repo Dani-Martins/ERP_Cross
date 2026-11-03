@@ -6,7 +6,7 @@ import type { AxiosError } from 'axios';
 import '../pages/PaisesPage.css';
 
 interface Props {
-  onCreated: (id: number, nome: string) => void;
+  onCreated: (id: number, nome: string, sigla?: string) => void;
   onClose: () => void;
   zBase?: number;
 }
@@ -37,7 +37,7 @@ export default function UnidadeMedidaCreateModal({ onCreated, onClose, zBase = 1
     setError('');
     try {
       const res = await UnidadeMedidaService.create(form);
-      onCreated(res.data.id, res.data.nomeUnidade);
+      onCreated(res.data.id, res.data.nomeUnidade, res.data.sigla);
     } catch (err) {
       const axiosErr = err as AxiosError<{ message: string }>;
       if (axiosErr.response?.status === 409) {

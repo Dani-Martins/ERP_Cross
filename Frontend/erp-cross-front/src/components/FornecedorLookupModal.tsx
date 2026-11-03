@@ -2,11 +2,18 @@ import { useState, useEffect } from 'react';
 import { X, Search, Plus } from 'lucide-react';
 import { FornecedorService } from '../services/fornecedorService';
 import type { FornecedorView } from '../types/entities';
-import FornecedorCreateModal from './FornecedorCreateModal';
+import FornecedorFormPage from '../pages/FornecedorFormPage';
 import '../pages/PaisesPage.css';
 
 interface Props {
-  onSelect: (id: number, nome: string, idCondicaoPagamento?: number, nomeCondicaoPagamento?: string) => void;
+  onSelect: (
+    id: number,
+    nome: string,
+    idCondicaoPagamento?: number,
+    nomeCondicaoPagamento?: string,
+    idTransportadora?: number,
+    nomeTransportadora?: string,
+  ) => void;
   onClose: () => void;
   zBase?: number;
 }
@@ -31,15 +38,17 @@ export default function FornecedorLookupModal({ onSelect, onClose, zBase = 1000 
                       (f.nomeFantasia ?? '').toLowerCase().includes(search.toLowerCase()))
     : all;
 
-  async function handleCreated(id: number, nome: string) {
+  function handleCreated(fornecedor: FornecedorView) {
     setShowCreate(false);
     load();
-    try {
-      const res = await FornecedorService.getById(id);
-      onSelect(id, nome, res.data.idCondicaoPagamento, res.data.nomeCondicaoPagamento);
-    } catch {
-      onSelect(id, nome);
-    }
+    onSelect(
+      fornecedor.id,
+      fornecedor.nome,
+      fornecedor.idCondicaoPagamento,
+      fornecedor.nomeCondicaoPagamento,
+      fornecedor.idTransportadora,
+      fornecedor.nomeTransportadora,
+    );
   }
 
   return (
@@ -81,7 +90,14 @@ export default function FornecedorLookupModal({ onSelect, onClose, zBase = 1000 
                         <td className="col-name">{f.nome}</td>
                         <td>{f.cpfCnpj}</td>
                         <td>
-                          <button className="btn-select" onClick={() => onSelect(f.id, f.nome, f.idCondicaoPagamento, f.nomeCondicaoPagamento)}>
+                          <button className="btn-select" onClick={() => onSelect(
+                            f.id,
+                            f.nome,
+                            f.idCondicaoPagamento,
+                            f.nomeCondicaoPagamento,
+                            f.idTransportadora,
+                            f.nomeTransportadora,
+                          )}>
                             Selecionar
                           </button>
                         </td>
@@ -101,11 +117,23 @@ export default function FornecedorLookupModal({ onSelect, onClose, zBase = 1000 
         </div>
       </div>
       {showCreate && (
-        <FornecedorCreateModal
-          onCreated={handleCreated}
-          onClose={() => setShowCreate(false)}
-          zBase={zBase + 100}
-        />
+        <div className="modal-overlay" style={{ zIndex: zBase + 100 }} onClick={() => setShowCreate(false)}>
+          <div className="modal modal-form-page modal-fornecedor" role="dialog" aria-modal="true" aria-labelledby="fornecedor-create-title" onClick={event => event.stopPropagation()}>
+            <div className="modal-header">
+              <h2 id="fornecedor-create-title">Novo Fornecedor</h2>
+              <button className="modal-close" type="button" aria-label="Fechar cadastro" onClick={() => setShowCreate(false)}>
+                <X size={18} />
+              </button>
+            </div>
+            <div className="account-page-modal-body">
+              <FornecedorFormPage
+                onClose={() => setShowCreate(false)}
+                onSaved={handleCreated}
+                lookupZBase={zBase + 101}
+              />
+            </div>
+          </div>
+        </div>
       )}
     </>
   );

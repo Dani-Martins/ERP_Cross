@@ -13,7 +13,7 @@ public class ProdutoRepository
     private const string SelectColumns =
         "p.Id, p.NomeProduto, p.Referencia, p.UnidadeId, p.MarcaId, p.CategoriaId, p.Descricao, p.CodigoBarras, " +
         "p.CustoCompra, p.PrecoVenda, p.LucroPercentual, p.Estoque, p.EstoqueMinimo, p.Ativo, p.DataCriacao, p.DataAtualizacao, " +
-        "um.NomeUnidade, m.NomeMarca, cat.NomeCategoria";
+        "um.NomeUnidade, um.Sigla AS SiglaUnidade, m.NomeMarca, cat.NomeCategoria";
 
     private const string FromJoin = @"
         FROM Produto p
@@ -47,6 +47,13 @@ public class ProdutoRepository
               CustoCompra=@CustoCompra, PrecoVenda=@PrecoVenda, LucroPercentual=@LucroPercentual,
               Estoque=@Estoque, EstoqueMinimo=@EstoqueMinimo, Ativo=@Ativo, DataAtualizacao=NOW()
               WHERE Id=@Id", p) > 0;
+
+        public async Task<bool> AtualizarCustoCompraAsync(int id, decimal custoCompra)
+                => await _db.ExecuteAsync(
+                        @"UPDATE Produto SET CustoCompra=@CustoCompra,
+                            PrecoVenda=@CustoCompra * (1 + LucroPercentual / 100), DataAtualizacao=NOW()
+                            WHERE Id=@Id",
+                        new { Id = id, CustoCompra = custoCompra }) > 0;
 
     public async Task<bool> DeleteAsync(int id)
         => await _db.ExecuteAsync("UPDATE Produto SET Ativo = 0, DataAtualizacao = NOW() WHERE Id = @Id", new { Id = id }) > 0;

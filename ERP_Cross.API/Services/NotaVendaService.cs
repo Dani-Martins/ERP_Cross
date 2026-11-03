@@ -17,15 +17,14 @@ public class NotaVendaService
 
     public async Task<IEnumerable<NotaVenda>> GetAllAsync() => await _repository.GetAllAsync();
 
-    public async Task<NotaVenda?> GetByKeyAsync(string numeroNota, string modelo, string serie)
-        => await _repository.GetByKeyAsync(numeroNota, modelo, serie);
+    public async Task<NotaVenda?> GetByKeyAsync(string numeroNota, string modelo, string serie, int clienteId)
+        => await _repository.GetByKeyAsync(numeroNota, modelo, serie, clienteId);
 
     public async Task<NotaVenda?> CreateAsync(CreateNotaVendaDto dto)
     {
-        // Validar unicidade de Número, Modelo e Série
-        var existing = await _repository.GetByKeyAsync(dto.NumeroNota, dto.Modelo, dto.Serie);
-        if (existing != null && existing.Ativo)
-            throw new InvalidOperationException($"Já existe uma nota de venda com os dados: Número '{dto.NumeroNota}', Modelo '{dto.Modelo}', Série '{dto.Serie}'.");
+        var existing = await _repository.GetByKeyAsync(dto.NumeroNota, dto.Modelo, dto.Serie, dto.ClienteId);
+        if (existing != null)
+            throw new InvalidOperationException($"Este cliente já possui uma nota com Número '{dto.NumeroNota}', Modelo '{dto.Modelo}' e Série '{dto.Serie}'.");
 
         var n = new NotaVenda
         {
@@ -43,9 +42,9 @@ public class NotaVendaService
         return ok ? n : null;
     }
 
-    public async Task<bool> UpdateAsync(string numeroNota, string modelo, string serie, UpdateNotaVendaDto dto)
+    public async Task<bool> UpdateAsync(string numeroNota, string modelo, string serie, int clienteId, UpdateNotaVendaDto dto)
     {
-        var n = await _repository.GetByKeyAsync(numeroNota, modelo, serie);
+        var n = await _repository.GetByKeyAsync(numeroNota, modelo, serie, clienteId);
         if (n == null) return false;
 
         n.DataEmissao = dto.DataEmissao; n.TransportadoraId = dto.TransportadoraId;
@@ -62,18 +61,18 @@ public class NotaVendaService
 
     public async Task<string?> CancelarContaReceberAsync(string numeroNota, string modelo, string serie, int clienteId)
     {
-        var nota = await _repository.GetByKeyAsync(numeroNota, modelo, serie);
-        if (nota == null || nota.ClienteId != clienteId) return "Nota de venda não encontrada.";
+        var nota = await _repository.GetByKeyAsync(numeroNota, modelo, serie, clienteId);
+        if (nota == null) return "Nota de venda não encontrada.";
         if (!nota.Ativo) return "A nota de venda está inativa.";
         if (!await _contasReceber.CancelarDaNotaAsync(numeroNota, modelo, serie, clienteId))
             return "Não é possível cancelar a conta: ela não está aberta, já foi cancelada ou possui parcela paga.";
         return null;
     }
 
-    public async Task<bool> DeleteAsync(string numeroNota, string modelo, string serie)
+    public async Task<bool> DeleteAsync(string numeroNota, string modelo, string serie, int clienteId)
     {
-        var nota = await _repository.GetByKeyAsync(numeroNota, modelo, serie);
-        if (nota == null || !await _repository.DeleteAsync(numeroNota, modelo, serie)) return false;
+        var nota = await _repository.GetByKeyAsync(numeroNota, modelo, serie, clienteId);
+        if (nota == null || !await _repository.DeleteAsync(numeroNota, modelo, serie, clienteId)) return false;
         nota.Ativo = false;
         await _contasReceber.SincronizarDaNotaAsync(nota);
         return true;

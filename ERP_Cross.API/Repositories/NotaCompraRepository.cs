@@ -28,9 +28,10 @@ public class NotaCompraRepository
     public async Task<NotaCompra?> GetByIdAsync(long id)
         => await _db.QueryFirstOrDefaultAsync<NotaCompra>($"SELECT {SelectColumns} {FromJoin} WHERE nc.Id = @Id", new { Id = id });
 
-    public async Task<NotaCompra?> GetByNumeroModeloSerieAsync(string numeroNota, string modelo, string serie)
-        => await _db.QueryFirstOrDefaultAsync<NotaCompra>($"SELECT {SelectColumns} {FromJoin} WHERE nc.NumeroNota=@NumeroNota AND nc.Modelo=@Modelo AND nc.Serie=@Serie AND nc.Ativo=1", 
-            new { NumeroNota = numeroNota, Modelo = modelo, Serie = serie });
+    public async Task<NotaCompra?> GetByNumeroModeloSerieAsync(string numeroNota, string modelo, string serie, int fornecedorId, long? excludeId = null)
+        => await _db.QueryFirstOrDefaultAsync<NotaCompra>(
+            $"SELECT {SelectColumns} {FromJoin} WHERE nc.NumeroNota=@NumeroNota AND nc.Modelo=@Modelo AND nc.Serie=@Serie AND nc.FornecedorId=@FornecedorId AND (@ExcludeId IS NULL OR nc.Id<>@ExcludeId)",
+            new { NumeroNota = numeroNota, Modelo = modelo, Serie = serie, FornecedorId = fornecedorId, ExcludeId = excludeId });
 
     public async Task<long> InsertAsync(NotaCompra n)
         => await _db.ExecuteScalarAsync<long>(

@@ -132,17 +132,6 @@ export default function MarcaFormPage({ marcaId, onClose }: { marcaId?: number; 
               />
             </div>
 
-            <div className="form-group marca-descricao-field">
-              <label htmlFor="descricao">Descrição</label>
-              <textarea
-                id="descricao"
-                rows={4}
-                placeholder="Ex: Fabricante de eletrônicos"
-                value={form.descricao ?? ''}
-                onChange={e => setForm({ ...form, descricao: e.target.value.toUpperCase() })}
-              />
-            </div>
-
             <div className="form-group form-check">
               <label>
                 <input

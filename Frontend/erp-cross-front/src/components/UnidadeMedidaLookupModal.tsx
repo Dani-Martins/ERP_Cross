@@ -6,7 +6,7 @@ import UnidadeMedidaCreateModal from './UnidadeMedidaCreateModal';
 import '../pages/PaisesPage.css';
 
 interface Props {
-  onSelect: (id: number, nome: string) => void;
+  onSelect: (id: number, nome: string, sigla?: string) => void;
   onClose: () => void;
   zBase?: number;
 }
@@ -30,9 +30,9 @@ export default function UnidadeMedidaLookupModal({ onSelect, onClose, zBase = 10
       )
     : all;
 
-  function handleCreated(id: number, nome: string) {
+  function handleCreated(id: number, nome: string, sigla?: string) {
     setShowCreate(false);
-    onSelect(id, nome);
+    onSelect(id, nome, sigla);
   }
 
   return (
@@ -74,7 +74,7 @@ export default function UnidadeMedidaLookupModal({ onSelect, onClose, zBase = 10
                       <td className="col-name">{u.nomeUnidade}</td>
                       <td><span className="tag">{u.sigla}</span></td>
                       <td>
-                        <button className="btn-select" onClick={() => onSelect(u.id, u.nomeUnidade)}>
+                        <button className="btn-select" onClick={() => onSelect(u.id, u.nomeUnidade, u.sigla)}>
                           Selecionar
                         </button>
                       </td>

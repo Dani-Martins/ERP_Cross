@@ -111,7 +111,7 @@ export default function ProdutoViewPage({ produtoId, onClose, onEdit }: { produt
 
             <div className="view-group">
               <span className="view-label">Unidade de Medida</span>
-              <span className="view-value">{produto.nomeUnidade || '—'}</span>
+                <span className="view-value">{produto.siglaUnidade || produto.nomeUnidade || '—'}</span>
             </div>
 
           </div>

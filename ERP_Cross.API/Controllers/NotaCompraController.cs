@@ -46,7 +46,14 @@ public class NotaCompraController(NotaCompraService service) : ControllerBase
     {
         var erroData = ValidarDatas(dto.DataEmissao, dto.DataChegada);
         if (erroData != null) return BadRequest(erroData);
-        return await _service.UpdateAsync(id, dto) ? NoContent() : NotFound();
+        try
+        {
+            return await _service.UpdateAsync(id, dto) ? NoContent() : NotFound();
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Conflict(new { message = ex.Message });
+        }
     }
 
     [HttpPost("{id:long}/cancelar-conta")]
@@ -64,6 +71,8 @@ public class NotaCompraController(NotaCompraService service) : ControllerBase
     {
         if (emissao.Date > DateTime.Today)
             return new ApiErrorResponse("DATA_EMISSAO_FUTURA", "A data de emissão não pode ser posterior à data atual.");
+        if (chegada.HasValue && chegada.Value.Date < emissao.Date)
+            return new ApiErrorResponse("DATA_CHEGADA_ANTERIOR", "A data de chegada não pode ser anterior à data de emissão.");
         if (chegada?.Date > DateTime.Today)
             return new ApiErrorResponse("DATA_CHEGADA_FUTURA", "A data de chegada não pode ser posterior à data atual.");
         return null;

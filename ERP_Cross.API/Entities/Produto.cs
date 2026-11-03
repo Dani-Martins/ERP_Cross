@@ -17,6 +17,7 @@ public class Produto : ModeloBase
     public decimal EstoqueMinimo { get; set; }
     public bool Ativo { get; set; } = true;
     public string? NomeUnidade { get; set; }
+    public string? SiglaUnidade { get; set; }
     public string? NomeMarca { get; set; }
     public string? NomeCategoria { get; set; }
 }

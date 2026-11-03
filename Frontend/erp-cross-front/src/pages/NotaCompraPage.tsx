@@ -8,14 +8,12 @@ import type { ContaPagarView, NotaCompraView } from '../types/entities';
 import './PaisesPage.css';
 import './NotaCompraPage.css';
 
-type StatusNota = 'Em andamento' | 'Pago' | 'Cancelado';
-type FiltroStatusNota = 'todos' | 'em-andamento' | 'pago' | 'cancelado';
+type FiltroStatusNota = 'todos' | 'em-andamento' | 'cancelado';
 
-function obterStatusNota(nota: NotaCompraView, conta?: ContaPagarView): StatusNota {
-  if (!nota.ativo || nota.status?.toUpperCase() === 'CANCELADO' || conta?.status === 'CANCELADO') return 'Cancelado';
-  if (conta?.status === 'FINALIZADO' || Boolean(conta && (conta.numParcela ?? 0) > 0 &&
-    (conta.parcelasPagas ?? 0) >= (conta.numParcela ?? 0))) return 'Pago';
-  return 'Em andamento';
+function obterStatusNota(nota: NotaCompraView, conta?: ContaPagarView): 'Cancelado' | '' {
+  return !nota.ativo || nota.status?.toUpperCase() === 'CANCELADO' || conta?.status === 'CANCELADO'
+    ? 'Cancelado'
+    : '';
 }
 
 export default function NotaCompraPage() {
@@ -75,8 +73,7 @@ export default function NotaCompraPage() {
       (nota.nomeFornecedor ?? '').toLowerCase().includes(search.toLowerCase());
     const status = obterStatusNota(nota, contasPagar.find(conta => conta.notaCompraId === nota.id));
     const matchStatus = statusFilter === 'todos' ||
-      (statusFilter === 'em-andamento' && status === 'Em andamento') ||
-      (statusFilter === 'pago' && status === 'Pago') ||
+      (statusFilter === 'em-andamento' && status !== 'Cancelado') ||
       (statusFilter === 'cancelado' && status === 'Cancelado');
     return matchBusca && matchStatus;
   });
@@ -95,7 +92,6 @@ export default function NotaCompraPage() {
             <select id="statusFilter" value={statusFilter} onChange={event => setStatusFilter(event.target.value as FiltroStatusNota)}>
               <option value="todos">Todos</option>
               <option value="em-andamento">Em andamento</option>
-              <option value="pago">Pago</option>
               <option value="cancelado">Cancelado</option>
             </select>
           </div>
@@ -173,9 +169,7 @@ export default function NotaCompraPage() {
                     })}
                   </td>
                   <td>
-                    <span className={`status-badge ${statusFinanceiro === 'Pago' ? 'status-active' : statusFinanceiro === 'Cancelado' ? 'status-inactive' : 'status-progress'}`}>
-                      {statusFinanceiro}
-                    </span>
+                    {statusFinanceiro === 'Cancelado' && <span className="status-badge status-inactive">Cancelado</span>}
                   </td>
                   <td className="col-actions">
                     <button

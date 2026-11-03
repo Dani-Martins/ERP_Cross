@@ -122,6 +122,9 @@ export function formatPhone(value: string): string {
 
 // ── IE (Inscrição Estadual) ────────────────────────────────────────────
 export function formatIE(value: string): string {
+  const texto = value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+  if (['I', 'IS', 'ISE', 'ISEN', 'ISENT', 'ISENTO'].includes(texto)) return texto;
+
   const clean = value.replace(/\D/g, '').slice(0, 10);
   if (clean.length <= 3) return clean;
   if (clean.length <= 8) return `${clean.slice(0, 3)}.${clean.slice(3)}`;

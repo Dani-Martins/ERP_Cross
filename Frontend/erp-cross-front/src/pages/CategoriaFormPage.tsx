@@ -120,7 +120,7 @@ export default function CategoriaFormPage({ categoriaId, onClose }: { categoriaI
               />
             </div>
 
-            <div className="form-group">
+            <div className="form-group categoria-nome-field">
               <label htmlFor="nomeCategoria">Categoria *</label>
               <input
                 id="nomeCategoria"
@@ -129,17 +129,6 @@ export default function CategoriaFormPage({ categoriaId, onClose }: { categoriaI
                 value={form.nomeCategoria}
                 onChange={e => setForm({ ...form, nomeCategoria: e.target.value.toUpperCase() })}
                 autoFocus
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="descricao">Descrição</label>
-              <textarea
-                id="descricao"
-                rows={4}
-                placeholder="Ex: Produtos eletrônicos em geral"
-                value={form.descricao ?? ''}
-                onChange={e => setForm({ ...form, descricao: e.target.value.toUpperCase() })}
               />
             </div>
 

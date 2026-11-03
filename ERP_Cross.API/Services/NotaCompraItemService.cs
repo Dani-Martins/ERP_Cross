@@ -9,11 +9,16 @@ public class NotaCompraItemService
 {
     private readonly NotaCompraItemRepository _repository;
     private readonly NotaCompraRepository _notaCompraRepository;
+    private readonly ProdutoRepository _produtoRepository;
 
-    public NotaCompraItemService(NotaCompraItemRepository repository, NotaCompraRepository notaCompraRepository)
+    public NotaCompraItemService(
+        NotaCompraItemRepository repository,
+        NotaCompraRepository notaCompraRepository,
+        ProdutoRepository produtoRepository)
     {
         _repository = repository;
         _notaCompraRepository = notaCompraRepository;
+        _produtoRepository = produtoRepository;
     }
 
     public async Task<IEnumerable<NotaCompraItem>> GetAllAsync() => await _repository.GetAllAsync();
@@ -33,6 +38,7 @@ public class NotaCompraItemService
         };
         CalcularCampos(i, nota);
         i.Id = await _repository.InsertAsync(i);
+        await _produtoRepository.AtualizarCustoCompraAsync(i.ProdutoId, i.CustoFinalUnit);
         return i;
     }
 
@@ -49,7 +55,10 @@ public class NotaCompraItemService
         i.Ativo = dto.Ativo;
         CalcularCampos(i, nota);
 
-        return await _repository.UpdateAsync(i);
+        var atualizado = await _repository.UpdateAsync(i);
+        if (atualizado)
+            await _produtoRepository.AtualizarCustoCompraAsync(i.ProdutoId, i.CustoFinalUnit);
+        return atualizado;
     }
 
     public async Task<bool> DeleteAsync(long id) => await _repository.DeleteAsync(id);
@@ -65,7 +74,7 @@ public class NotaCompraItemService
         i.Rateio = nota.TotalProdutos > 0 && i.Quantidade > 0
             ? i.LiquidoUnit * despesasAdicionais / nota.TotalProdutos
             : 0;
-        i.CustoFinalUnit = i.PrecoUnit + i.Rateio;
+        i.CustoFinalUnit = i.LiquidoUnit + i.Rateio;
         i.CustoFinal = i.CustoFinalUnit * i.Quantidade;
     }
 }

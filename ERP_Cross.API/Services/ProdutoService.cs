@@ -22,8 +22,8 @@ public class ProdutoService
         {
             NomeProduto = dto.NomeProduto, Referencia = dto.Referencia, UnidadeId = dto.UnidadeId, MarcaId = dto.MarcaId,
             CategoriaId = dto.CategoriaId, Descricao = dto.Descricao, CodigoBarras = dto.CodigoBarras,
-            CustoCompra = dto.CustoCompra,
-            PrecoVenda = dto.CustoCompra * (1 + dto.LucroPercentual / 100),
+            CustoCompra = 0,
+            PrecoVenda = dto.PrecoVenda,
             LucroPercentual = dto.LucroPercentual,
             Estoque = 0, EstoqueMinimo = 0, Ativo = dto.Ativo
         };
@@ -41,9 +41,8 @@ public class ProdutoService
 
         p.NomeProduto = dto.NomeProduto; p.Referencia = dto.Referencia; p.UnidadeId = dto.UnidadeId; p.MarcaId = dto.MarcaId;
         p.CategoriaId = dto.CategoriaId; p.Descricao = dto.Descricao; p.CodigoBarras = dto.CodigoBarras;
-        p.CustoCompra = dto.CustoCompra;
-        p.PrecoVenda = dto.CustoCompra * (1 + dto.LucroPercentual / 100);
         p.LucroPercentual = dto.LucroPercentual;
+        p.PrecoVenda = dto.PrecoVenda;
         p.Estoque = 0; p.EstoqueMinimo = 0; p.Ativo = dto.Ativo;
 
         return await _repository.UpdateAsync(p);

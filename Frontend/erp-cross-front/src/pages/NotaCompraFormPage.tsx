@@ -299,6 +299,11 @@ export default function NotaCompraFormPage({ onClose }: { onClose?: () => void }
       return;
     }
 
+    if (form.dataChegada < form.dataEmissao) {
+      setError('A data de chegada não pode ser anterior à data de emissão.');
+      return;
+    }
+
     if (form.dataChegada > maxDataPermitida) {
       setError('A data de chegada não pode ser posterior à data atual.');
       return;
@@ -326,10 +331,11 @@ export default function NotaCompraFormPage({ onClose }: { onClose?: () => void }
         const duplicada = notasExistentes.data.some(nota => 
           nota.numeroNota === form.numeroNota &&
           nota.modelo === form.modelo &&
-          nota.serie === form.serie
+            nota.serie === form.serie &&
+            nota.fornecedorId === form.fornecedorId
         );
         if (duplicada) {
-          setError(`Já existe uma nota de compra com Número '${form.numeroNota}', Modelo '${form.modelo}' e Série '${form.serie}'.`);
+            setError(`Este fornecedor já possui uma nota com Modelo '${form.modelo}', Série '${form.serie}' e Número '${form.numeroNota}'.`);
           return;
         }
       } catch (err) {
@@ -450,10 +456,11 @@ export default function NotaCompraFormPage({ onClose }: { onClose?: () => void }
       const duplicada = notasExistentes.data.some(nota => 
         nota.numeroNota === form.numeroNota &&
         nota.modelo === form.modelo &&
-        nota.serie === form.serie
+          nota.serie === form.serie &&
+          nota.fornecedorId === form.fornecedorId
       );
       if (duplicada) {
-        setError(`Já existe uma nota de compra com Número '${form.numeroNota}', Modelo '${form.modelo}' e Série '${form.serie}'.`);
+          setError(`Este fornecedor já possui uma nota com Modelo '${form.modelo}', Série '${form.serie}' e Número '${form.numeroNota}'.`);
         return;
       }
     } catch (err) {
@@ -507,66 +514,22 @@ export default function NotaCompraFormPage({ onClose }: { onClose?: () => void }
               </h2>
 
               <div className="form-row nota-identificacao-row">
-
-                <div className="form-group">
-                  <label>Número da Nota *</label>
-
-                  <input
-                    type="text"
-                    inputMode="numeric"
-                    maxLength={9}
-                    value={form.numeroNota}
-                    disabled={isEdit || notaValidada}
-                    onChange={e =>
-                      setForm({
-                        ...form,
-                        numeroNota: e.target.value.replace(/\D/g, '').slice(0, 9)
-                      })
-                    }
-                  />
-                </div>
-
-                <div className="form-group">
+                <div className="form-group nota-modelo-field">
                   <label>Modelo *</label>
-
-                  <input
-                    type="text"
-                    inputMode="numeric"
-                    maxLength={3}
-                    value={form.modelo}
-                    disabled={isEdit || notaValidada}
-                    onChange={e =>
-                      setForm({
-                        ...form,
-                        modelo: e.target.value.replace(/\D/g, '').slice(0, 3)
-                      })
-                    }
-                  />
+                  <input type="text" inputMode="numeric" maxLength={3} value={form.modelo} disabled={isEdit || notaValidada}
+                    onChange={e => setForm({ ...form, modelo: e.target.value.replace(/\D/g, '').slice(0, 3) })} />
                 </div>
-
-                <div className="form-group">
+                <div className="form-group nota-serie-field">
                   <label>Série *</label>
-
-                  <input
-                    type="text"
-                    inputMode="numeric"
-                    maxLength={3}
-                    value={form.serie}
-                    disabled={isEdit || notaValidada}
-                    onChange={e =>
-                      setForm({
-                        ...form,
-                        serie: e.target.value.replace(/\D/g, '').slice(0, 3)
-                      })
-                    }
-                  />
+                  <input type="text" inputMode="numeric" maxLength={3} value={form.serie} disabled={isEdit || notaValidada}
+                    onChange={e => setForm({ ...form, serie: e.target.value.replace(/\D/g, '').slice(0, 3) })} />
                 </div>
-
-              </div>
-
-              <div className="form-row">
-
-                <div className="form-group lookup-code-group">
+                <div className="form-group nota-numero-field">
+                  <label>Número da Nota *</label>
+                  <input type="text" inputMode="numeric" maxLength={9} value={form.numeroNota} disabled={isEdit || notaValidada}
+                    onChange={e => setForm({ ...form, numeroNota: e.target.value.replace(/\D/g, '').slice(0, 9) })} />
+                </div>
+                <div className="form-group lookup-code-group nota-parceiro-code-field">
                   <label>Cód.</label>
                   <div style={{ display: 'flex', gap: '4px' }}>
                     <input
@@ -591,7 +554,7 @@ export default function NotaCompraFormPage({ onClose }: { onClose?: () => void }
                   </div>
                 </div>
 
-                <div className="form-group" style={{ flex: 1 }}>
+                <div className="form-group nota-parceiro-name-field">
                   <label>Fornecedor *</label>
                   <input
                     type="text"
@@ -679,7 +642,7 @@ export default function NotaCompraFormPage({ onClose }: { onClose?: () => void }
                     type="date"
                     value={form.dataChegada ?? ''}
                     max={maxDataPermitida}
-                    aria-invalid={Boolean(form.dataChegada && form.dataChegada > maxDataPermitida)}
+                    aria-invalid={Boolean(form.dataChegada && (form.dataChegada < form.dataEmissao || form.dataChegada > maxDataPermitida))}
                     disabled={!notaValidada}
                     onChange={e =>
                       setForm({
@@ -688,9 +651,11 @@ export default function NotaCompraFormPage({ onClose }: { onClose?: () => void }
                       })
                     }
                   />
-                  {form.dataChegada && form.dataChegada > maxDataPermitida && (
+                  {form.dataChegada && form.dataChegada < form.dataEmissao ? (
+                    <div className="form-error">A chegada deve ser igual ou posterior à emissão.</div>
+                  ) : form.dataChegada && form.dataChegada > maxDataPermitida ? (
                     <div className="form-error">A data de chegada não pode ser posterior à data atual.</div>
-                  )}
+                  ) : null}
                 </div>
 
               </div>
@@ -716,7 +681,17 @@ export default function NotaCompraFormPage({ onClose }: { onClose?: () => void }
             )}
             {/* Produtos */}
             <div className="form-section">
-              <h2 className="form-section-title">Produtos</h2>
+              <div className="nota-produtos-section-header">
+                <h2 className="form-section-title">Produtos</h2>
+                <button
+                  type="button"
+                  className="btn-primary nota-produtos-add-button"
+                  disabled={!notaValidada}
+                  onClick={() => setShowProdutoModal(true)}
+                >
+                  + Adicionar Produto
+                </button>
+              </div>
               <div className="lookup-table-wrap nota-compra-produtos-wrap">
                 <table className="data-table nota-compra-produtos-table">
                   <thead>
@@ -816,7 +791,7 @@ export default function NotaCompraFormPage({ onClose }: { onClose?: () => void }
                             R$ {total.toFixed(2).replace('.', ',')}
                           </td>
                           <td data-label="Rateio">
-                            R$ {(p.precoUnit + rateioProd).toFixed(2).replace('.', ',')}
+                            R$ {(liquidoUnit + rateioProd).toFixed(2).replace('.', ',')}
                           </td>
                           <td className="nota-produto-actions">
                             <button
@@ -836,18 +811,7 @@ export default function NotaCompraFormPage({ onClose }: { onClose?: () => void }
                   </tbody>
                 </table>
               </div>
-              <div style={{ marginTop: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingRight: '16px' }}>
-                <div style={{ marginTop: '0px' }}>
-                  <button
-                    type="button"
-                    className="btn-primary"
-                    disabled={!notaValidada}
-                    onClick={() => setShowProdutoModal(true)}
-                    style={{ fontSize: '0.9em', padding: '6px 12px' }}
-                  >
-                    + Adicionar Produto
-                  </button>
-                </div>
+              <div style={{ marginTop: '12px', display: 'flex', justifyContent: 'flex-end', alignItems: 'center', paddingRight: '16px' }}>
                 <div style={{
                   fontSize: '1.1em',
                   fontWeight: '700',
@@ -1147,14 +1111,17 @@ export default function NotaCompraFormPage({ onClose }: { onClose?: () => void }
       {showFornecedorModal && (
         <FornecedorLookupModal
           onClose={() => setShowFornecedorModal(false)}
-          onSelect={(id, nome, idCondicaoPagamento, nomeCondicaoPagamento) => {
+          onSelect={(id, nome, idCondicaoPagamento, nomeCondicaoPagamento, idTransportadora, nomeTransportadoraSelecionada) => {
             setForm(current => ({
               ...current,
               condicaoPagamentoId: idCondicaoPagamento || undefined,
-              fornecedorId: id
+              fornecedorId: id,
+              transportadoraId: idTransportadora,
+              placaVeiculo: current.transportadoraId === idTransportadora ? current.placaVeiculo : '',
             }));
             setNomeFornecedor(nome);
             setNomeCondicao(nomeCondicaoPagamento ?? '');
+            setNomeTransportadora(nomeTransportadoraSelecionada ?? '');
             setShowFornecedorModal(false);
           }}
         />

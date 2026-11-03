@@ -39,7 +39,8 @@ export default function NotaVendaViewPage({ notaKey, onClose }: { notaKey?: Nota
     NotaVendaService.getByKey(
       numeroNota!,
       modelo!,
-      serie!
+      serie!,
+      Number(clienteId)
     )
       .then(r => setNota(r.data))
       .catch(() => navigate('/notas-venda'))

@@ -1,31 +1,17 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Truck, Search, Plus, Trash2 } from 'lucide-react';
+import { Truck, Search } from 'lucide-react';
 import { FornecedorService } from '../services/fornecedorService';
 import { CidadeService } from '../services/cidadeService';
-import type { FornecedorCreate } from '../types/entities';
+import type { FornecedorCreate, FornecedorView } from '../types/entities';
 import type { AxiosError } from 'axios';
 import CidadeLookupModal from '../components/CidadeLookupModal';
 import CondicaoPagamentoLookupModal from '../components/CondicaoPagamentoLookupModal';
 import TransportadoraLookupModal from '../components/TransportadoraLookupModal';
-import ProdutoLookupModal from '../components/ProdutoLookupModal';
-import { formatCPF, validateCPF, formatCNPJ, validateCNPJ, formatRG, validateRG, formatIE, validateIE, formatPhone, formatCEP } from '../utils/formatting';
+import { formatCPF, validateCPF, formatCNPJ, validateCNPJ, formatRG, validateRG, formatIE, formatPhone, formatCEP } from '../utils/formatting';
 import './PaisesPage.css';
 
 type FornecedorFormState = FornecedorCreate & { pf: boolean };
-
-interface ProdutoCarrinho {
-  _key: number;
-  produtoId: number;
-  nomeProduto: string;
-  quantidade: number;
-  unidadeId?: number;
-  nomeUnidade?: string;
-  custoCompra?: number;
-}
-
-let _key = 1;
-function nextKey() { return _key++; }
 
 const EMPTY: FornecedorFormState = {
   nome: '', nomeFantasia: '', cpfCnpj: '', rgIe: '',
@@ -34,7 +20,12 @@ const EMPTY: FornecedorFormState = {
   idCidade: 0, idCondicaoPagamento: 0, idTransportadora: undefined, ativo: true, pf: false,
 };
 
-export default function FornecedorFormPage({ fornecedorId, onClose }: { fornecedorId?: number; onClose?: () => void } = {}) {
+export default function FornecedorFormPage({ fornecedorId, onClose, onSaved, lookupZBase = 1001 }: {
+  fornecedorId?: number;
+  onClose?: () => void;
+  onSaved?: (fornecedor: FornecedorView) => void;
+  lookupZBase?: number;
+} = {}) {
   const routeParams = useParams<{ id: string }>();
   const id = fornecedorId?.toString() ?? routeParams.id;
   const navigate = useNavigate();
@@ -44,7 +35,6 @@ export default function FornecedorFormPage({ fornecedorId, onClose }: { forneced
   const [nomeCidade, setNomeCidade] = useState('');
   const [nomeCondicao, setNomeCondicao] = useState('');
   const [nomeTransportadora, setNomeTransportadora] = useState('');
-  const [produtos, setProdutos] = useState<ProdutoCarrinho[]>([]);
   const [nextId, setNextId] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -53,7 +43,6 @@ export default function FornecedorFormPage({ fornecedorId, onClose }: { forneced
   const [showCidadeModal, setShowCidadeModal] = useState(false);
   const [showCondicaoModal, setShowCondicaoModal] = useState(false);
   const [showTransportadoraModal, setShowTransportadoraModal] = useState(false);
-  const [showProdutoModal, setShowProdutoModal] = useState(false);
 
   const pessoaFisica = form.pf;
 
@@ -128,9 +117,9 @@ export default function FornecedorFormPage({ fornecedorId, onClose }: { forneced
     const isValidDoc = pessoaFisica ? validateCPF(form.cpfCnpj) : validateCNPJ(form.cpfCnpj);
     if (!isValidDoc) { setError(pessoaFisica ? 'CPF inválido.' : 'CNPJ inválido.'); return; }
     
-    if (form.rgIe?.trim()) {
-      const isValidRG = pessoaFisica ? validateRG(form.rgIe) : validateIE(form.rgIe);
-      if (!isValidRG) { setError(pessoaFisica ? 'RG inválido.' : 'Inscrição Estadual inválida.'); return; }
+    if (pessoaFisica && form.rgIe?.trim() && !validateRG(form.rgIe)) {
+      setError('RG inválido.');
+      return;
     }
     
     if (!form.celular?.trim()) { setError('Celular é obrigatório.'); return; }
@@ -141,6 +130,7 @@ export default function FornecedorFormPage({ fornecedorId, onClose }: { forneced
     if (!form.bairro?.trim()) { setError('Bairro é obrigatório.'); return; }
     if (!form.idCidade) { setError('Cidade é obrigatória.'); return; }
     if (!form.idCondicaoPagamento) { setError('Condição de Pagamento é obrigatória.'); return; }
+    if (!form.idTransportadora) { setError('Transportadora é obrigatória.'); return; }
 
     setSaving(true);
     setError('');
@@ -166,7 +156,11 @@ export default function FornecedorFormPage({ fornecedorId, onClose }: { forneced
       if (isEdit) {
         await FornecedorService.update(Number(id), payload);
       } else {
-        await FornecedorService.create(payload);
+        const response = await FornecedorService.create(payload);
+        if (onSaved) {
+          onSaved(response.data);
+          return;
+        }
       }
       if (onClose) onClose();
       else navigate('/fornecedores');
@@ -266,36 +260,6 @@ export default function FornecedorFormPage({ fornecedorId, onClose }: { forneced
               </div>
             )}
 
-            <div className="form-row cliente-documentos-row">
-              <div className={`form-group ${pessoaFisica ? 'cliente-cpf-field' : 'cliente-cnpj-field'}`}>
-                <label htmlFor="cpfCnpj">{pessoaFisica ? 'CPF *' : 'CNPJ *'}</label>
-                <input
-                  id="cpfCnpj"
-                  type="text"
-                  placeholder={pessoaFisica ? 'Ex: 000.000.000-00' : 'Ex: 00.000.000/0000-00'}
-                  maxLength={pessoaFisica ? 14 : 18}
-                  value={form.cpfCnpj}
-                  onChange={e => {
-                    const val = pessoaFisica ? formatCPF(e.target.value) : formatCNPJ(e.target.value);
-                    setForm({ ...form, cpfCnpj: val });
-                  }}
-                />
-              </div>
-              <div className={`form-group ${pessoaFisica ? 'cliente-rg-field' : 'cliente-ie-field'}`}>
-                <label htmlFor="rgIe">{pessoaFisica ? 'RG' : 'Inscrição Estadual'}</label>
-                <input
-                  id="rgIe"
-                  type="text"
-                  placeholder={pessoaFisica ? 'Ex: 00.000.000-0' : 'Ex: 000.000.000.000'}
-                  maxLength={pessoaFisica ? 12 : 14}
-                  value={form.rgIe}
-                  onChange={e => {
-                    const val = pessoaFisica ? formatRG(e.target.value) : formatIE(e.target.value);
-                    setForm({ ...form, rgIe: val });
-                  }}
-                />
-              </div>
-            </div>
           </div>
 
           {/* Contato */}
@@ -447,6 +411,37 @@ export default function FornecedorFormPage({ fornecedorId, onClose }: { forneced
                 />
               </div>
             </div>
+
+            <div className="form-row cliente-documentos-row">
+              <div className={`form-group ${pessoaFisica ? 'cliente-cpf-field' : 'cliente-cnpj-field'}`}>
+                <label htmlFor="cpfCnpj">{pessoaFisica ? 'CPF *' : 'CNPJ *'}</label>
+                <input
+                  id="cpfCnpj"
+                  type="text"
+                  placeholder={pessoaFisica ? 'Ex: 000.000.000-00' : 'Ex: 00.000.000/0000-00'}
+                  maxLength={pessoaFisica ? 14 : 18}
+                  value={form.cpfCnpj}
+                  onChange={e => {
+                    const val = pessoaFisica ? formatCPF(e.target.value) : formatCNPJ(e.target.value);
+                    setForm({ ...form, cpfCnpj: val });
+                  }}
+                />
+              </div>
+              <div className={`form-group ${pessoaFisica ? 'cliente-rg-field' : 'cliente-ie-field'}`}>
+                <label htmlFor="rgIe">{pessoaFisica ? 'RG' : 'Inscrição Estadual'}</label>
+                <input
+                  id="rgIe"
+                  type="text"
+                  placeholder={pessoaFisica ? 'Ex: 00.000.000-0' : 'Ex: 123.45678-90'}
+                  maxLength={pessoaFisica ? 12 : 14}
+                  value={form.rgIe}
+                  onChange={e => {
+                    const val = pessoaFisica ? formatRG(e.target.value) : formatIE(e.target.value);
+                    setForm({ ...form, rgIe: val });
+                  }}
+                />
+              </div>
+            </div>
           </div>
 
           {/* Dados Comerciais */}
@@ -525,83 +520,6 @@ export default function FornecedorFormPage({ fornecedorId, onClose }: { forneced
               </div>
             </div>
 
-            <div className="form-group">
-              <label>Produtos Vinculados</label>
-              <div style={{ marginBottom: 12 }}>
-                <span style={{ fontSize: '0.9rem', color: '#666' }}>
-                  {produtos.length} produto{produtos.length !== 1 ? 's' : ''} vinculado{produtos.length !== 1 ? 's' : ''}
-                </span>
-              </div>
-              {produtos.length > 0 && (
-                <div style={{ marginBottom: 12, overflowX: 'auto' }}>
-                  <table className="data-table" style={{ width: '100%' }}>
-                    <thead>
-                      <tr>
-                        <th style={{ textAlign: 'left' }}>Produto</th>
-                        <th style={{ width: 64, textAlign: 'center' }}>Qtd</th>
-                        <th style={{ width: 100, textAlign: 'center' }}>Custo Unit.</th>
-                        <th style={{ width: 100, textAlign: 'center' }}>Subtotal</th>
-                        <th style={{ width: 56, textAlign: 'center' }}>Ação</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {produtos.map((p) => (
-                        <tr key={p._key}>
-                          <td>{p.nomeProduto}</td>
-                          <td style={{ textAlign: 'center' }}>
-                            <input
-                              type="number"
-                              min="1"
-                              style={{ width: 60, padding: '4px', textAlign: 'center' }}
-                              value={p.quantidade}
-                              onChange={(e) => {
-                                const newQtd = Math.max(1, parseInt(e.target.value) || 1);
-                                setProdutos(prev => prev.map(item => item._key === p._key ? { ...item, quantidade: newQtd } : item));
-                              }}
-                            />
-                          </td>
-                          <td style={{ textAlign: 'center' }}>
-                            {p.custoCompra ? `R$ ${Number(p.custoCompra).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '—'}
-                          </td>
-                          <td style={{ textAlign: 'center' }}>
-                            {p.custoCompra ? `R$ ${(p.custoCompra * p.quantidade).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '—'}
-                          </td>
-                          <td style={{ textAlign: 'center' }}>
-                            <button
-                              type="button"
-                              className="btn-small"
-                              onClick={() => setProdutos(prev => prev.filter(item => item._key !== p._key))}
-                              title="Remover produto"
-                              style={{ padding: '4px 8px', background: '#dc3545', color: 'white', border: 'none', borderRadius: 4, cursor: 'pointer' }}
-                            >
-                              <Trash2 size={14} />
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                  <div style={{ marginTop: 12, paddingTop: 12, borderTop: '2px solid #ddd', textAlign: 'right' }}>
-                    <strong style={{ fontSize: '1.1rem' }}>
-                      Total: R$ {
-                        produtos
-                          .reduce((sum, p) => sum + (p.custoCompra ? p.custoCompra * p.quantidade : 0), 0)
-                          .toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-                      }
-                    </strong>
-                  </div>
-                </div>
-              )}
-              <button
-                type="button"
-                className="btn-primary"
-                onClick={() => setShowProdutoModal(true)}
-                style={{ display: 'flex', alignItems: 'center', gap: 8 }}
-              >
-                <Plus size={16} /> Adicionar Produto
-              </button>
-            </div>
-
             <div className="form-group form-check">
               <label>
                 <input
@@ -633,7 +551,7 @@ export default function FornecedorFormPage({ fornecedorId, onClose }: { forneced
 
     {showCidadeModal && (
       <CidadeLookupModal
-        zBase={1001}
+        zBase={lookupZBase}
         onSelect={(idCidade, nomeCidadeSelecionada) => {
           setForm(prev => ({ ...prev, idCidade }));
           setNomeCidade(nomeCidadeSelecionada);
@@ -645,7 +563,7 @@ export default function FornecedorFormPage({ fornecedorId, onClose }: { forneced
 
     {showCondicaoModal && (
       <CondicaoPagamentoLookupModal
-        zBase={1001}
+        zBase={lookupZBase}
         onSelect={(idCondicaoPagamento, nomeCondicaoSelecionada) => {
           setForm(prev => ({ ...prev, idCondicaoPagamento }));
           setNomeCondicao(nomeCondicaoSelecionada);
@@ -657,32 +575,13 @@ export default function FornecedorFormPage({ fornecedorId, onClose }: { forneced
 
     {showTransportadoraModal && (
       <TransportadoraLookupModal
-        zBase={1001}
+        zBase={lookupZBase}
         onSelect={(idTransportadora, nomeTransportadoraSelecionada) => {
           setForm(prev => ({ ...prev, idTransportadora }));
           setNomeTransportadora(nomeTransportadoraSelecionada);
           setShowTransportadoraModal(false);
         }}
         onClose={() => setShowTransportadoraModal(false)}
-      />
-    )}
-
-    {showProdutoModal && (
-      <ProdutoLookupModal
-        tipo="compra"
-        onSelect={(id, nomeProduto, unidadeId, nomeUnidade, _precoVenda, custoCompra) => {
-          setProdutos(prev => {
-            const exists = prev.find(p => p.produtoId === id);
-            if (exists) {
-              return prev.map(p => p.produtoId === id ? { ...p, quantidade: p.quantidade + 1 } : p);
-            } else {
-              return [...prev, { _key: nextKey(), produtoId: id, nomeProduto, quantidade: 1, unidadeId, nomeUnidade, custoCompra }];
-            }
-          });
-          setShowProdutoModal(false);
-        }}
-        onClose={() => setShowProdutoModal(false)}
-        zBase={1001}
       />
     )}
 

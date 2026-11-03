@@ -21,6 +21,7 @@ public class CreateFornecedorDto
     public string? Bairro { get; set; }
     public int IdCidade { get; set; }
     public int IdCondicaoPagamento { get; set; }
+    [Required, Range(1, int.MaxValue)]
     public int? IdTransportadora { get; set; }
     public bool Ativo { get; set; } = true;
 }
@@ -43,6 +44,7 @@ public class UpdateFornecedorDto
     public string? Bairro { get; set; }
     public int IdCidade { get; set; }
     public int IdCondicaoPagamento { get; set; }
+    [Required, Range(1, int.MaxValue)]
     public int? IdTransportadora { get; set; }
     public bool Ativo { get; set; } = true;
 }

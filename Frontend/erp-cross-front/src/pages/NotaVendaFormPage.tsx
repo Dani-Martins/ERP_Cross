@@ -154,7 +154,7 @@ export default function NotaVendaFormPage({ onClose }: { onClose?: () => void } 
       return;
     }
 
-    NotaVendaService.getByKey(numeroNota!, modelo!, serie!)
+    NotaVendaService.getByKey(numeroNota!, modelo!, serie!, Number(clienteId))
       .then(res => {
         const n = res.data;
         setForm({
@@ -300,6 +300,11 @@ export default function NotaVendaFormPage({ onClose }: { onClose?: () => void } 
       return;
     }
 
+    if (form.dataChegada && form.dataChegada < form.dataEmissao) {
+      setError('A data de chegada não pode ser anterior à data de emissão.');
+      return;
+    }
+
     if (form.dataChegada && form.dataChegada > maxDataPermitida) {
       setError('A data de chegada não pode ser posterior à data atual.');
       return;
@@ -313,9 +318,9 @@ export default function NotaVendaFormPage({ onClose }: { onClose?: () => void } 
     // Validação de duplicação: verificar se já existe uma nota com esses dados
     if (!isEdit) {
       try {
-        const existing = await NotaVendaService.getByKey(form.numeroNota, form.modelo, form.serie);
+        const existing = await NotaVendaService.getByKey(form.numeroNota, form.modelo, form.serie, form.clienteId);
         if (existing && existing.data) {
-          setError(`Já existe uma nota de venda com Número '${form.numeroNota}', Modelo '${form.modelo}' e Série '${form.serie}' para este cliente.`);
+          setError(`Este cliente já possui uma nota com Modelo '${form.modelo}', Série '${form.serie}' e Número '${form.numeroNota}'.`);
           return;
         }
       } catch (err) {
@@ -408,9 +413,9 @@ export default function NotaVendaFormPage({ onClose }: { onClose?: () => void } 
 
     // Validação de duplicação: verificar se já existe uma nota com esses dados
     try {
-      const existing = await NotaVendaService.getByKey(form.numeroNota, form.modelo, form.serie);
+        const existing = await NotaVendaService.getByKey(form.numeroNota, form.modelo, form.serie, form.clienteId);
       if (existing && existing.data) {
-        setError(`Já existe uma nota de venda com Número '${form.numeroNota}', Modelo '${form.modelo}' e Série '${form.serie}'.`);
+          setError(`Este cliente já possui uma nota com Modelo '${form.modelo}', Série '${form.serie}' e Número '${form.numeroNota}'.`);
         return;
       }
     } catch (err) {
@@ -463,66 +468,22 @@ export default function NotaVendaFormPage({ onClose }: { onClose?: () => void } 
               </h2>
 
               <div className="form-row nota-identificacao-row">
-
-                <div className="form-group">
-                  <label>Número da Nota *</label>
-
-                  <input
-                    type="text"
-                    inputMode="numeric"
-                    maxLength={9}
-                    value={form.numeroNota}
-                    disabled={isEdit || notaValidada}
-                    onChange={e =>
-                      setForm({
-                        ...form,
-                        numeroNota: e.target.value.replace(/\D/g, '').slice(0, 9)
-                      })
-                    }
-                  />
-                </div>
-
-                <div className="form-group">
+                <div className="form-group nota-modelo-field">
                   <label>Modelo *</label>
-
-                  <input
-                    type="text"
-                    inputMode="numeric"
-                    maxLength={3}
-                    value={form.modelo}
-                    disabled={isEdit || notaValidada}
-                    onChange={e =>
-                      setForm({
-                        ...form,
-                        modelo: e.target.value.replace(/\D/g, '').slice(0, 3)
-                      })
-                    }
-                  />
+                  <input type="text" inputMode="numeric" maxLength={3} value={form.modelo} disabled={isEdit || notaValidada}
+                    onChange={e => setForm({ ...form, modelo: e.target.value.replace(/\D/g, '').slice(0, 3) })} />
                 </div>
-
-                <div className="form-group">
+                <div className="form-group nota-serie-field">
                   <label>Série *</label>
-
-                  <input
-                    type="text"
-                    inputMode="numeric"
-                    maxLength={3}
-                    value={form.serie}
-                    disabled={isEdit || notaValidada}
-                    onChange={e =>
-                      setForm({
-                        ...form,
-                        serie: e.target.value.replace(/\D/g, '').slice(0, 3)
-                      })
-                    }
-                  />
+                  <input type="text" inputMode="numeric" maxLength={3} value={form.serie} disabled={isEdit || notaValidada}
+                    onChange={e => setForm({ ...form, serie: e.target.value.replace(/\D/g, '').slice(0, 3) })} />
                 </div>
-
-              </div>
-
-              <div className="form-row">
-
-                <div className="form-group lookup-code-group">
+                <div className="form-group nota-numero-field">
+                  <label>Número da Nota *</label>
+                  <input type="text" inputMode="numeric" maxLength={9} value={form.numeroNota} disabled={isEdit || notaValidada}
+                    onChange={e => setForm({ ...form, numeroNota: e.target.value.replace(/\D/g, '').slice(0, 9) })} />
+                </div>
+                <div className="form-group lookup-code-group nota-parceiro-code-field">
                   <label>Cód.</label>
                   <div style={{ display: 'flex', gap: '4px' }}>
                     <input
@@ -547,7 +508,7 @@ export default function NotaVendaFormPage({ onClose }: { onClose?: () => void } 
                   </div>
                 </div>
 
-                <div className="form-group" style={{ flex: 1 }}>
+                <div className="form-group nota-parceiro-name-field">
                   <label>Cliente *</label>
                   <input
                     type="text"
@@ -634,13 +595,15 @@ export default function NotaVendaFormPage({ onClose }: { onClose?: () => void } 
                     type="date"
                     value={form.dataChegada ?? ''}
                     max={maxDataPermitida}
-                    aria-invalid={Boolean(form.dataChegada && form.dataChegada > maxDataPermitida)}
+                    aria-invalid={Boolean(form.dataChegada && (form.dataChegada < form.dataEmissao || form.dataChegada > maxDataPermitida))}
                     disabled={!notaValidada}
                     onChange={e => setForm({ ...form, dataChegada: e.target.value })}
                   />
-                  {form.dataChegada && form.dataChegada > maxDataPermitida && (
+                  {form.dataChegada && form.dataChegada < form.dataEmissao ? (
+                    <div className="form-error">A chegada deve ser igual ou posterior à emissão.</div>
+                  ) : form.dataChegada && form.dataChegada > maxDataPermitida ? (
                     <div className="form-error">A data de chegada não pode ser posterior à data atual.</div>
-                  )}
+                  ) : null}
                 </div>
 
               </div>
@@ -732,7 +695,17 @@ export default function NotaVendaFormPage({ onClose }: { onClose?: () => void } 
 
             {/* Produtos */}
             <div className="form-section">
-              <h2 className="form-section-title">Produtos</h2>
+              <div className="nota-produtos-section-header">
+                <h2 className="form-section-title">Produtos</h2>
+                <button
+                  type="button"
+                  className="btn-primary nota-produtos-add-button"
+                  disabled={!notaValidada}
+                  onClick={() => setShowProdutoModal(true)}
+                >
+                  + Adicionar Produto
+                </button>
+              </div>
               <div className="lookup-table-wrap nota-venda-produtos-wrap">
                 <table className="data-table nota-venda-produtos-table">
                   <thead>
@@ -843,18 +816,7 @@ export default function NotaVendaFormPage({ onClose }: { onClose?: () => void } 
                   </tbody>
                 </table>
               </div>
-              <div style={{ marginTop: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingRight: '16px', gap: '32px' }}>
-                <div style={{ marginTop: '0px' }}>
-                  <button
-                    type="button"
-                    className="btn-primary"
-                    disabled={!notaValidada}
-                    onClick={() => setShowProdutoModal(true)}
-                    style={{ fontSize: '0.9em', padding: '6px 12px' }}
-                  >
-                    + Adicionar Produto
-                  </button>
-                </div>
+              <div style={{ marginTop: '12px', display: 'flex', justifyContent: 'flex-end', alignItems: 'center', paddingRight: '16px', gap: '32px' }}>
                 <div style={{
                   display: 'flex',
                   gap: '40px',

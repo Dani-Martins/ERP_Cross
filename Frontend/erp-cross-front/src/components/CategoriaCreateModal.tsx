@@ -71,7 +71,7 @@ export default function CategoriaCreateModal({ onCreated, onClose, zBase = 1100 
                 }}
               />
             </div>
-            <div className="form-group">
+            <div className="form-group categoria-nome-field">
               <label htmlFor="nomeCategoria">Categoria *</label>
               <input
                 id="nomeCategoria"
@@ -80,17 +80,6 @@ export default function CategoriaCreateModal({ onCreated, onClose, zBase = 1100 
                 value={form.nomeCategoria}
                 onChange={e => setForm({ ...form, nomeCategoria: e.target.value.toUpperCase() })}
                 autoFocus
-              />
-            </div>
-            <div className="form-group">
-              <label htmlFor="descricao">Descrição</label>
-              <textarea
-                id="descricao"
-                placeholder="Descreva a categoria..."
-                rows={3}
-                value={form.descricao ?? ''}
-                onChange={e => setForm({ ...form, descricao: e.target.value.toUpperCase() })}
-                style={{ resize: 'vertical', fontFamily: 'inherit', fontSize: 'inherit', width: '100%' }}
               />
             </div>
             <div className="form-group form-check">

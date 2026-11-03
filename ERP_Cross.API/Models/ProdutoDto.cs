@@ -15,6 +15,7 @@ public class CreateProdutoDto
     [Required]
     public string? CodigoBarras { get; set; }
     public decimal CustoCompra { get; set; }
+    public decimal PrecoVenda { get; set; }
     public decimal LucroPercentual { get; set; }
     public bool Ativo { get; set; } = true;
 }
@@ -31,6 +32,7 @@ public class UpdateProdutoDto
     [Required]
     public string? CodigoBarras { get; set; }
     public decimal CustoCompra { get; set; }
+    public decimal PrecoVenda { get; set; }
     public decimal LucroPercentual { get; set; }
     public bool Ativo { get; set; } = true;
 }
@@ -54,6 +56,7 @@ public class ProdutoView
     public DateTime DataCriacao { get; set; }
     public DateTime DataAtualizacao { get; set; }
     public string? NomeUnidade { get; set; }
+    public string? SiglaUnidade { get; set; }
     public string? NomeMarca { get; set; }
     public string? NomeCategoria { get; set; }
 }

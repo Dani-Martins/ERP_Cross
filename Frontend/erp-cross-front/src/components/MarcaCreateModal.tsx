@@ -82,17 +82,6 @@ export default function MarcaCreateModal({ onCreated, onClose, zBase = 1100 }: P
                 autoFocus
               />
             </div>
-            <div className="form-group">
-              <label htmlFor="descricao">Descrição</label>
-              <textarea
-                id="descricao"
-                placeholder="Descreva a marca..."
-                rows={3}
-                value={form.descricao ?? ''}
-                onChange={e => setForm({ ...form, descricao: e.target.value.toUpperCase() })}
-                style={{ resize: 'vertical', fontFamily: 'inherit', fontSize: 'inherit', width: '100%' }}
-              />
-            </div>
             <div className="form-group form-check">
               <label>
                 <input
