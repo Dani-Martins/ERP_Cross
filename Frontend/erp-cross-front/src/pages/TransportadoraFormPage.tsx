@@ -344,7 +344,7 @@ return (
             </div>
 
             {form.tipoPessoa === 'PJ' && (
-              <div className="form-group">
+              <div className="form-group transportadora-fantasia-field">
 
                 <label>Nome Fantasia</label>
 
@@ -577,7 +577,7 @@ return (
 
             </div>
 
-            <div className="form-row">
+            <div className="form-row transportadora-bairro-cidade-row">
 
               <div className="form-group">
 
@@ -595,10 +595,6 @@ return (
                 />
 
               </div>
-
-            </div>
-
-            <div className="form-row">
 
               <div className="form-group lookup-code-group">
                 <label>Cód.</label>
@@ -647,7 +643,7 @@ return (
                   {veiculos.length} veículo(s) vinculado(s)
                 </small>
                 <div style={{ marginTop: '0.8rem' }}>
-                  <table className="data-table">
+                  <table className="data-table transportadora-veiculos-table">
                     <thead>
                       <tr>
                         <th>PLACA</th>
@@ -700,7 +696,7 @@ return (
               Informações Financeiras
             </h2>
 
-            <div className="form-row">
+            <div className="form-row transportadora-condicao-row">
 
               <div className="form-group lookup-code-group">
 

@@ -472,6 +472,14 @@
   max-width: 800px;
 }
 
+.modal.modal-transportadora {
+  max-width: 800px;
+}
+
+.modal.modal-veiculo {
+  max-width: 680px;
+}
+
 .modal.modal-cargo {
   max-width: 560px;
 }
@@ -1778,6 +1786,45 @@
 
 .form-row:has(> .lookup-code-group) > .form-group.cidade-ddd-field {
   flex: 0 0 auto;
+}
+
+.form-row.transportadora-bairro-cidade-row {
+  display: grid;
+  grid-template-columns: minmax(0, 240px) 166px minmax(0, 280px);
+  gap: 12px;
+}
+
+.transportadora-fantasia-field {
+  width: 100%;
+  max-width: 420px;
+}
+
+.form-row.transportadora-condicao-row > .form-group:not(.lookup-code-group) {
+  flex: 0 1 280px !important;
+  min-width: 0;
+}
+
+.transportadora-veiculos-table th,
+.transportadora-veiculos-table td {
+  text-align: left;
+  vertical-align: middle;
+}
+
+.transportadora-veiculos-table th:nth-child(4),
+.transportadora-veiculos-table td:nth-child(4),
+.transportadora-veiculos-table th:nth-child(5),
+.transportadora-veiculos-table td:nth-child(5) {
+  text-align: center;
+}
+
+@media (max-width: 700px) {
+  .form-row.transportadora-bairro-cidade-row {
+    grid-template-columns: 166px minmax(0, 1fr);
+  }
+
+  .transportadora-bairro-cidade-row > .form-group:first-child {
+    grid-column: 1 / -1;
+  }
 }
 
 .form-group.lookup-code-group .lookup-input {

@@ -186,7 +186,7 @@ return (
             <input id="id" type="text" readOnly value={nextId} />
           </div>
 
-          <div className="form-row">
+          <div className="form-row form-row-2">
 
             <div className="form-group">
 
@@ -225,7 +225,7 @@ return (
 
           </div>
 
-          <div className="form-row">
+          <div className="form-row form-row-2">
 
             <div className="form-group">
 
@@ -268,7 +268,7 @@ return (
             <label>Descrição</label>
 
             <textarea
-              rows={4}
+              rows={3}
               value={form.descricao ?? ''}
               onChange={e =>
                 setForm({
