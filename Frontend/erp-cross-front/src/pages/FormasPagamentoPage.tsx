@@ -144,7 +144,7 @@ export default function FormasPagamentoPage() {
 
       {(showCreate || editingId !== null || viewingId !== null) && (
         <div className="modal-overlay">
-          <div className="modal modal-form-page" role="dialog" aria-modal="true">
+          <div className="modal modal-form-page modal-forma-pagamento" role="dialog" aria-modal="true">
             <div className="modal-header">
               <h2>{viewingId !== null ? 'Visualizar Forma de Pagamento' : editingId !== null ? 'Editar Forma de Pagamento' : 'Nova Forma de Pagamento'}</h2>
               <button className="modal-close" type="button" aria-label="Fechar" onClick={fecharModal}><X size={18} /></button>

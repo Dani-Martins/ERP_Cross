@@ -244,7 +244,8 @@ export default function CondicaoPagamentoFormPage({ condicaoId, onClose }: { con
               />
             </div>
 
-            <div className="form-group">
+            <div className="form-row condicao-identificacao-row">
+            <div className="form-group condicao-nome-field">
               <label htmlFor="nomeBase">Condição de Pagamento *</label>
               <input
                 id="nomeBase"
@@ -267,7 +268,6 @@ export default function CondicaoPagamentoFormPage({ condicaoId, onClose }: { con
             </div>
 
             {/* Forma de Pagamento — lookup com padrão ID + Nome */}
-            <div className="form-row">
               <div className="form-group lookup-code-group">
                 <label>Cód.</label>
                 <div style={{ display: 'flex', gap: '4px' }}>
@@ -291,7 +291,7 @@ export default function CondicaoPagamentoFormPage({ condicaoId, onClose }: { con
                 </div>
               </div>
 
-              <div className="form-group" style={{ flex: 1 }}>
+              <div className="form-group condicao-forma-field">
                 <label>Forma de Pagamento *</label>
                 <input
                   type="text"
@@ -308,7 +308,7 @@ export default function CondicaoPagamentoFormPage({ condicaoId, onClose }: { con
               </small>
             )}
 
-            <div className="form-row">
+            <div className="form-row condicao-taxas-row">
               <div className="form-group">
                 <label htmlFor="taxaJuros">Juros por atraso (%/mês)</label>
                 <input
@@ -381,12 +381,12 @@ export default function CondicaoPagamentoFormPage({ condicaoId, onClose }: { con
                 </div>
               ) : (
                 <div className="lookup-table-wrap" style={{ maxHeight: 'none' }}>
-                  <table className="data-table">
+                  <table className="data-table condicao-parcelas-table">
                     <thead>
                       <tr>
                         <th style={{ width: 56 }}>Nº</th>
-                        <th style={{ width: 140 }}>Dias até vencimento</th>
-                        <th style={{ width: 150 }}>Percentual (%)</th>
+                        <th style={{ width: 120 }}>Dias até vencimento</th>
+                        <th style={{ width: 120 }}>Percentual (%)</th>
                         <th style={{ width: 48 }}></th>
                       </tr>
                     </thead>

@@ -58,7 +58,7 @@ export default function FormaPagamentoCreateModal({ onCreated, onClose, zBase = 
               <label>Código</label>
               <input id="id" type="text" readOnly value={nextId} />
             </div>
-            <div className="form-group">
+            <div className="form-group forma-pagamento-nome-field">
               <label htmlFor="nomeFormaPagamento">Forma de Pagamento *</label>
               <input
                 id="nomeFormaPagamento"

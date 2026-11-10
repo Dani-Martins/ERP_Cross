@@ -100,7 +100,7 @@ export default function FormaPagamentoFormPage({ formaId, onClose }: { formaId?:
               />
             </div>
 
-            <div className="form-group">
+            <div className="form-group forma-pagamento-nome-field">
               <label htmlFor="nomeFormaPagamento">Forma de Pagamento *</label>
               <input
                 id="nomeFormaPagamento"

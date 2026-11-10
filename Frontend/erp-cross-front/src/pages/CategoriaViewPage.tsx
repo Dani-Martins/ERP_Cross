@@ -71,7 +71,7 @@ export default function CategoriaViewPage({ categoriaId, onClose, onEdit }: { ca
             </div>
 
             <div className="form-row view-dates">
-              <div className="view-group">
+              o<div className="view-group">
                 <span className="view-label">Criado em</span>
                 <span className="view-value view-muted">{formatDate(categoria.dataCriacao)}</span>
               </div>
