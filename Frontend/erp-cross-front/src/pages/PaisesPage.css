@@ -587,6 +587,19 @@
   box-sizing: border-box;
 }
 
+.form-row:has(> .lookup-code-group) > .form-group.nota-condicao-name-field {
+  flex: 0 1 360px;
+  width: 360px;
+  max-width: 360px;
+}
+
+@media (max-width: 640px) {
+  .form-row:has(> .lookup-code-group) > .form-group.nota-condicao-name-field {
+    flex: 1 1 220px;
+    width: auto;
+  }
+}
+
 .modal-form-page > .modal-header {
   padding: 16px 24px;
   border-bottom: 1px solid var(--border-card);
@@ -703,13 +716,20 @@
   gap: 12px;
 }
 
-.form-row.nota-transporte-row {
-  grid-template-columns: 166px minmax(0, 1fr) minmax(0, 1fr);
+.form-row.nota-transporte-row:has(> .lookup-code-group) {
+  display: grid;
+  grid-template-columns: 166px 250px 250px;
   align-items: end;
 }
 
-.nota-transporte-row > .form-group {
+.form-row.nota-transporte-row:has(> .lookup-code-group) > .form-group {
   min-width: 0;
+  flex: initial;
+}
+
+.form-row.nota-transporte-row:has(> .lookup-code-group) > .form-group.nota-transportadora-field,
+.form-row.nota-transporte-row:has(> .lookup-code-group) > .form-group.nota-veiculo-field {
+  width: 250px;
 }
 
 .nota-transporte-row .nota-veiculo-field > div {
@@ -717,8 +737,13 @@
 }
 
 @media (max-width: 700px) {
-  .form-row.nota-transporte-row {
+  .form-row.nota-transporte-row:has(> .lookup-code-group) {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .form-row.nota-transporte-row:has(> .lookup-code-group) > .form-group.nota-transportadora-field,
+  .form-row.nota-transporte-row:has(> .lookup-code-group) > .form-group.nota-veiculo-field {
+    width: auto;
   }
 }
 
@@ -748,7 +773,7 @@
 
 .nota-identificacao-row .nota-modelo-field,
 .nota-identificacao-row .nota-serie-field {
-  width: 7ch;
+  width: 5ch;
 }
 
 .nota-identificacao-row .nota-parceiro-code-field {
@@ -764,6 +789,23 @@
   width: 20ch;
 }
 
+.form-row.nota-datas-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.nota-datas-row > .nota-data-field {
+  flex: 0 0 180px;
+  width: 180px;
+  min-width: 0;
+}
+
+.nota-data-field input[type='date'] {
+  width: 100%;
+  box-sizing: border-box;
+}
+
 @media (max-width: 640px) {
   .nota-identificacao-row {
     gap: 10px;
@@ -775,7 +817,7 @@
 
   .nota-identificacao-row .nota-modelo-field,
   .nota-identificacao-row .nota-serie-field {
-    width: 6ch;
+    width: 5ch;
   }
 
   .nota-identificacao-row .form-group.data-emissao-field {
@@ -1874,6 +1916,35 @@
 
 .form-row:has(> .lookup-code-group) > .form-group.cidade-ddd-field {
   flex: 0 0 auto;
+}
+
+.form-row.nota-identificacao-row:has(> .lookup-code-group) > .form-group.nota-modelo-field,
+.form-row.nota-identificacao-row:has(> .lookup-code-group) > .form-group.nota-serie-field {
+  flex: 0 0 10ch;
+  width: 10ch;
+  min-width: 0;
+}
+
+.form-row.nota-identificacao-row:has(> .lookup-code-group) > .form-group.nota-numero-field {
+  flex: 0 0 16ch;
+  width: 16ch;
+  min-width: 0;
+}
+
+.form-row.nota-identificacao-row:has(> .lookup-code-group) > .form-group.nota-parceiro-code-field {
+  flex: 0 0 166px;
+  width: 166px;
+}
+
+.form-row.nota-identificacao-row:has(> .lookup-code-group) > .form-group.nota-parceiro-name-field {
+  flex: 0 1 250px;
+  width: 250px;
+  min-width: 0;
+}
+
+.nota-identificacao-row .nota-modelo-field input,
+.nota-identificacao-row .nota-serie-field input {
+  box-sizing: border-box;
 }
 
 .form-row.transportadora-bairro-cidade-row {

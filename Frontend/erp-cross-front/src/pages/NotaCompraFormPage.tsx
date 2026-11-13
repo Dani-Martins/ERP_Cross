@@ -516,13 +516,13 @@ export default function NotaCompraFormPage({ onClose }: { onClose?: () => void }
               <div className="form-row nota-identificacao-row">
                 <div className="form-group nota-modelo-field">
                   <label>Modelo *</label>
-                  <input type="text" inputMode="numeric" maxLength={3} value={form.modelo} disabled={isEdit || notaValidada}
-                    onChange={e => setForm({ ...form, modelo: e.target.value.replace(/\D/g, '').slice(0, 3) })} />
+                  <input type="text" inputMode="numeric" maxLength={5} value={form.modelo} disabled={isEdit || notaValidada}
+                    onChange={e => setForm({ ...form, modelo: e.target.value.replace(/\D/g, '').slice(0, 5) })} />
                 </div>
                 <div className="form-group nota-serie-field">
                   <label>Série *</label>
-                  <input type="text" inputMode="numeric" maxLength={3} value={form.serie} disabled={isEdit || notaValidada}
-                    onChange={e => setForm({ ...form, serie: e.target.value.replace(/\D/g, '').slice(0, 3) })} />
+                  <input type="text" inputMode="numeric" maxLength={5} value={form.serie} disabled={isEdit || notaValidada}
+                    onChange={e => setForm({ ...form, serie: e.target.value.replace(/\D/g, '').slice(0, 5) })} />
                 </div>
                 <div className="form-group nota-numero-field">
                   <label>Número da Nota *</label>
@@ -612,9 +612,9 @@ export default function NotaCompraFormPage({ onClose }: { onClose?: () => void }
                 </div>
               )}
 
-              <div className="form-row">
+              <div className="form-row nota-datas-row">
 
-                <div className="form-group">
+                <div className="form-group nota-data-field">
                   <label>Data de Emissão *</label>
 
                   <input
@@ -635,7 +635,7 @@ export default function NotaCompraFormPage({ onClose }: { onClose?: () => void }
                   )}
                 </div>
 
-                <div className="form-group">
+                <div className="form-group nota-data-field">
                   <label>Data de Chegada *</label>
 
                   <input
@@ -1005,7 +1005,7 @@ export default function NotaCompraFormPage({ onClose }: { onClose?: () => void }
                   </div>
                 </div>
 
-                <div className="form-group" style={{ flex: 1 }}>
+                <div className="form-group nota-condicao-name-field">
                   <label>Condição de Pagamento *</label>
                   <input
                     type="text"

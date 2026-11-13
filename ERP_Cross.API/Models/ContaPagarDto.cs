@@ -7,9 +7,9 @@ public class CreateContaPagarDto
 {
     public long? NotaCompraId { get; set; }
     public int FornecedorId { get; set; }
-    [Required, RegularExpression(@"^\d{1,3}$", ErrorMessage = "Modelo deve conter até 3 dígitos.")]
+    [Required, RegularExpression(@"^\d{1,5}$", ErrorMessage = "Modelo deve conter até 5 dígitos.")]
     public string Modelo { get; set; } = string.Empty;
-    [Required, RegularExpression(@"^\d{1,3}$", ErrorMessage = "Série deve conter até 3 dígitos.")]
+    [Required, RegularExpression(@"^\d{1,5}$", ErrorMessage = "Série deve conter até 5 dígitos.")]
     public string Serie { get; set; } = string.Empty;
     [Required, RegularExpression(@"^\d{1,9}$", ErrorMessage = "Número da nota deve conter até 9 dígitos.")]
     public string NumeroNota { get; set; } = string.Empty;
@@ -29,9 +29,9 @@ public class UpdateContaPagarDto
 {
     public long? NotaCompraId { get; set; }
     public int FornecedorId { get; set; }
-    [Required, RegularExpression(@"^\d{1,3}$", ErrorMessage = "Modelo deve conter até 3 dígitos.")]
+    [Required, RegularExpression(@"^\d{1,5}$", ErrorMessage = "Modelo deve conter até 5 dígitos.")]
     public string Modelo { get; set; } = string.Empty;
-    [Required, RegularExpression(@"^\d{1,3}$", ErrorMessage = "Série deve conter até 3 dígitos.")]
+    [Required, RegularExpression(@"^\d{1,5}$", ErrorMessage = "Série deve conter até 5 dígitos.")]
     public string Serie { get; set; } = string.Empty;
     [Required, RegularExpression(@"^\d{1,9}$", ErrorMessage = "Número da nota deve conter até 9 dígitos.")]
     public string NumeroNota { get; set; } = string.Empty;

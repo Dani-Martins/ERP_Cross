@@ -224,13 +224,13 @@ export default function ContaReceberFormPage({ contaId, onClose }: { contaId?: n
                     </div>
                     <div className="form-group">
                       <label htmlFor="modelo">Modelo *</label>
-                      <input id="modelo" type="text" inputMode="numeric" maxLength={3} value={form.modelo}
-                        onChange={e => setForm({ ...form, modelo: e.target.value.replace(/\D/g, '').slice(0, 3) })} />
+                      <input id="modelo" type="text" inputMode="numeric" maxLength={5} value={form.modelo}
+                        onChange={e => setForm({ ...form, modelo: e.target.value.replace(/\D/g, '').slice(0, 5) })} />
                     </div>
                     <div className="form-group">
                       <label htmlFor="serie">Série *</label>
-                      <input id="serie" type="text" inputMode="numeric" maxLength={3} value={form.serie}
-                        onChange={e => setForm({ ...form, serie: e.target.value.replace(/\D/g, '').slice(0, 3) })} />
+                      <input id="serie" type="text" inputMode="numeric" maxLength={5} value={form.serie}
+                        onChange={e => setForm({ ...form, serie: e.target.value.replace(/\D/g, '').slice(0, 5) })} />
                     </div>
                     <div className="form-group data-emissao-field">
                       <label htmlFor="dataEmissao">Data de Emissão *</label>
@@ -400,15 +400,15 @@ export default function ContaReceberFormPage({ contaId, onClose }: { contaId?: n
                     </div>
                     <div className="form-group">
                       <label htmlFor="modelo">Modelo</label>
-                      <input id="modelo" type="text" inputMode="numeric" maxLength={3}
+                      <input id="modelo" type="text" inputMode="numeric" maxLength={5}
                         value={form.modelo}
-                        onChange={e => setForm({ ...form, modelo: e.target.value.replace(/\D/g, '').slice(0, 3) })} />
+                        onChange={e => setForm({ ...form, modelo: e.target.value.replace(/\D/g, '').slice(0, 5) })} />
                     </div>
                     <div className="form-group">
                       <label htmlFor="serie">Série</label>
-                      <input id="serie" type="text" inputMode="numeric" maxLength={3}
+                      <input id="serie" type="text" inputMode="numeric" maxLength={5}
                         value={form.serie}
-                        onChange={e => setForm({ ...form, serie: e.target.value.replace(/\D/g, '').slice(0, 3) })} />
+                        onChange={e => setForm({ ...form, serie: e.target.value.replace(/\D/g, '').slice(0, 5) })} />
                     </div>
                   </div>
 
