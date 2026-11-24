@@ -27,29 +27,20 @@ public class ContaReceberRepository
     public async Task<ContaReceber?> GetByIdAsync(long id)
         => await _db.QueryFirstOrDefaultAsync<ContaReceber>($"SELECT {SelectColumns} {FromJoin} WHERE cr.Id = @Id", new { Id = id });
 
-    public async Task<IEnumerable<ContaReceber>> GetByNotaAsync(string numeroNota, string modelo, string serie, int clienteId)
+    public async Task<IEnumerable<ContaReceber>> GetByNotaAsync(string numeroNota, string modelo, string serie, int clienteId, IDbTransaction? transaction = null)
         => await _db.QueryAsync<ContaReceber>(
             $"SELECT {SelectColumns} {FromJoin} WHERE cr.NumeroNota=@NumeroNota AND cr.Modelo=@Modelo AND cr.Serie=@Serie AND cr.ClienteId=@ClienteId AND cr.Ativo=1 ORDER BY cr.NumParcela, cr.Id",
-            new { NumeroNota = numeroNota, Modelo = modelo, Serie = serie, ClienteId = clienteId });
+            new { NumeroNota = numeroNota, Modelo = modelo, Serie = serie, ClienteId = clienteId }, transaction);
 
-    public async Task<bool> CancelarNotaSemRecebimentosAsync(string numeroNota, string modelo, string serie, int clienteId)
+    public async Task<bool> CancelarNotaSemRecebimentosAsync(string numeroNota, string modelo, string serie, int clienteId, IDbTransaction transaction)
     {
-        var abriuConexao = _db.State == ConnectionState.Closed;
-        if (abriuConexao) _db.Open();
-
-        using var transaction = _db.BeginTransaction();
-        try
-        {
             var parcelas = (await _db.QueryAsync<long>(
                 @"SELECT Id FROM ContaReceber
                   WHERE NumeroNota=@NumeroNota AND Modelo=@Modelo AND Serie=@Serie AND ClienteId=@ClienteId
                   FOR UPDATE",
                 new { NumeroNota = numeroNota, Modelo = modelo, Serie = serie, ClienteId = clienteId }, transaction)).ToList();
             if (parcelas.Count == 0)
-            {
-                transaction.Rollback();
                 return false;
-            }
 
             var recebidas = await _db.ExecuteScalarAsync<int>(
                 @"SELECT COUNT(*) FROM ContaReceber
@@ -57,10 +48,7 @@ public class ContaReceberRepository
                     AND (Status IN ('PAGO', 'RECEBIDO') OR DataRecebimento IS NOT NULL)",
                 new { NumeroNota = numeroNota, Modelo = modelo, Serie = serie, ClienteId = clienteId }, transaction);
             if (recebidas > 0)
-            {
-                transaction.Rollback();
                 return false;
-            }
 
             var canceladas = await _db.ExecuteAsync(
                 @"UPDATE ContaReceber SET Status='CANCELADO', DataCancelamento=NOW(), AtualizadoEm=NOW()
@@ -69,26 +57,11 @@ public class ContaReceberRepository
                     AND DataRecebimento IS NULL AND DataCancelamento IS NULL",
                 new { NumeroNota = numeroNota, Modelo = modelo, Serie = serie, ClienteId = clienteId }, transaction);
             if (canceladas == 0)
-            {
-                transaction.Rollback();
                 return false;
-            }
-
-            transaction.Commit();
             return true;
-        }
-        catch
-        {
-            transaction.Rollback();
-            throw;
-        }
-        finally
-        {
-            if (abriuConexao) _db.Close();
-        }
     }
 
-    public async Task<long> InsertAsync(ContaReceber c)
+    public async Task<long> InsertAsync(ContaReceber c, IDbTransaction? transaction = null)
         => await _db.ExecuteScalarAsync<long>(
             @"INSERT INTO ContaReceber (NumeroNota, Modelo, Serie, ClienteId, NumParcela, ValorParcela,
               DataEmissao, DataVencimento, DataRecebimento, ValorRecebido, Juros, Multa, Desconto,
@@ -96,7 +69,7 @@ public class ContaReceberRepository
               VALUES (@NumeroNota, @Modelo, @Serie, @ClienteId, @NumParcela, @ValorParcela,
               @DataEmissao, @DataVencimento, @DataRecebimento, @ValorRecebido, @Juros, @Multa, @Desconto,
               @Status, @Ativo, @FormaPagamentoId, @Observacao, NOW());
-              SELECT LAST_INSERT_ID();", c);
+              SELECT LAST_INSERT_ID();", c, transaction);
 
     public async Task<bool> UpdateAsync(ContaReceber c)
         => await _db.ExecuteAsync(
@@ -107,29 +80,29 @@ public class ContaReceberRepository
               FormaPagamentoId=@FormaPagamentoId, Observacao=@Observacao, AtualizadoEm=NOW()
               WHERE Id=@Id", c) > 0;
 
-        public async Task<bool> UpdatePendenteDaNotaAsync(ContaReceber c)
+        public async Task<bool> UpdatePendenteDaNotaAsync(ContaReceber c, IDbTransaction? transaction = null)
                 => await _db.ExecuteAsync(
                         @"UPDATE ContaReceber SET ValorParcela=@ValorParcela, DataEmissao=@DataEmissao,
                             DataVencimento=@DataVencimento, FormaPagamentoId=@FormaPagamentoId, Observacao=@Observacao,
                             AtualizadoEm=NOW()
                             WHERE Id=@Id AND Ativo=1 AND Status NOT IN ('PAGO', 'RECEBIDO', 'CANCELADO')
-                                AND DataRecebimento IS NULL AND DataCancelamento IS NULL", c) > 0;
+                                AND DataRecebimento IS NULL AND DataCancelamento IS NULL", c, transaction) > 0;
 
     public async Task<bool> DeleteAsync(long id)
         => await _db.ExecuteAsync("UPDATE ContaReceber SET Ativo = 0, AtualizadoEm = NOW() WHERE Id = @Id", new { Id = id }) > 0;
 
-    public async Task<bool> ArquivarPendenteAsync(long id)
+    public async Task<bool> ArquivarPendenteAsync(long id, IDbTransaction? transaction = null)
         => await _db.ExecuteAsync(
             @"UPDATE ContaReceber SET Ativo=0, AtualizadoEm=NOW()
               WHERE Id=@Id AND Ativo=1 AND Status NOT IN ('PAGO', 'RECEBIDO', 'CANCELADO')
                 AND DataRecebimento IS NULL AND DataCancelamento IS NULL",
-            new { Id = id }) > 0;
+            new { Id = id }, transaction) > 0;
 
-        public async Task<bool> ArquivarDuplicataCanceladaAsync(long id)
+        public async Task<bool> ArquivarDuplicataCanceladaAsync(long id, IDbTransaction? transaction = null)
                 => await _db.ExecuteAsync(
                         @"UPDATE ContaReceber SET Ativo=0, AtualizadoEm=NOW()
                             WHERE Id=@Id AND Ativo=1 AND Status='CANCELADO' AND DataCancelamento IS NOT NULL",
-                        new { Id = id }) > 0;
+                        new { Id = id }, transaction) > 0;
 
         public async Task<bool> RegistrarRecebimentoAsync(long id, DateTime dataRecebimento, decimal valorRecebido)
                 => await _db.ExecuteAsync(
@@ -152,12 +125,12 @@ public class ContaReceberRepository
                                 AND Status NOT IN ('PAGO', 'RECEBIDO', 'CANCELADO')",
                         parcela);
 
-        public async Task<int> CancelarPendentesDaNotaAsync(string numeroNota, string modelo, string serie, int clienteId)
+        public async Task<int> CancelarPendentesDaNotaAsync(string numeroNota, string modelo, string serie, int clienteId, IDbTransaction? transaction = null)
                 => await _db.ExecuteAsync(
                         @"UPDATE ContaReceber SET Status='CANCELADO', DataCancelamento=NOW(), AtualizadoEm=NOW()
                             WHERE NumeroNota=@NumeroNota AND Modelo=@Modelo AND Serie=@Serie AND ClienteId=@ClienteId
                                 AND Ativo=1 AND Status NOT IN ('PAGO', 'RECEBIDO', 'CANCELADO')",
-                        new { NumeroNota = numeroNota, Modelo = modelo, Serie = serie, ClienteId = clienteId });
+                        new { NumeroNota = numeroNota, Modelo = modelo, Serie = serie, ClienteId = clienteId }, transaction);
 
         public async Task<int> ExcluirPendentesDaNotaAsync(string numeroNota, string modelo, string serie, int clienteId)
                 => await _db.ExecuteAsync(

@@ -23,31 +23,31 @@ public class NotaCompraItemRepository
     public async Task<IEnumerable<NotaCompraItem>> GetAllAsync()
         => await _db.QueryAsync<NotaCompraItem>($"SELECT {SelectColumns} {FromJoin}");
 
-    public async Task<IEnumerable<NotaCompraItem>> GetByNotaCompraIdAsync(long notaCompraId)
+    public async Task<IEnumerable<NotaCompraItem>> GetByNotaCompraIdAsync(long notaCompraId, IDbTransaction? transaction = null)
         => await _db.QueryAsync<NotaCompraItem>(
-            $"SELECT {SelectColumns} {FromJoin} WHERE nci.NotaCompraId = @NotaCompraId AND nci.Ativo = 1",
-            new { NotaCompraId = notaCompraId });
+            $"SELECT {SelectColumns} {FromJoin} WHERE nci.NotaCompraId = @NotaCompraId AND nci.Ativo = 1" + (transaction != null ? " FOR UPDATE" : ""),
+            new { NotaCompraId = notaCompraId }, transaction);
 
-    public async Task<NotaCompraItem?> GetByIdAsync(long id)
+    public async Task<NotaCompraItem?> GetByIdAsync(long id, IDbTransaction? transaction = null)
         => await _db.QueryFirstOrDefaultAsync<NotaCompraItem>(
-            $"SELECT {SelectColumns} {FromJoin} WHERE nci.Id = @Id", new { Id = id });
+            $"SELECT {SelectColumns} {FromJoin} WHERE nci.Id = @Id" + (transaction != null ? " FOR UPDATE" : ""), new { Id = id }, transaction);
 
-    public async Task<long> InsertAsync(NotaCompraItem i)
+    public async Task<long> InsertAsync(NotaCompraItem i, IDbTransaction? transaction = null)
         => await _db.ExecuteScalarAsync<long>(
             @"INSERT INTO NotaCompraItem (NotaCompraId, ProdutoId, UnidadeId, Quantidade, PrecoUnit,
               DescontoUnit, LiquidoUnit, Total, Rateio, CustoFinalUnit, CustoFinal, Ativo, CriadoEm)
               VALUES (@NotaCompraId, @ProdutoId, @UnidadeId, @Quantidade, @PrecoUnit,
               @DescontoUnit, @LiquidoUnit, @Total, @Rateio, @CustoFinalUnit, @CustoFinal, @Ativo, NOW());
-              SELECT LAST_INSERT_ID();", i);
+              SELECT LAST_INSERT_ID();", i, transaction);
 
-    public async Task<bool> UpdateAsync(NotaCompraItem i)
+    public async Task<bool> UpdateAsync(NotaCompraItem i, IDbTransaction? transaction = null)
         => await _db.ExecuteAsync(
             @"UPDATE NotaCompraItem SET NotaCompraId=@NotaCompraId, ProdutoId=@ProdutoId, UnidadeId=@UnidadeId,
               Quantidade=@Quantidade, PrecoUnit=@PrecoUnit, DescontoUnit=@DescontoUnit, LiquidoUnit=@LiquidoUnit,
               Total=@Total, Rateio=@Rateio, CustoFinalUnit=@CustoFinalUnit, CustoFinal=@CustoFinal, Ativo=@Ativo
-              WHERE Id=@Id", i) > 0;
+              WHERE Id=@Id", i, transaction) > 0;
 
-    public async Task<bool> DeleteAsync(long id)
-        => await _db.ExecuteAsync("UPDATE NotaCompraItem SET Ativo = 0 WHERE Id = @Id", new { Id = id }) > 0;
+    public async Task<bool> DeleteAsync(long id, IDbTransaction? transaction = null)
+        => await _db.ExecuteAsync("UPDATE NotaCompraItem SET Ativo = 0 WHERE Id = @Id AND Ativo = 1", new { Id = id }, transaction) > 0;
 }
 

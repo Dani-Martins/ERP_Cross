@@ -31,8 +31,32 @@ public class ContaPagarRepository
     public async Task<ContaPagar?> GetByIdAsync(long id)
         => await _db.QueryFirstOrDefaultAsync<ContaPagar>($"SELECT {SelectColumns} {FromJoin} WHERE cp.Id = @Id", new { Id = id });
 
-    public async Task<ContaPagar?> GetByNotaCompraIdAsync(long notaCompraId)
-        => await _db.QueryFirstOrDefaultAsync<ContaPagar>($"SELECT {SelectColumns} {FromJoin} WHERE cp.NotaCompraId = @NotaCompraId", new { NotaCompraId = notaCompraId });
+    public async Task<ContaPagar?> GetByNotaCompraIdAsync(long notaCompraId, IDbTransaction? transaction = null)
+        => await _db.QueryFirstOrDefaultAsync<ContaPagar>($"SELECT {SelectColumns} {FromJoin} WHERE cp.NotaCompraId = @NotaCompraId", new { NotaCompraId = notaCompraId }, transaction);
+
+    public async Task<bool> CancelarDaNotaSemPagamentosAsync(long notaCompraId, IDbTransaction transaction)
+    {
+        var contas = (await _db.QueryAsync<long>(
+            "SELECT Id FROM ContaPagar WHERE NotaCompraId=@NotaCompraId FOR UPDATE",
+            new { NotaCompraId = notaCompraId }, transaction)).ToList();
+        foreach (var contaId in contas)
+        {
+            var parcelas = (await _db.QueryAsync<ContaPagarParcela>(
+                "SELECT Id, Pago FROM ContaPagarParcela WHERE ContaPagarId=@ContaId FOR UPDATE",
+                new { ContaId = contaId }, transaction)).ToList();
+            if (parcelas.Any(p => p.Pago)) return false;
+        }
+        foreach (var contaId in contas)
+        {
+            await _db.ExecuteAsync(
+                @"UPDATE ContaPagarParcela SET Cancelada=1, DataCancelamento=NOW()
+                  WHERE ContaPagarId=@ContaId AND Pago=0 AND Cancelada=0", new { ContaId = contaId }, transaction);
+            await _db.ExecuteAsync(
+                "UPDATE ContaPagar SET Status='CANCELADO', AtualizadoEm=NOW() WHERE Id=@ContaId AND Status<>'CANCELADO'",
+                new { ContaId = contaId }, transaction);
+        }
+        return true;
+    }
 
     public async Task<bool> CancelarSemPagamentosAsync(long id)
     {
@@ -92,7 +116,7 @@ public class ContaPagarRepository
         }
     }
 
-    public async Task<long> InsertAsync(ContaPagar c)
+    public async Task<long> InsertAsync(ContaPagar c, IDbTransaction? transaction = null)
         => await _db.ExecuteScalarAsync<long>(
             @"INSERT INTO ContaPagar (NotaCompraId, FornecedorId, Modelo, Serie, NumeroNota, NumParcela, ValorParcela,
               DataEmissao, DataVencimento, DataPagamento, ValorPago, Juros, Multa, Desconto,
@@ -100,16 +124,16 @@ public class ContaPagarRepository
               VALUES (@NotaCompraId, @FornecedorId, @Modelo, @Serie, @NumeroNota, @NumParcela, @ValorTotal,
               @DataEmissao, @DataVencimento, @DataPagamento, @ValorPago, @Juros, @Multa, @Desconto,
               @Status, @Ativo, @FormaPagamentoId, @Observacao, NOW());
-              SELECT LAST_INSERT_ID();", c);
+              SELECT LAST_INSERT_ID();", c, transaction);
 
-    public async Task<bool> UpdateAsync(ContaPagar c)
+    public async Task<bool> UpdateAsync(ContaPagar c, IDbTransaction? transaction = null)
         => await _db.ExecuteAsync(
             @"UPDATE ContaPagar SET NotaCompraId=@NotaCompraId, FornecedorId=@FornecedorId, Modelo=@Modelo,
               Serie=@Serie, NumeroNota=@NumeroNota, NumParcela=@NumParcela, ValorParcela=@ValorTotal,
               DataEmissao=@DataEmissao, DataVencimento=@DataVencimento, DataPagamento=@DataPagamento,
               ValorPago=@ValorPago, Juros=@Juros, Multa=@Multa, Desconto=@Desconto,
               Status=@Status, Ativo=@Ativo, FormaPagamentoId=@FormaPagamentoId, Observacao=@Observacao, AtualizadoEm=NOW()
-              WHERE Id=@Id", c) > 0;
+              WHERE Id=@Id", c, transaction) > 0;
 
     public async Task<bool> DeleteAsync(long id)
         => await _db.ExecuteAsync("UPDATE ContaPagar SET Ativo = 0, AtualizadoEm = NOW() WHERE Id = @Id", new { Id = id }) > 0;

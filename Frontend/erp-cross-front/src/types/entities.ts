@@ -249,6 +249,7 @@ export interface ProdutoView {
   precoVenda: number;
   lucroPercentual: number;
   estoque: number;
+  estoqueAnterior: number | null;
   estoqueMinimo: number;
   ativo: boolean;
   dataCriacao: string;
@@ -564,6 +565,7 @@ export interface NotaVendaCreate {
   status?: string;
   ativo: boolean;
   produtos?: NotaVendaItemCreate[];
+  itens?: NotaVendaItemCreate[];
   parcelas?: ParcelaNotaVenda[];
 }
 export type NotaVendaUpdate = NotaVendaCreate;
@@ -592,28 +594,43 @@ export interface ParcelaNotaCompra {
   dataPagamento?: string;
 }
 
-// ── Item de Nota de Venda ─────────────────────────────────────────────────────
+// ── Item de Nota de Venda (chave composta — espelha NotaVendaProduto do backend) ─
 export interface NotaVendaItemView {
-  id: number;
+  numeroNota: string;
+  modelo: string;
+  serie: string;
+  clienteId: number;
+  produtoId: number;
+  unidadeId: number;
   quantidade: number;
+  quantidadeBaixada: number;
   precoUnit: number;
+  desconto: number;
   total: number;
-  idNotaVenda: number;
-  idProduto: number;
+  ativo: boolean;
+  criadoEm?: string;
   nomeProduto?: string;
-  unidadeMedida?: string;
-  desconto?: number;
+  nomeCliente?: string;
 }
 export interface NotaVendaItemCreate {
+  numeroNota: string;
+  modelo: string;
+  serie: string;
+  clienteId: number;
+  produtoId: number;
+  unidadeId: number;
   quantidade: number;
   precoUnit: number;
-  idNotaVenda: number;
-  idProduto: number;
-  nomeProduto?: string;
-  unidadeMedida?: string;
-  desconto?: number;
+  desconto: number;
+  ativo: boolean;
 }
-export type NotaVendaItemUpdate = NotaVendaItemCreate;
+export interface NotaVendaItemUpdate {
+  unidadeId: number;
+  quantidade: number;
+  precoUnit: number;
+  desconto: number;
+  ativo: boolean;
+}
 
 // ── Nota de Compra ────────────────────────────────────────────────────────────
 export interface NotaCompraView {
@@ -661,6 +678,7 @@ export interface NotaCompraCreate {
   observacao?: string;
   status?: string;
   ativo: boolean;
+  itens?: (NotaCompraItemCreate & { id?: number })[];
 }
 export type NotaCompraUpdate = NotaCompraCreate;
 

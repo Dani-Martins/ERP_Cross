@@ -12,6 +12,11 @@ public class CreateNotaCompraItemDto
     public bool Ativo { get; set; } = true;
 }
 
+public class NotaCompraItemSalvarDto : CreateNotaCompraItemDto
+{
+    public long? Id { get; set; }
+}
+
 public class UpdateNotaCompraItemDto
 {
     public long NotaCompraId { get; set; }

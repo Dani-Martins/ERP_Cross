@@ -141,8 +141,8 @@ public class ContaReceberService
         return await _repository.CancelarDaParcelaEmDianteAsync(parcela) > 0;
     }
 
-    public async Task<bool> CancelarDaNotaAsync(string numeroNota, string modelo, string serie, int clienteId)
-        => await _repository.CancelarNotaSemRecebimentosAsync(numeroNota, modelo, serie, clienteId);
+    public async Task<bool> CancelarDaNotaAsync(string numeroNota, string modelo, string serie, int clienteId, System.Data.IDbTransaction transaction)
+        => await _repository.CancelarNotaSemRecebimentosAsync(numeroNota, modelo, serie, clienteId, transaction);
 
     public async Task<int> SincronizarNotasDeVendaAsync()
     {
@@ -152,20 +152,20 @@ public class ContaReceberService
         return parcelasCriadas;
     }
 
-    public async Task<int> SincronizarDaNotaAsync(NotaVenda nota)
+    public async Task<int> SincronizarDaNotaAsync(NotaVenda nota, System.Data.IDbTransaction? transaction = null)
     {
-        var existentes = (await _repository.GetByNotaAsync(nota.NumeroNota, nota.Modelo, nota.Serie, nota.ClienteId)).ToList();
+        var existentes = (await _repository.GetByNotaAsync(nota.NumeroNota, nota.Modelo, nota.Serie, nota.ClienteId, transaction)).ToList();
         var statusNota = (nota.Status ?? "ABERTA").ToUpperInvariant();
         if (!nota.Ativo || statusNota == "CANCELADO")
         {
-            await _repository.CancelarPendentesDaNotaAsync(nota.NumeroNota, nota.Modelo, nota.Serie, nota.ClienteId);
+            await _repository.CancelarPendentesDaNotaAsync(nota.NumeroNota, nota.Modelo, nota.Serie, nota.ClienteId, transaction);
             return 0;
         }
 
         if (nota.TotalPagar <= 0) return 0;
 
         var definicoes = nota.CondicaoPagamentoId.HasValue
-            ? (await _condicoesPagamento.GetParcelasAsync(nota.CondicaoPagamentoId.Value)).OrderBy(p => p.Numero).ToList()
+            ? (await _condicoesPagamento.GetParcelasAsync(nota.CondicaoPagamentoId.Value, transaction)).OrderBy(p => p.Numero).ToList()
             : new List<CondicaoPagamentoRepository.ParcelaCondicaoPagamento>();
         if (definicoes.Count == 0)
             definicoes.Add(new CondicaoPagamentoRepository.ParcelaCondicaoPagamento { Numero = 1, Dias = 0, Percentual = 100 });
@@ -187,12 +187,12 @@ public class ContaReceberService
             if (encerradas.Count > 0)
             {
                 foreach (var duplicataPendente in pendentes)
-                    await _repository.ArquivarPendenteAsync(duplicataPendente.Id);
+                    await _repository.ArquivarPendenteAsync(duplicataPendente.Id, transaction);
 
                 if (encerradas.All(c => c.Status == "CANCELADO" && c.DataCancelamento.HasValue))
                 {
                     foreach (var duplicataCancelada in encerradas.Skip(1))
-                        await _repository.ArquivarDuplicataCanceladaAsync(duplicataCancelada.Id);
+                        await _repository.ArquivarDuplicataCanceladaAsync(duplicataCancelada.Id, transaction);
                 }
                 continue;
             }
@@ -218,19 +218,19 @@ public class ContaReceberService
 
             if (recebivel.Id == 0)
             {
-                recebivel.Id = await _repository.InsertAsync(recebivel);
+                recebivel.Id = await _repository.InsertAsync(recebivel, transaction);
                 criadas++;
             }
             else
             {
-                await _repository.UpdatePendenteDaNotaAsync(recebivel);
+                await _repository.UpdatePendenteDaNotaAsync(recebivel, transaction);
                 foreach (var duplicata in pendentes.Skip(1))
-                    await _repository.ArquivarPendenteAsync(duplicata.Id);
+                    await _repository.ArquivarPendenteAsync(duplicata.Id, transaction);
             }
         }
 
         foreach (var parcelaSobra in existentes.Where(c => !definicoes.Any(d => d.Numero == c.NumParcela) && !RecebivelEncerrado(c)))
-            await _repository.ArquivarPendenteAsync(parcelaSobra.Id);
+            await _repository.ArquivarPendenteAsync(parcelaSobra.Id, transaction);
 
         return criadas;
     }

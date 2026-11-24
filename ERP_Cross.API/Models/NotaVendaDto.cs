@@ -25,6 +25,7 @@ public class CreateNotaVendaDto
     public string? Observacao { get; set; }
     public string? Status { get; set; }
     public bool Ativo { get; set; } = true;
+    public List<CreateNotaVendaProdutoDto>? Itens { get; set; }
 }
 
 public class UpdateNotaVendaDto
@@ -42,6 +43,7 @@ public class UpdateNotaVendaDto
     public string? Observacao { get; set; }
     public string? Status { get; set; }
     public bool Ativo { get; set; } = true;
+    public List<CreateNotaVendaProdutoDto>? Itens { get; set; }
 }
 
 public class NotaVendaView

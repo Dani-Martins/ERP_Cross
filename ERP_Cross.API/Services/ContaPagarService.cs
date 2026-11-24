@@ -33,7 +33,7 @@ public class ContaPagarService
     }
 
     // Grava as parcelas informadas e atualiza totais e status da conta
-    private async Task SalvarParcelasAsync(ContaPagar c, List<ContaPagarParcelaInput> inputs)
+    private async Task SalvarParcelasAsync(ContaPagar c, List<ContaPagarParcelaInput> inputs, System.Data.IDbTransaction? transaction = null)
     {
         var ordenadas = inputs.OrderBy(p => p.DataVencimento).ToList();
         for (var i = 0; i < ordenadas.Count; i++)
@@ -45,7 +45,7 @@ public class ContaPagarService
                 ValorParcela = p.ValorParcela, Pago = p.DataPagamento.HasValue,
                 DataPagamento = p.DataPagamento,
                 ValorPago = p.DataPagamento.HasValue ? CalcularValorPago(p.ValorParcela, p.DataVencimento, p.DataPagamento.Value, c) : null
-            });
+            }, transaction);
         }
         c.NumParcela = ordenadas.Count;
         c.ValorTotal = ordenadas.Sum(p => p.ValorParcela);
@@ -99,6 +99,9 @@ public class ContaPagarService
         return conta != null && await CancelarAsync(conta.Id);
     }
 
+    public Task<bool> CancelarDaNotaCompraAsync(long notaCompraId, System.Data.IDbTransaction transaction)
+        => _repository.CancelarDaNotaSemPagamentosAsync(notaCompraId, transaction);
+
     public async Task<bool> DeleteAsync(long id)
     {
         var conta = await _repository.GetByIdAsync(id);
@@ -112,11 +115,11 @@ public class ContaPagarService
         => n.Ativo && string.Equals(n.Status ?? "ABERTA", "ABERTA", StringComparison.OrdinalIgnoreCase);
 
     // Mantém os valores das parcelas iguais aos exibidos na Nota de Compra.
-    private async Task<(List<ContaPagarParcelaInput> Parcelas, CondicaoPagamento? Condicao, int? FormaPagamentoId)> GerarParcelasDaNotaAsync(NotaCompra nota)
+    private async Task<(List<ContaPagarParcelaInput> Parcelas, CondicaoPagamento? Condicao, int? FormaPagamentoId)> GerarParcelasDaNotaAsync(NotaCompra nota, System.Data.IDbTransaction? transaction = null)
     {
-        var condicao = nota.CondicaoPagamentoId.HasValue ? await _condicoes.GetByIdAsync(nota.CondicaoPagamentoId.Value) : null;
+        var condicao = nota.CondicaoPagamentoId.HasValue ? await _condicoes.GetByIdAsync(nota.CondicaoPagamentoId.Value, transaction) : null;
         var defs = nota.CondicaoPagamentoId.HasValue
-            ? (await _condicoes.GetParcelasAsync(nota.CondicaoPagamentoId.Value)).OrderBy(d => d.Numero).ToList()
+            ? (await _condicoes.GetParcelasAsync(nota.CondicaoPagamentoId.Value, transaction)).OrderBy(d => d.Numero).ToList()
             : new List<CondicaoPagamentoRepository.ParcelaCondicaoPagamento>();
         if (defs.Count == 0)
             defs.Add(new CondicaoPagamentoRepository.ParcelaCondicaoPagamento { Numero = 1, Dias = 0, Percentual = 100 });
@@ -140,19 +143,23 @@ public class ContaPagarService
     }
 
     // Abre/atualiza a conta a pagar de uma nota de compra aberta; cancela a conta se a nota for cancelada ou excluída
-    public async Task SincronizarDaNotaAsync(NotaCompra nota)
+    public async Task SincronizarDaNotaAsync(NotaCompra nota, System.Data.IDbTransaction? transaction = null)
     {
-        var existente = await _repository.GetByNotaCompraIdAsync(nota.Id);
+        var existente = await _repository.GetByNotaCompraIdAsync(nota.Id, transaction);
         var status = (nota.Status ?? "ABERTA").ToUpperInvariant();
 
         if (!NotaAberta(nota))
         {
             if (existente != null && existente.Status == "ABERTO" && (status == "CANCELADO" || !nota.Ativo))
+            {
+                if (transaction != null)
+                    throw new InvalidOperationException("O cancelamento financeiro deve ser realizado pelo fluxo de cancelamento.");
                 await CancelarAsync(existente.Id);
+            }
             return;
         }
 
-        var (parcelas, condicao, formaId) = await GerarParcelasDaNotaAsync(nota);
+        var (parcelas, condicao, formaId) = await GerarParcelasDaNotaAsync(nota, transaction);
         if (parcelas.Sum(p => p.ValorParcela) <= 0) return;
 
         if (existente == null)
@@ -166,9 +173,9 @@ public class ContaPagarService
                 NumParcela = parcelas.Count, DataVencimento = parcelas[0].DataVencimento,
                 ValorTotal = parcelas.Sum(p => p.ValorParcela)
             };
-            c.Id = await _repository.InsertAsync(c);
-            await SalvarParcelasAsync(c, parcelas);
-            await _repository.UpdateAsync(c);
+            c.Id = await _repository.InsertAsync(c, transaction);
+            await SalvarParcelasAsync(c, parcelas, transaction);
+            await _repository.UpdateAsync(c, transaction);
         }
         else if (existente.Status == "ABERTO" && existente.ParcelasPagas == 0)
         {
@@ -178,9 +185,9 @@ public class ContaPagarService
             existente.Juros = condicao?.TaxaJuros ?? 0; existente.Multa = condicao?.Multa ?? 0;
             existente.Desconto = condicao?.Desconto ?? 0; existente.FormaPagamentoId = formaId;
             existente.Observacao = nota.Observacao;
-            await _parcelas.DeleteByContaAsync(existente.Id);
-            await SalvarParcelasAsync(existente, parcelas);
-            await _repository.UpdateAsync(existente);
+            await _parcelas.DeleteByContaAsync(existente.Id, transaction);
+            await SalvarParcelasAsync(existente, parcelas, transaction);
+            await _repository.UpdateAsync(existente, transaction);
         }
     }
 

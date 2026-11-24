@@ -43,7 +43,7 @@ public class ProdutoService
         p.CategoriaId = dto.CategoriaId; p.Descricao = dto.Descricao; p.CodigoBarras = dto.CodigoBarras;
         p.LucroPercentual = dto.LucroPercentual;
         p.PrecoVenda = dto.PrecoVenda;
-        p.Estoque = 0; p.EstoqueMinimo = 0; p.Ativo = dto.Ativo;
+        p.Ativo = dto.Ativo;
 
         return await _repository.UpdateAsync(p);
     }

@@ -13,6 +13,7 @@ public class CreateNotaVendaProdutoDto
     public string Serie { get; set; } = string.Empty;
     public int ClienteId { get; set; }
     public int ProdutoId { get; set; }
+    public int UnidadeId { get; set; }
     public decimal Quantidade { get; set; }
     public decimal PrecoUnit { get; set; }
     public decimal Desconto { get; set; }
@@ -21,6 +22,7 @@ public class CreateNotaVendaProdutoDto
 
 public class UpdateNotaVendaProdutoDto
 {
+    public int UnidadeId { get; set; }
     public decimal Quantidade { get; set; }
     public decimal PrecoUnit { get; set; }
     public decimal Desconto { get; set; }
@@ -34,9 +36,11 @@ public class NotaVendaProdutoView
     public string Serie { get; set; } = string.Empty;
     public int ClienteId { get; set; }
     public int ProdutoId { get; set; }
+    public int UnidadeId { get; set; }
     public decimal Quantidade { get; set; }
     public decimal PrecoUnit { get; set; }
     public decimal Desconto { get; set; }
+    public decimal Total { get; set; }
     public bool Ativo { get; set; }
     public DateTime CriadoEm { get; set; }
     public string? NomeProduto { get; set; }

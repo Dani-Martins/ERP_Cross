@@ -24,30 +24,30 @@ public class NotaVendaRepository
     public async Task<IEnumerable<NotaVenda>> GetAllAsync()
         => await _db.QueryAsync<NotaVenda>($"SELECT {SelectColumns} {FromJoin}");
 
-    public async Task<NotaVenda?> GetByKeyAsync(string numeroNota, string modelo, string serie, int clienteId, long? excludeId = null)
+    public async Task<NotaVenda?> GetByKeyAsync(string numeroNota, string modelo, string serie, int clienteId, long? excludeId = null, IDbTransaction? transaction = null)
         => await _db.QueryFirstOrDefaultAsync<NotaVenda>(
-            $"SELECT {SelectColumns} {FromJoin} WHERE nv.NumeroNota=@NumeroNota AND nv.Modelo=@Modelo AND nv.Serie=@Serie AND nv.ClienteId=@ClienteId AND (@ExcludeId IS NULL OR nv.Id<>@ExcludeId)",
-            new { NumeroNota = numeroNota, Modelo = modelo, Serie = serie, ClienteId = clienteId, ExcludeId = excludeId });
+            $"SELECT {SelectColumns} {FromJoin} WHERE nv.NumeroNota=@NumeroNota AND nv.Modelo=@Modelo AND nv.Serie=@Serie AND nv.ClienteId=@ClienteId AND (@ExcludeId IS NULL OR nv.Id<>@ExcludeId)" + (transaction != null ? " FOR UPDATE" : ""),
+            new { NumeroNota = numeroNota, Modelo = modelo, Serie = serie, ClienteId = clienteId, ExcludeId = excludeId }, transaction);
 
-    public async Task<bool> InsertAsync(NotaVenda n)
+    public async Task<bool> InsertAsync(NotaVenda n, IDbTransaction? transaction = null)
         => await _db.ExecuteAsync(
             @"INSERT INTO NotaVenda (NumeroNota, Modelo, Serie, ClienteId, DataEmissao, DataChegada, TransportadoraId, PlacaVeiculo,
               TipoFrete, ValorFrete, Desconto, OutrosCustos, TotalProdutos, TotalPagar, CondicaoPagamentoId, Observacao, Status, Ativo, CriadoEm)
               VALUES (@NumeroNota, @Modelo, @Serie, @ClienteId, @DataEmissao, @DataChegada, @TransportadoraId, @PlacaVeiculo,
-              @TipoFrete, @ValorFrete, @Desconto, @OutrosCustos, @TotalProdutos, @TotalPagar, @CondicaoPagamentoId, @Observacao, @Status, @Ativo, NOW())", n) > 0;
+              @TipoFrete, @ValorFrete, @Desconto, @OutrosCustos, @TotalProdutos, @TotalPagar, @CondicaoPagamentoId, @Observacao, @Status, @Ativo, NOW())", n, transaction) > 0;
 
-    public async Task<bool> UpdateAsync(NotaVenda n)
+    public async Task<bool> UpdateAsync(NotaVenda n, IDbTransaction? transaction = null)
         => await _db.ExecuteAsync(
             @"UPDATE NotaVenda SET DataEmissao=@DataEmissao, DataChegada=@DataChegada, TransportadoraId=@TransportadoraId,
               PlacaVeiculo=@PlacaVeiculo, TipoFrete=@TipoFrete, ValorFrete=@ValorFrete,
               Desconto=@Desconto, OutrosCustos=@OutrosCustos, TotalProdutos=@TotalProdutos, TotalPagar=@TotalPagar, CondicaoPagamentoId=@CondicaoPagamentoId,
               Observacao=@Observacao, Status=@Status, Ativo=@Ativo, AtualizadoEm=NOW()
-                            WHERE NumeroNota=@NumeroNota AND Modelo=@Modelo AND Serie=@Serie AND ClienteId=@ClienteId", n) > 0;
+                            WHERE NumeroNota=@NumeroNota AND Modelo=@Modelo AND Serie=@Serie AND ClienteId=@ClienteId", n, transaction) > 0;
 
-        public async Task<bool> DeleteAsync(string numeroNota, string modelo, string serie, int clienteId)
+        public async Task<bool> DeleteAsync(string numeroNota, string modelo, string serie, int clienteId, IDbTransaction? transaction = null)
         => await _db.ExecuteAsync(
-                        "UPDATE NotaVenda SET Ativo = 0, AtualizadoEm = NOW() WHERE NumeroNota=@NumeroNota AND Modelo=@Modelo AND Serie=@Serie AND ClienteId=@ClienteId",
-                        new { NumeroNota = numeroNota, Modelo = modelo, Serie = serie, ClienteId = clienteId }) > 0;
+                        "UPDATE NotaVenda SET Ativo = 0, AtualizadoEm = NOW() WHERE NumeroNota=@NumeroNota AND Modelo=@Modelo AND Serie=@Serie AND ClienteId=@ClienteId AND Ativo=1",
+                        new { NumeroNota = numeroNota, Modelo = modelo, Serie = serie, ClienteId = clienteId }, transaction) > 0;
 
     public async Task<string> GetNextNumeroNotaAsync(string modelo, string serie)
     {

@@ -42,8 +42,16 @@ function today(): string {
   return new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().split('T')[0];
 }
 
+function formatarRateio(valor: number): string {
+  const casasDecimais = Math.max(0, 6 - Math.trunc(Math.abs(valor)).toString().length);
+  const arredondado = valor.toFixed(casasDecimais);
+  const digitosInteiros = arredondado.split('.')[0].replace('-', '').length;
+  return valor.toFixed(Math.max(0, 6 - digitosInteiros)).replace('.', ',');
+}
+
 // Tipo interno para uso no formulário (diferente do NotaCompraItemCreate)
 interface ProdutoFormulario {
+  itemId?: number;
   idProduto: number;
   produtoId?: number;
   quantidade: number;
@@ -182,6 +190,7 @@ export default function NotaCompraFormPage({ onClose }: { onClose?: () => void }
       .then(res => {
         // Converter do formato backend para o formato interno do frontend
         setProdutos(res.data.map(item => ({
+          itemId: item.id,
           idProduto: item.produtoId,
           produtoId: item.produtoId,
           quantidade: item.quantidade,
@@ -343,6 +352,11 @@ export default function NotaCompraFormPage({ onClose }: { onClose?: () => void }
       }
     }
 
+    if (produtos.some(produto => !Number.isFinite(produto.quantidade) || produto.quantidade <= 0)) {
+      setError('A quantidade de cada produto deve ser maior que zero.');
+      return;
+    }
+
     setSaving(true);
     setError('');
     try {
@@ -354,32 +368,24 @@ export default function NotaCompraFormPage({ onClose }: { onClose?: () => void }
         dataChegada: form.dataChegada || undefined,
       };
 
-      let notaId: number;
-
-      if (isEdit) {
-        notaId = Number(id);
-        await NotaCompraService.update(notaId, formToSave);
-        
-        // Deletar TODOS os produtos antigos antes de salvar os novos
-        const produtosAtuais = await NotaCompraItemService.getByNotaCompraId(notaId);
-        await Promise.all(produtosAtuais.data.map(prod => NotaCompraItemService.remove(prod.id)));
-      } else {
-        const response = await NotaCompraService.create(formToSave);
-        notaId = response.data.id;
-      }
-
-      // Salvar produtos
-      for (const produto of produtos) {
+      formToSave.itens = produtos.map(produto => {
         const { descontoUnit } = calcularLinhaProduto(produto.quantidade, produto.precoUnit, produto.descontoEntrada);
-        await NotaCompraItemService.create({
-          notaCompraId: notaId,
+        return {
+          id: produto.itemId,
+          notaCompraId: isEdit ? Number(id) : 0,
           produtoId: produto.idProduto,
           unidadeId: produto.unidadeMedidaId || 0,
           quantidade: produto.quantidade,
           precoUnit: produto.precoUnit,
           descontoUnit,
           ativo: true,
-        });
+        };
+      });
+
+      if (isEdit) {
+        await NotaCompraService.update(Number(id), formToSave);
+      } else {
+        await NotaCompraService.create(formToSave);
       }
 
       if (onClose) onClose();
@@ -482,6 +488,15 @@ export default function NotaCompraFormPage({ onClose }: { onClose?: () => void }
       </div>
     );
 
+  }
+
+  if (isEdit) {
+    return (
+      <div className="page-container">
+        <div className="form-error">Uma nota de compra cadastrada não pode ser alterada.</div>
+        <button type="button" className="btn-secondary" onClick={() => navigate('/notas-compra')}>Voltar</button>
+      </div>
+    );
   }
     return (
     <>
@@ -641,6 +656,7 @@ export default function NotaCompraFormPage({ onClose }: { onClose?: () => void }
                   <input
                     type="date"
                     value={form.dataChegada ?? ''}
+                    min={form.dataEmissao || undefined}
                     max={maxDataPermitida}
                     aria-invalid={Boolean(form.dataChegada && (form.dataChegada < form.dataEmissao || form.dataChegada > maxDataPermitida))}
                     disabled={!notaValidada}
@@ -791,7 +807,7 @@ export default function NotaCompraFormPage({ onClose }: { onClose?: () => void }
                             R$ {total.toFixed(2).replace('.', ',')}
                           </td>
                           <td data-label="Rateio">
-                            R$ {(liquidoUnit + rateioProd).toFixed(2).replace('.', ',')}
+                            R$ {formatarRateio(liquidoUnit + rateioProd)}
                           </td>
                           <td className="nota-produto-actions">
                             <button

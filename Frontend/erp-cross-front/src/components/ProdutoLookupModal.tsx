@@ -62,7 +62,7 @@ export default function ProdutoLookupModal({ onSelect, onClose, tipo = 'venda', 
                 <thead>
                   <tr>
                     <th>PRODUTO</th>
-                    <th style={{ width: 100 }}>COD. BARRAS</th>
+                    <th style={{ width: 100 }}>{tipo === 'venda' ? 'ESTOQUE' : 'COD. BARRAS'}</th>
                     <th style={{ width: 100 }}>PREÇO</th>
                     <th style={{ width: 110 }}></th>
                   </tr>
@@ -71,7 +71,7 @@ export default function ProdutoLookupModal({ onSelect, onClose, tipo = 'venda', 
                   {filtered.map(p => (
                     <tr key={p.id}>
                       <td className="col-name">{p.nomeProduto}</td>
-                      <td>{p.codigoBarras || '—'}</td>
+                      <td>{tipo === 'venda' ? p.estoque.toLocaleString('pt-BR') : (p.codigoBarras || '—')}</td>
                       <td>R$ {Number(tipo === 'compra' ? p.custoCompra : p.precoVenda).toFixed(2).replace('.', ',')}</td>
                       <td>
                         <button 

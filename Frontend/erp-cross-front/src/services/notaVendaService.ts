@@ -58,23 +58,44 @@ export const NotaVendaService = {
 };
 
 export const NotaVendaItemService = {
-  getAll(q?: string) {
-    return api.get<NotaVendaItemView[]>('/NotaVendaProduto', { params: { q } });
-  },
-
-  getById(id: number) {
-    return api.get<NotaVendaItemView>(`/NotaVendaProduto/${id}`);
+  getByNota(
+    numeroNota: string,
+    modelo: string,
+    serie: string,
+    clienteId: number
+  ) {
+    return api.get<NotaVendaItemView[]>(
+      `/NotaVendaProduto/${numeroNota}/${modelo}/${serie}/${clienteId}`
+    );
   },
 
   create(data: NotaVendaItemCreate) {
     return api.post<NotaVendaItemView>('/NotaVendaProduto', data);
   },
 
-  update(id: number, data: NotaVendaItemUpdate) {
-    return api.put<void>(`/NotaVendaProduto/${id}`, data);
+  update(
+    numeroNota: string,
+    modelo: string,
+    serie: string,
+    clienteId: number,
+    produtoId: number,
+    data: NotaVendaItemUpdate
+  ) {
+    return api.put<void>(
+      `/NotaVendaProduto/${numeroNota}/${modelo}/${serie}/${clienteId}/${produtoId}`,
+      data
+    );
   },
 
-  remove(id: number) {
-    return api.delete<void>(`/NotaVendaProduto/${id}`);
+  remove(
+    numeroNota: string,
+    modelo: string,
+    serie: string,
+    clienteId: number,
+    produtoId: number
+  ) {
+    return api.delete<void>(
+      `/NotaVendaProduto/${numeroNota}/${modelo}/${serie}/${clienteId}/${produtoId}`
+    );
   },
 };

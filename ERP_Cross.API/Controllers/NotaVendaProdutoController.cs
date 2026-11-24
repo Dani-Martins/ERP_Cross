@@ -26,13 +26,29 @@ public class NotaVendaProdutoController(NotaVendaProdutoService service) : Contr
     [HttpPost]
     public async Task<ActionResult<NotaVendaProdutoView>> Create(CreateNotaVendaProdutoDto dto)
     {
-        var item = await _service.CreateAsync(dto);
-        return item == null ? BadRequest() : Ok(item);
+        try
+        {
+            var item = await _service.CreateAsync(dto);
+            return item == null ? BadRequest() : Ok(item);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Conflict(new { message = ex.Message });
+        }
     }
 
     [HttpPut("{numeroNota}/{modelo}/{serie}/{clienteId:int}/{produtoId:int}")]
     public async Task<IActionResult> Update(string numeroNota, string modelo, string serie, int clienteId, int produtoId, UpdateNotaVendaProdutoDto dto)
-        => await _service.UpdateAsync(numeroNota, modelo, serie, clienteId, produtoId, dto) ? NoContent() : NotFound();
+    {
+        try
+        {
+            return await _service.UpdateAsync(numeroNota, modelo, serie, clienteId, produtoId, dto) ? NoContent() : NotFound();
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Conflict(new { message = ex.Message });
+        }
+    }
 
     [HttpDelete("{numeroNota}/{modelo}/{serie}/{clienteId:int}/{produtoId:int}")]
     public async Task<IActionResult> Delete(string numeroNota, string modelo, string serie, int clienteId, int produtoId)

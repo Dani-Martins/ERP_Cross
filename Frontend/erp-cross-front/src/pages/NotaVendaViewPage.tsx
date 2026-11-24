@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { FileText } from 'lucide-react';
-import { NotaVendaService } from '../services/notaVendaService';
-import type { NotaVendaView } from '../types/entities';
+import { NotaVendaItemService, NotaVendaService } from '../services/notaVendaService';
+import type { NotaVendaItemView, NotaVendaView } from '../types/entities';
 import './PaisesPage.css';
 
 function formatDate(value: string | null | undefined): string {
@@ -33,6 +33,7 @@ export default function NotaVendaViewPage({ notaKey, onClose }: { notaKey?: Nota
   const navigate = useNavigate();
 
   const [nota, setNota] = useState<NotaVendaView | null>(null);
+  const [produtos, setProdutos] = useState<NotaVendaItemView[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -42,7 +43,16 @@ export default function NotaVendaViewPage({ notaKey, onClose }: { notaKey?: Nota
       serie!,
       Number(clienteId)
     )
-      .then(r => setNota(r.data))
+      .then(async r => {
+        setNota(r.data);
+        const itens = await NotaVendaItemService.getByNota(
+          numeroNota!,
+          modelo!,
+          serie!,
+          Number(clienteId)
+        );
+        setProdutos(itens.data.filter(item => item.ativo));
+      })
       .catch(() => navigate('/notas-venda'))
       .finally(() => setLoading(false));
   }, [numeroNota, modelo, serie, clienteId, navigate]);
@@ -119,6 +129,37 @@ export default function NotaVendaViewPage({ notaKey, onClose }: { notaKey?: Nota
               <span className="view-label">Placa do Veículo</span>
               <span className="view-value">{nota.placaVeiculo || '—'}</span>
             </div>
+          </div>
+
+          {/* Produtos da Nota */}
+          <div className="form-section">
+            <h2 className="form-section-title">Produtos</h2>
+            {produtos.length === 0 ? (
+              <p>Nenhum produto informado nesta nota.</p>
+            ) : (
+              <div className="lookup-table-wrap">
+                <table className="data-table">
+                  <thead>
+                    <tr>
+                      <th>Produto</th>
+                      <th>Quantidade</th>
+                      <th>Preço unitário</th>
+                      <th>Total</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {produtos.map(item => (
+                      <tr key={item.produtoId}>
+                        <td>{item.nomeProduto ?? `Produto ${item.produtoId}`}</td>
+                        <td>{item.quantidade}</td>
+                        <td>{item.precoUnit.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
+                        <td>{item.total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
 
           {/* Valores */}

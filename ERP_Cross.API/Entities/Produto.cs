@@ -14,6 +14,7 @@ public class Produto : ModeloBase
     public decimal PrecoVenda { get; set; }
     public decimal LucroPercentual { get; set; }
     public decimal Estoque { get; set; }
+    public decimal? EstoqueAnterior { get; set; }
     public decimal EstoqueMinimo { get; set; }
     public bool Ativo { get; set; } = true;
     public string? NomeUnidade { get; set; }

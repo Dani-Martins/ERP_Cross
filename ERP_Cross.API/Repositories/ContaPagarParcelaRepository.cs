@@ -22,10 +22,10 @@ public class ContaPagarParcelaRepository
         => await _db.QueryFirstOrDefaultAsync<ContaPagarParcela>(
             $"SELECT {SelectColumns} FROM ContaPagarParcela WHERE Id = @Id", new { Id = id });
 
-    public async Task InsertAsync(ContaPagarParcela p)
+    public async Task InsertAsync(ContaPagarParcela p, IDbTransaction? transaction = null)
         => await _db.ExecuteAsync(
             @"INSERT INTO ContaPagarParcela (ContaPagarId, NumParcela, DataVencimento, ValorParcela, Pago, DataPagamento, ValorPago)
-              VALUES (@ContaPagarId, @NumParcela, @DataVencimento, @ValorParcela, @Pago, @DataPagamento, @ValorPago)", p);
+              VALUES (@ContaPagarId, @NumParcela, @DataVencimento, @ValorParcela, @Pago, @DataPagamento, @ValorPago)", p, transaction);
 
     public async Task<bool> MarcarPagaAsync(long id, DateTime dataPagamento, decimal valorPago)
         => await _db.ExecuteAsync(
@@ -48,6 +48,6 @@ public class ContaPagarParcelaRepository
         => await _db.ExecuteScalarAsync<int>(
             "SELECT COUNT(*) FROM ContaPagarParcela WHERE ContaPagarId = @ContaId AND Pago = 0 AND Cancelada = 0", new { ContaId = contaId });
 
-    public async Task DeleteByContaAsync(long contaId)
-        => await _db.ExecuteAsync("DELETE FROM ContaPagarParcela WHERE ContaPagarId = @ContaId", new { ContaId = contaId });
+    public async Task DeleteByContaAsync(long contaId, IDbTransaction? transaction = null)
+        => await _db.ExecuteAsync("DELETE FROM ContaPagarParcela WHERE ContaPagarId = @ContaId", new { ContaId = contaId }, transaction);
 }

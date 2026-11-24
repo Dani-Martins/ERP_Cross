@@ -59,8 +59,8 @@ public class NotaCompraController(NotaCompraService service) : ControllerBase
     [HttpPost("{id:long}/cancelar-conta")]
     public async Task<IActionResult> CancelarConta(long id)
     {
-        var erro = await _service.CancelarContaPagarAsync(id);
-        return erro == null ? NoContent() : Conflict(new { message = erro });
+        var (erro, aviso) = await _service.CancelarContaPagarAsync(id);
+        return erro == null ? Ok(new { aviso }) : Conflict(new { message = erro });
     }
 
     [HttpDelete("{id:long}")]

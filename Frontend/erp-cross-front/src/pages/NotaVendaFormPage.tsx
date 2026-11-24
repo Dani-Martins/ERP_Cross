@@ -4,6 +4,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import type { AxiosError } from 'axios';
 import { FileDown, Search, Trash2 } from 'lucide-react';
 import { NotaVendaService, NotaVendaItemService } from '../services/notaVendaService';
+import { ProdutoService } from '../services/produtoService';
 import { ParcelaCondicaoPagamentoService } from '../services/parcelaCondicaoPagamentoService';
 import { UnidadeMedidaService } from '../services/unidadeMedidaService';
 import type { NotaVendaCreate, ParcelaNotaCompra, UnidadeMedidaView } from '../types/entities';
@@ -54,7 +55,13 @@ interface ProdutoFormulario {
   unidadeMedidaId?: number;
   unidadeId?: number;
   nomeUnidade?: string;
+  quantidadeOriginal?: number;
 }
+
+type ConsultaEstoque =
+  | { status: 'carregando' }
+  | { status: 'erro' }
+  | { status: 'pronto'; estoque: number };
 
 const EMPTY: NotaVendaCreate = {
   clienteId: 0,
@@ -100,6 +107,8 @@ export default function NotaVendaFormPage({ onClose }: { onClose?: () => void } 
 
   const [form, setForm] = useState<NotaVendaCreate>(EMPTY);
   const [produtos, setProdutos] = useState<ProdutoFormulario[]>([]);
+  const [estoques, setEstoques] = useState<Record<number, ConsultaEstoque>>({});
+  const [quantidadesOriginais, setQuantidadesOriginais] = useState<Record<number, number>>({});
   const [nomeCliente, setNomeCliente] = useState('');
   const [nomeTransportadora, setNomeTransportadora] = useState('');
   const [nomeCondicao, setNomeCondicao] = useState('');
@@ -117,6 +126,16 @@ export default function NotaVendaFormPage({ onClose }: { onClose?: () => void } 
   const [notaValidada, setNotaValidada] = useState(false);
   const [parcelas, setParcelas] = useState<ParcelaNotaCompra[]>([]);
   const [unidades, setUnidades] = useState<UnidadeMedidaView[]>([]);
+
+  async function consultarEstoque(produtoId: number) {
+    setEstoques(atuais => ({ ...atuais, [produtoId]: { status: 'carregando' } }));
+    try {
+      const resposta = await ProdutoService.getById(produtoId);
+      setEstoques(atuais => ({ ...atuais, [produtoId]: { status: 'pronto', estoque: resposta.data.estoque } }));
+    } catch {
+      setEstoques(atuais => ({ ...atuais, [produtoId]: { status: 'erro' } }));
+    }
+  }
 
   useEffect(() => {
     if (descontoFocado === null) return;
@@ -183,28 +202,27 @@ export default function NotaVendaFormPage({ onClose }: { onClose?: () => void } 
         setNotaValidada(true); // Auto-validate when editing
         
         // Carregar produtos
-        return NotaVendaItemService.getAll();
+        return NotaVendaItemService.getByNota(numeroNota!, modelo!, serie!, Number(clienteId));
       })
       .then(res => {
-        // Filtrar apenas os produtos desta nota
-        const produtosDaNota = res.data.filter(item => 
-          item.idNotaVenda && 
-          (numeroNota ? item.nomeProduto : true) // placeholder - backend deve filtrar
-        );
-        
+        setQuantidadesOriginais(Object.fromEntries(
+          res.data.filter(item => item.ativo).map(item => [item.produtoId, item.quantidade]),
+        ));
         // Converter do formato backend para o formato interno do frontend
-        setProdutos(produtosDaNota.map(item => ({
-          idProduto: item.idProduto,
-          produtoId: item.idProduto,
+        setProdutos(res.data.filter(item => item.ativo).map(item => ({
+          idProduto: item.produtoId,
+          produtoId: item.produtoId,
           quantidade: item.quantidade,
           precoUnit: item.precoUnit,
           descontoEntrada: item.desconto
-            ? ((item.precoUnit * item.desconto) / 100).toFixed(2).replace('.', ',')
+            ? item.desconto.toFixed(2).replace('.', ',')
             : '',
-          idNotaVenda: item.idNotaVenda,
-          notaVendaId: item.idNotaVenda,
           nomeProduto: item.nomeProduto,
+          unidadeMedidaId: item.unidadeId,
+          unidadeId: item.unidadeId,
+          quantidadeOriginal: item.quantidade,
         })));
+        res.data.filter(item => item.ativo).forEach(item => { void consultarEstoque(item.produtoId); });
       })
       .catch(() => navigate('/notas-venda'))
       .finally(() => setLoading(false));
@@ -328,6 +346,21 @@ export default function NotaVendaFormPage({ onClose }: { onClose?: () => void } 
       }
     }
 
+    if (produtos.some(produto => !Number.isFinite(produto.quantidade) || produto.quantidade <= 0)) {
+      setError('A quantidade de cada produto deve ser maior que zero.');
+      return;
+    }
+
+    if (new Set(produtos.map(produto => produto.idProduto)).size !== produtos.length) {
+      setError('Cada produto pode aparecer apenas uma vez na nota de venda.');
+      return;
+    }
+
+    if (produtos.length === 0) {
+      setError('Adicione ao menos um produto antes de salvar a nota de venda.');
+      return;
+    }
+
     setSaving(true);
     setError('');
     try {
@@ -339,13 +372,46 @@ export default function NotaVendaFormPage({ onClose }: { onClose?: () => void } 
         dataChegada: form.dataChegada || undefined,
       };
 
+      const chave = {
+        numeroNota: isEdit ? numeroNota! : form.numeroNota,
+        modelo: isEdit ? modelo! : form.modelo,
+        serie: isEdit ? serie! : form.serie,
+        clienteId: isEdit ? Number(clienteId) : form.clienteId,
+      };
+
+      const itensAtuais = isEdit
+        ? (await NotaVendaItemService.getByNota(chave.numeroNota, chave.modelo, chave.serie, chave.clienteId)).data.filter(item => item.ativo)
+        : [];
+      const saldos = await Promise.all(produtos.map(produto => ProdutoService.getById(produto.idProduto)));
+      for (let indice = 0; indice < produtos.length; indice++) {
+        const produto = produtos[indice];
+        const anterior = itensAtuais.find(item => item.produtoId === produto.idProduto);
+        const baixadaAnterior = anterior?.quantidadeBaixada ?? 0;
+        const quantidadeAnterior = anterior?.quantidade ?? 0;
+        const saidaAdicional = Math.max(0, baixadaAnterior + produto.quantidade - quantidadeAnterior) - baixadaAnterior;
+        const disponivel = saldos[indice].data.estoque;
+        if (saidaAdicional > disponivel) {
+          setEstoques(atuais => ({ ...atuais, [produto.idProduto]: { status: 'pronto', estoque: disponivel } }));
+          setError(`Estoque insuficiente para ${produto.nomeProduto ?? saldos[indice].data.nomeProduto}. Disponível em estoque: ${disponivel}.`);
+          setSaving(false);
+          return;
+        }
+      }
+
+      formToSave.itens = produtos.map(produto => {
+        const { descontoUnit } = calcularLinhaProduto(produto.quantidade, produto.precoUnit, produto.descontoEntrada);
+        return {
+          ...chave,
+          produtoId: produto.idProduto,
+          unidadeId: produto.unidadeMedidaId || produto.unidadeId || 0,
+          quantidade: produto.quantidade,
+          precoUnit: produto.precoUnit,
+          desconto: descontoUnit,
+          ativo: true,
+        };
+      });
       if (isEdit) {
-        await NotaVendaService.update(numeroNota!, modelo!, serie!, Number(clienteId), formToSave);
-        
-        // Deletar TODOS os produtos antigos antes de salvar os novos (usando NotaVendaItemService que trabalha com ID)
-        const produtosAtuais = await NotaVendaItemService.getAll();
-        const produtosDaNota = produtosAtuais.data.filter(p => p.idNotaVenda === form.condicaoPagamentoId); // placeholder
-        await Promise.all(produtosDaNota.map(prod => NotaVendaItemService.remove(prod.id)));
+        await NotaVendaService.update(chave.numeroNota, chave.modelo, chave.serie, chave.clienteId, formToSave);
       } else {
         await NotaVendaService.create(formToSave);
       }
@@ -358,12 +424,16 @@ export default function NotaVendaFormPage({ onClose }: { onClose?: () => void } 
       const axiosErr =
         err as AxiosError<{ message: string }>;
 
-      if (axiosErr.response?.status === 409) {
+      const backendMessage = axiosErr.response?.data?.message;
 
-        setError(
-          axiosErr.response.data?.message ??
-          'Já existe uma nota com esses dados.'
-        );
+      if (backendMessage) {
+
+        // Mensagens de negócio do backend (ex.: estoque insuficiente, nota duplicada)
+        setError(backendMessage);
+
+      } else if (axiosErr.response?.status === 409) {
+
+        setError('Já existe uma nota com esses dados.');
 
       } else {
 
@@ -594,6 +664,7 @@ export default function NotaVendaFormPage({ onClose }: { onClose?: () => void } 
                   <input
                     type="date"
                     value={form.dataChegada ?? ''}
+                    min={form.dataEmissao || undefined}
                     max={maxDataPermitida}
                     aria-invalid={Boolean(form.dataChegada && (form.dataChegada < form.dataEmissao || form.dataChegada > maxDataPermitida))}
                     disabled={!notaValidada}
@@ -731,6 +802,9 @@ export default function NotaVendaFormPage({ onClose }: { onClose?: () => void } 
                         const calculo = calcularLinhaProduto(p.quantidade, p.precoUnit, p.descontoEntrada);
                         const { liquidoUnit, total } = calculo;
                         const unidadeSelecionada = unidades.find(unidade => unidade.id === p.unidadeMedidaId);
+                        const consulta = estoques[p.idProduto];
+                        const estoqueInsuficiente = consulta?.status === 'pronto'
+                          && p.quantidade > consulta.estoque + (p.quantidadeOriginal ?? 0);
                         
                         return (
                         <tr key={idx}>
@@ -745,11 +819,15 @@ export default function NotaVendaFormPage({ onClose }: { onClose?: () => void } 
                               step="1"
                               min="0"
                               disabled={!notaValidada}
+                              aria-label={`Quantidade de ${p.nomeProduto ?? `produto ${p.idProduto}`}`}
+                              aria-invalid={estoqueInsuficiente}
+                              aria-describedby={estoqueInsuficiente ? `estoque-aviso-${idx}` : undefined}
                               value={p.quantidade}
                               onChange={e => {
                                 const newProdutos = [...produtos];
                                 newProdutos[idx].quantidade = Number(e.target.value);
                                 setProdutos(newProdutos);
+                                if (error.startsWith('Estoque insuficiente para ')) setError('');
                               }}
                               className="produto-table-input"
                             />
@@ -816,6 +894,26 @@ export default function NotaVendaFormPage({ onClose }: { onClose?: () => void } 
                   </tbody>
                 </table>
               </div>
+              {produtos.map((produto, idx) => {
+                const consulta = estoques[produto.idProduto];
+                const nome = produto.nomeProduto ?? `Produto ${produto.idProduto}`;
+                if (!consulta || consulta.status === 'carregando')
+                  return <div className="form-error" key={idx}>Consultando estoque de {nome}...</div>;
+                if (consulta.status === 'erro')
+                  return (
+                    <div className="form-error" role="alert" key={idx}>
+                      Não foi possível consultar o estoque de {nome}.{' '}
+                      <button type="button" onClick={() => void consultarEstoque(produto.idProduto)}>Tentar novamente</button>
+                    </div>
+                  );
+                const disponivelParaVenda = consulta.estoque + (produto.quantidadeOriginal ?? 0);
+                if (produto.quantidade <= disponivelParaVenda) return null;
+                return (
+                  <div className="form-error" role="alert" id={`estoque-aviso-${idx}`} key={idx}>
+                    Estoque insuficiente para {nome}. Quantidade disponível para esta venda: {disponivelParaVenda.toLocaleString('pt-BR')}.
+                  </div>
+                );
+              })}
               <div style={{ marginTop: '12px', display: 'flex', justifyContent: 'flex-end', alignItems: 'center', paddingRight: '16px', gap: '32px' }}>
                 <div style={{
                   display: 'flex',
@@ -1032,9 +1130,10 @@ export default function NotaVendaFormPage({ onClose }: { onClose?: () => void } 
           tipo="venda"
           onClose={() => setShowProdutoModal(false)}
           onSelect={(id, nomeProduto, unidadeId, nomeUnidade) => {
-            setProdutos([...produtos, {
+            setProdutos(atuais => [...atuais, {
               idProduto: id,
               quantidade: 1,
+              quantidadeOriginal: quantidadesOriginais[id] ?? 0,
               precoUnit: 0,
               descontoEntrada: '',
               idNotaVenda: 0,
@@ -1042,6 +1141,7 @@ export default function NotaVendaFormPage({ onClose }: { onClose?: () => void } 
               unidadeMedidaId: unidadeId,
               nomeUnidade,
             }]);
+            void consultarEstoque(id);
             setShowProdutoModal(false);
           }}
         />

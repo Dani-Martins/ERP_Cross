@@ -26,6 +26,7 @@ public class CreateNotaCompraDto
     public string? Observacao { get; set; }
     public string? Status { get; set; }
     public bool Ativo { get; set; } = true;
+    public List<NotaCompraItemSalvarDto>? Itens { get; set; }
 }
 
 public class UpdateNotaCompraDto
@@ -51,6 +52,7 @@ public class UpdateNotaCompraDto
     public string? Observacao { get; set; }
     public string? Status { get; set; }
     public bool Ativo { get; set; } = true;
+    public List<NotaCompraItemSalvarDto>? Itens { get; set; }
 }
 
 public class NotaCompraView

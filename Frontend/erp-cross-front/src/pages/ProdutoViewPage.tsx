@@ -171,8 +171,8 @@ export default function ProdutoViewPage({ produtoId, onClose, onEdit }: { produt
                 <span className="view-value">{produto.estoque.toLocaleString('pt-BR')}</span>
               </div>
               <div className="view-group">
-                <span className="view-label">Estoque Mínimo</span>
-                <span className="view-value">{produto.estoqueMinimo.toLocaleString('pt-BR')}</span>
+                <span className="view-label">Estoque Anterior</span>
+                <span className="view-value">{produto.estoqueAnterior == null ? '—' : produto.estoqueAnterior.toLocaleString('pt-BR')}</span>
               </div>
             </div>
 

@@ -103,3 +103,10 @@ C:\Users\USUARIO\AppData\Local\Temp\ERP_Cross_API_Verify\ERP_Cross.API.deps.json
 C:\Users\USUARIO\AppData\Local\Temp\ERP_Cross_API_Verify\ERP_Cross.API.runtimeconfig.json
 C:\Users\USUARIO\AppData\Local\Temp\ERP_Cross_API_Verify\ERP_Cross.API.dll
 C:\Users\USUARIO\AppData\Local\Temp\ERP_Cross_API_Verify\ERP_Cross.API.pdb
+C:\Users\USUARIO\.copilot\session-state\35b95750-ca3e-4406-9ed8-b1253a4a91ce\files\build\appsettings.Development.json
+C:\Users\USUARIO\.copilot\session-state\35b95750-ca3e-4406-9ed8-b1253a4a91ce\files\build\appsettings.json
+C:\Users\USUARIO\.copilot\session-state\35b95750-ca3e-4406-9ed8-b1253a4a91ce\files\build\ERP_Cross.API.staticwebassets.endpoints.json
+C:\Users\USUARIO\.copilot\session-state\35b95750-ca3e-4406-9ed8-b1253a4a91ce\files\build\ERP_Cross.API.deps.json
+C:\Users\USUARIO\.copilot\session-state\35b95750-ca3e-4406-9ed8-b1253a4a91ce\files\build\ERP_Cross.API.runtimeconfig.json
+C:\Users\USUARIO\.copilot\session-state\35b95750-ca3e-4406-9ed8-b1253a4a91ce\files\build\ERP_Cross.API.dll
+C:\Users\USUARIO\.copilot\session-state\35b95750-ca3e-4406-9ed8-b1253a4a91ce\files\build\ERP_Cross.API.pdb

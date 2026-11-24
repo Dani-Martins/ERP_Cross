@@ -22,13 +22,13 @@ public class CondicaoPagamentoRepository
         return await _connection.QueryAsync<CondicaoPagamento>(sql, new { q = $"%{q}%" });
     }
 
-    public async Task<CondicaoPagamento?> GetByIdAsync(int id)
+    public async Task<CondicaoPagamento?> GetByIdAsync(int id, IDbTransaction? transaction = null)
     {
         const string sql = "SELECT Id, NomeCondicao, TaxaJuros, Multa, Desconto, Ativo, DataCriacao, DataAtualizacao FROM CondicoesPagamento WHERE Id = @Id";
-        return await _connection.QueryFirstOrDefaultAsync<CondicaoPagamento>(sql, new { Id = id });
+        return await _connection.QueryFirstOrDefaultAsync<CondicaoPagamento>(sql, new { Id = id }, transaction);
     }
 
-    public async Task<IEnumerable<ParcelaCondicaoPagamento>> GetParcelasAsync(int condicaoPagamentoId)
+    public async Task<IEnumerable<ParcelaCondicaoPagamento>> GetParcelasAsync(int condicaoPagamentoId, IDbTransaction? transaction = null)
     {
         const string sql = @"
             SELECT pcp.Numero, pcp.Dias, pcp.Percentual, pcp.FormaPagamentoId, fp.NomeFormaPagamento
@@ -36,7 +36,7 @@ public class CondicaoPagamentoRepository
             LEFT JOIN FormasPagamento fp ON pcp.FormaPagamentoId = fp.Id
             WHERE pcp.CondicaoPagamentoId = @CondicaoPagamentoId AND pcp.Ativo = 1
             ORDER BY pcp.Numero";
-        return await _connection.QueryAsync<ParcelaCondicaoPagamento>(sql, new { CondicaoPagamentoId = condicaoPagamentoId });
+        return await _connection.QueryAsync<ParcelaCondicaoPagamento>(sql, new { CondicaoPagamentoId = condicaoPagamentoId }, transaction);
     }
 
     public class ParcelaCondicaoPagamento

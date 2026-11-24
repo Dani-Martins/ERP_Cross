@@ -200,8 +200,8 @@ export default function NotaVendaPage() {
                     </button>
                     <button
                       className="btn-icon btn-danger"
-                      title={podeCancelar ? 'Cancelar conta a receber vinculada' : motivoBloqueio}
-                      aria-label="Cancelar conta a receber vinculada"
+                      title={podeCancelar ? 'Cancelar venda e conta a receber' : motivoBloqueio}
+                      aria-label="Cancelar venda e conta a receber"
                       disabled={!podeCancelar}
                       onClick={() => { setErroCancelamento(''); setNotaParaCancelar(nota); }}
                     >
@@ -256,12 +256,12 @@ export default function NotaVendaPage() {
         <div className="modal-overlay" onClick={() => setNotaParaCancelar(null)}>
           <div className="modal modal-sm" role="dialog" aria-modal="true" onClick={event => event.stopPropagation()}>
             <div className="modal-header">
-              <h2>Cancelar Conta a Receber</h2>
+              <h2>Cancelar Venda</h2>
               <button className="modal-close" type="button" aria-label="Fechar" onClick={() => setNotaParaCancelar(null)}><X size={20} /></button>
             </div>
             <div className="modal-body">
-              <p>Cancelar as parcelas em aberto da conta da nota {notaParaCancelar.numeroNota}?</p>
-              <p>A nota de venda permanecerá ativa. Esta ação só pode ser feita antes de qualquer recebimento.</p>
+              <p>Cancelar a venda e as parcelas em aberto da nota {notaParaCancelar.numeroNota}?</p>
+              <p>Os produtos voltarão ao estoque. Esta ação só pode ser feita antes de qualquer recebimento.</p>
               {erroCancelamento && <p className="form-error">{erroCancelamento}</p>}
             </div>
             <div className="modal-footer">

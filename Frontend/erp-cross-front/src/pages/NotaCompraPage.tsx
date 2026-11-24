@@ -57,12 +57,13 @@ export default function NotaCompraPage() {
     setCancelandoConta(true);
     setErroCancelamento('');
     try {
-      await NotaCompraService.cancelarConta(notaParaCancelar.id);
+      const resultado = await NotaCompraService.cancelarConta(notaParaCancelar.id);
       setNotaParaCancelar(null);
       await load();
+      if (resultado.data.aviso) window.alert(resultado.data.aviso);
     } catch (err) {
       const apiError = err as { response?: { data?: { message?: string } } };
-      setErroCancelamento(apiError.response?.data?.message ?? 'Não foi possível cancelar a conta a pagar.');
+      setErroCancelamento(apiError.response?.data?.message ?? 'Não foi possível cancelar a nota de compra.');
     } finally {
       setCancelandoConta(false);
     }
@@ -142,14 +143,10 @@ export default function NotaCompraPage() {
                 const conta = contasPagar.find(item => item.notaCompraId === nota.id);
                 const statusFinanceiro = obterStatusNota(nota, conta);
                 const podeCancelar = nota.ativo && nota.status?.toUpperCase() !== 'CANCELADO' &&
-                  conta?.status === 'ABERTO' && conta.parcelasPagas === 0;
+                  !conta?.parcelasPagas;
                 const motivoBloqueio = conta?.parcelasPagas
                   ? 'Não é possível cancelar: já existe parcela paga.'
-                  : conta?.status === 'CANCELADO'
-                    ? 'A conta a pagar já está cancelada.'
-                    : !conta
-                      ? 'Não há conta a pagar vinculada a esta nota.'
-                      : 'A nota está inativa ou a conta não está aberta.';
+                  : 'A nota está inativa ou já foi cancelada.';
                 return (
                 <tr key={nota.id}>
                   <td className="col-id">{nota.id}</td>
@@ -181,8 +178,8 @@ export default function NotaCompraPage() {
                     </button>
                     <button
                       className="btn-icon btn-danger"
-                      title={podeCancelar ? 'Cancelar conta a pagar vinculada' : motivoBloqueio}
-                      aria-label="Cancelar conta a pagar vinculada"
+                      title={podeCancelar ? 'Cancelar nota de compra' : motivoBloqueio}
+                      aria-label="Cancelar nota de compra"
                       disabled={!podeCancelar}
                       onClick={() => { setErroCancelamento(''); setNotaParaCancelar(nota); }}
                     >
@@ -232,12 +229,12 @@ export default function NotaCompraPage() {
         <div className="modal-overlay" onClick={() => setNotaParaCancelar(null)}>
           <div className="modal modal-sm" role="dialog" aria-modal="true" onClick={event => event.stopPropagation()}>
             <div className="modal-header">
-              <h2>Cancelar Conta a Pagar</h2>
+              <h2>Cancelar Nota de Compra</h2>
               <button className="modal-close" type="button" aria-label="Fechar" onClick={() => setNotaParaCancelar(null)}><X size={20} /></button>
             </div>
             <div className="modal-body">
-              <p>Cancelar as parcelas em aberto da conta da nota {notaParaCancelar.numeroNota}?</p>
-              <p>A nota de compra permanecerá ativa. Esta ação só pode ser feita antes de qualquer pagamento.</p>
+              <p>Cancelar a nota {notaParaCancelar.numeroNota} e suas parcelas em aberto?</p>
+              <p>O estoque e o custo dos produtos serão ajustados. Esta ação só pode ser feita antes de qualquer pagamento.</p>
               {erroCancelamento && <p className="form-error">{erroCancelamento}</p>}
             </div>
             <div className="modal-footer">
