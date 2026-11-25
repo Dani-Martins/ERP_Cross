@@ -449,7 +449,7 @@
 }
 
 .modal.modal-pais {
-  max-width: 720px;
+  max-width: 540px;
 }
 
 .modal.modal-estado {
@@ -488,16 +488,10 @@
   max-width: 760px;
 }
 
-.modal.modal-unidade-medida {
-  max-width: 600px;
-}
-
-.modal.modal-marca {
-  max-width: 600px;
-}
-
+.modal.modal-unidade-medida,
+.modal.modal-marca,
 .modal.modal-categoria {
-  max-width: 600px;
+  max-width: 440px;
 }
 
 .modal.modal-forma-pagamento {
@@ -1025,7 +1019,7 @@
 
 .produto-nome-field {
   width: 100%;
-  max-width: 600px;
+  max-width: 360px;
 }
 
 .produto-identificacao-row {
@@ -1508,9 +1502,11 @@
   text-align: center;
 }
 
-.form-group.unidade-medida-nome-field input {
+.form-group.unidade-medida-nome-field input,
+.form-group.marca-nome-field input,
+.form-group.categoria-nome-field input {
   width: 100%;
-  max-width: 420px;
+  max-width: 280px;
   box-sizing: border-box;
 }
 
@@ -1521,14 +1517,7 @@
   text-align: center;
 }
 
-.form-group.marca-nome-field input,
 .form-group.marca-descricao-field textarea {
-  width: 100%;
-  max-width: 420px;
-  box-sizing: border-box;
-}
-
-.form-group.categoria-nome-field input {
   width: 100%;
   max-width: 420px;
   box-sizing: border-box;
