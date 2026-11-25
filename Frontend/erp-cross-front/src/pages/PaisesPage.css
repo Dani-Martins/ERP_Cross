@@ -399,9 +399,9 @@
 
 .account-page-modal {
   width: 96vw;
-  max-width: 1600px;
-  height: 96vh;
-  max-height: 96vh;
+  max-width: 1160px;
+  height: auto;
+  max-height: 90vh;
   overflow: hidden;
 }
 
@@ -1994,4 +1994,60 @@
 
 .form-group.funcionario-lookup-name-field input {
   max-width: 400px;
+}
+
+.conta-lookups {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.conta-lookups > .conta-lookup-row {
+  flex: 0 1 498px;
+  min-width: 0;
+}
+
+.form-row.conta-lookup-row > .form-group:not(.lookup-code-group) {
+  flex: 0 1 360px;
+}
+
+.form-row.conta-lookup-row .lookup-code-group .lookup-input {
+  width: 80px !important;
+}
+
+.form-row.conta-valores-row {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.conta-valores-row > .form-group {
+  flex: 0 1 190px;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.conta-valores-row > .form-group:nth-child(2) {
+  flex-basis: 130px;
+}
+
+.conta-valores-row > .form-group:nth-child(2) input,
+.form-group input.conta-numero-parcela {
+  width: 80px;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.conta-parcelas-table .form-group {
+  width: 20ch;
+  max-width: 100%;
+}
+
+.conta-parcelas-table input[type='date'] {
+  width: 100%;
+}
+
+@media (max-width: 640px) {
+  .conta-parcelas-table .form-group {
+    width: 16ch;
+  }
 }

@@ -134,7 +134,7 @@ export default function ContaReceberFormPage({ contaId, onClose }: { contaId?: n
   const valorTotalRecebimentos = valoresExibidos.reduce((total, valor) => total + valor, 0);
 
   function setQtdParcelas(qtd: number) {
-    const count = Math.min(360, Math.max(1, qtd || 1));
+    const count = Math.min(99, Math.max(1, Math.trunc(qtd) || 1));
     setForm(current => ({ ...current, numParcela: count }));
     setParcelas(current => percentuaisIguais(count).map((percentual, index) => ({
       dataRecebimento: current[index]?.dataRecebimento,
@@ -242,48 +242,51 @@ export default function ContaReceberFormPage({ contaId, onClose }: { contaId?: n
 
                 <div className="form-section">
                   <h2 className="form-section-title">Cliente e Forma de Pagamento</h2>
-                  <div className="form-row">
-                    <div className="form-group lookup-code-group">
-                      <label>Cód.</label>
-                      <div style={{ display: 'flex', gap: '4px' }}>
-                        <input type="text" value={form.clienteId || ''} placeholder="ID" readOnly className="lookup-input" style={{ width: '100%', textAlign: 'center' }} />
-                        <button type="button" className="btn-lookup" onClick={() => setShowClienteLookup(true)} title="Pesquisar cliente" style={{ padding: '4px 8px' }}>
-                          <Search size={16} />
-                        </button>
+                  <div className="conta-lookups">
+                    <div className="form-row conta-lookup-row">
+                      <div className="form-group lookup-code-group">
+                        <label>Cód.</label>
+                        <div style={{ display: 'flex', gap: '4px' }}>
+                          <input type="text" value={form.clienteId || ''} placeholder="ID" readOnly className="lookup-input" style={{ width: '100%', textAlign: 'center' }} />
+                          <button type="button" className="btn-lookup" onClick={() => setShowClienteLookup(true)} title="Pesquisar cliente" style={{ padding: '4px 8px' }}>
+                            <Search size={16} />
+                          </button>
+                        </div>
+                      </div>
+                      <div className="form-group">
+                        <label>Cliente *</label>
+                        <input type="text" readOnly className="lookup-input" value={selectedCliente?.nome ?? ''} placeholder="Selecione um cliente..." />
                       </div>
                     </div>
-                    <div className="form-group" style={{ flex: 1 }}>
-                      <label>Cliente *</label>
-                      <input type="text" readOnly className="lookup-input" value={selectedCliente?.nome ?? ''} placeholder="Selecione um cliente..." />
-                    </div>
-                  </div>
-                  <div className="form-row">
-                    <div className="form-group lookup-code-group">
-                      <label>Cód.</label>
-                      <div style={{ display: 'flex', gap: '4px' }}>
-                        <input type="text" value={selectedForma?.id ?? ''} placeholder="ID" readOnly className="lookup-input" style={{ width: '100%', textAlign: 'center' }} />
-                        <button type="button" className="btn-lookup" onClick={() => setShowFormaLookup(true)} title="Pesquisar forma de pagamento" style={{ padding: '4px 8px' }}>
-                          <Search size={16} />
-                        </button>
+
+                    <div className="form-row conta-lookup-row">
+                      <div className="form-group lookup-code-group">
+                        <label>Cód.</label>
+                        <div style={{ display: 'flex', gap: '4px' }}>
+                          <input type="text" value={selectedForma?.id ?? ''} placeholder="ID" readOnly className="lookup-input" style={{ width: '100%', textAlign: 'center' }} />
+                          <button type="button" className="btn-lookup" onClick={() => setShowFormaLookup(true)} title="Pesquisar forma de pagamento" style={{ padding: '4px 8px' }}>
+                            <Search size={16} />
+                          </button>
+                        </div>
                       </div>
-                    </div>
-                    <div className="form-group" style={{ flex: 1 }}>
-                      <label>Forma de Pagamento *</label>
-                      <input type="text" readOnly className="lookup-input" value={selectedForma?.nomeFormaPagamento ?? ''} placeholder="Selecione uma forma de pagamento..." />
+                      <div className="form-group">
+                        <label>Forma de Pagamento *</label>
+                        <input type="text" readOnly className="lookup-input" value={selectedForma?.nomeFormaPagamento ?? ''} placeholder="Selecione uma forma de pagamento..." />
+                      </div>
                     </div>
                   </div>
                 </div>
 
                 <div className="form-section">
                   <h2 className="form-section-title">Valor da Venda</h2>
-                  <div className="form-row">
+                  <div className="form-row conta-valores-row">
                     <div className="form-group">
                       <label>Valor Total *</label>
                       <CurrencyInput value={valorTotal} onChange={setValorTotal} />
                     </div>
-                    <div className="form-group" style={{ flex: '0 0 130px' }}>
+                    <div className="form-group">
                       <label htmlFor="numParcela">Nº de Parcelas *</label>
-                      <input id="numParcela" type="number" min={1} max={360} value={form.numParcela}
+                      <input id="numParcela" type="number" min={1} max={99} step={1} value={form.numParcela}
                         onChange={e => setQtdParcelas(Number(e.target.value))} />
                     </div>
                   </div>
@@ -291,21 +294,21 @@ export default function ContaReceberFormPage({ contaId, onClose }: { contaId?: n
 
                 <div className="form-section">
                   <h2 className="form-section-title">Taxas</h2>
-                  <div className="form-row">
-                    <div className="form-group" style={{ flex: '0 0 120px' }}>
+                  <div className="form-row condicao-taxas-row">
+                    <div className="form-group">
                       <label htmlFor="taxaJuros">Juros por parcela (%)</label>
                       <input id="taxaJuros" type="number" min={0} step={0.01} placeholder="0,00"
-                        value={form.juros} onChange={e => setForm({ ...form, juros: Number(e.target.value) })} style={{ width: '100%' }} />
+                        value={form.juros} onChange={e => setForm({ ...form, juros: Number(e.target.value) })} />
                     </div>
-                    <div className="form-group" style={{ flex: '0 0 120px' }}>
+                    <div className="form-group">
                       <label htmlFor="multa">Multa por atraso (%)</label>
                       <input id="multa" type="number" min={0} step={0.01} placeholder="0,00"
-                        value={form.multa} onChange={e => setForm({ ...form, multa: Number(e.target.value) })} style={{ width: '100%' }} />
+                        value={form.multa} onChange={e => setForm({ ...form, multa: Number(e.target.value) })} />
                     </div>
-                    <div className="form-group" style={{ flex: '0 0 150px' }}>
+                    <div className="form-group">
                       <label htmlFor="desconto">Desconto pontualidade (%)</label>
                       <input id="desconto" type="number" min={0} max={100} step={0.01} placeholder="0,00"
-                        value={form.desconto} onChange={e => setForm({ ...form, desconto: Number(e.target.value) })} style={{ width: '100%' }} />
+                        value={form.desconto} onChange={e => setForm({ ...form, desconto: Number(e.target.value) })} />
                     </div>
                   </div>
                 </div>
@@ -313,7 +316,7 @@ export default function ContaReceberFormPage({ contaId, onClose }: { contaId?: n
                 <div className="form-section">
                   <h2 className="form-section-title">Parcelas</h2>
                   <p className="form-hint">Preencha a data de recebimento apenas nas parcelas que já foram recebidas.</p>
-                  <table className="data-table" style={{ marginTop: 12 }}>
+                  <table className="data-table conta-parcelas-table" style={{ marginTop: 12 }}>
                     <thead><tr><th>Parcela</th><th>Vencimento</th><th>Valor</th><th>Data de Recebimento</th></tr></thead>
                     <tbody>
                       {parcelas.map((parcela, index) => (
@@ -415,9 +418,9 @@ export default function ContaReceberFormPage({ contaId, onClose }: { contaId?: n
                   <div className="form-row">
                     <div className="form-group">
                       <label htmlFor="numParcela">Nº Parcela</label>
-                      <input id="numParcela" type="number" min={1}
+                      <input id="numParcela" type="number" min={1} max={99} step={1} className="conta-numero-parcela"
                         value={form.numParcela}
-                        onChange={e => setForm({ ...form, numParcela: Number(e.target.value) })} />
+                        onChange={e => setForm({ ...form, numParcela: Math.min(99, Math.max(1, Math.trunc(Number(e.target.value)) || 1)) })} />
                     </div>
                     <div className="form-group">
                       <label htmlFor="dataEmissao">Data de Emissão *</label>
@@ -455,7 +458,7 @@ export default function ContaReceberFormPage({ contaId, onClose }: { contaId?: n
 
                 <div className="form-section">
                   <h2 className="form-section-title">Taxas</h2>
-                  <div className="form-row">
+                  <div className="form-row condicao-taxas-row">
                     <div className="form-group">
                       <label>Juros por parcela (%)</label>
                       <input type="number" min={0} step={0.01} value={form.juros}

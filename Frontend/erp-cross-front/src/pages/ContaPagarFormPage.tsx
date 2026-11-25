@@ -184,7 +184,7 @@ export default function ContaPagarFormPage({ contaId, onClose }: { contaId?: num
   const fmtMoeda = (v: number) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
   function setQtdParcelas(qtd: number) {
-    const n = Math.min(360, Math.max(1, qtd || 1));
+    const n = Math.min(99, Math.max(1, Math.trunc(qtd) || 1));
     setParcelas(prev => {
       const pct = percentuaisIguais(n);
       return pct.map((percentual, i) => ({ dataPagamento: prev[i]?.dataPagamento, percentual }));
@@ -244,35 +244,37 @@ export default function ContaPagarFormPage({ contaId, onClose }: { contaId?: num
             <div className="form-section">
               <h2 className="form-section-title">Fornecedor e Pagamento</h2>
 
-              <div className="form-row">
-                <div className="form-group lookup-code-group">
-                  <label>Cód.</label>
-                  <div style={{ display: 'flex', gap: '4px' }}>
-                    <input type="text" value={form.fornecedorId > 0 ? form.fornecedorId : ''} placeholder="ID" readOnly className="lookup-input" style={{ width: '100%', textAlign: 'center' }} />
-                    <button type="button" className="btn-lookup" onClick={() => setShowFornecedorLookup(true)} title="Pesquisar fornecedor" style={{ padding: '4px 8px' }}>
-                      <Search size={16} />
-                    </button>
+              <div className="conta-lookups">
+                <div className="form-row conta-lookup-row">
+                  <div className="form-group lookup-code-group">
+                    <label>Cód.</label>
+                    <div style={{ display: 'flex', gap: '4px' }}>
+                      <input type="text" value={form.fornecedorId > 0 ? form.fornecedorId : ''} placeholder="ID" readOnly className="lookup-input" style={{ width: '100%', textAlign: 'center' }} />
+                      <button type="button" className="btn-lookup" onClick={() => setShowFornecedorLookup(true)} title="Pesquisar fornecedor" style={{ padding: '4px 8px' }}>
+                        <Search size={16} />
+                      </button>
+                    </div>
+                  </div>
+                  <div className="form-group">
+                    <label>Fornecedor *</label>
+                    <input type="text" readOnly className="lookup-input" value={selectedFornecedor?.nome ?? ''} placeholder="Selecione um fornecedor..." />
                   </div>
                 </div>
-                <div className="form-group" style={{ flex: 1 }}>
-                  <label>Fornecedor *</label>
-                  <input type="text" readOnly className="lookup-input" value={selectedFornecedor?.nome ?? ''} placeholder="Selecione um fornecedor..." />
-                </div>
-              </div>
 
-              <div className="form-row">
-                <div className="form-group lookup-code-group">
-                  <label>Cód.</label>
-                  <div style={{ display: 'flex', gap: '4px' }}>
-                    <input type="text" value={(form.formaPagamentoId ?? 0) > 0 ? form.formaPagamentoId ?? 0 : ''} placeholder="ID" readOnly className="lookup-input" style={{ width: '100%', textAlign: 'center' }} />
-                    <button type="button" className="btn-lookup" onClick={() => setShowFormaLookup(true)} title="Pesquisar forma de pagamento" style={{ padding: '4px 8px' }}>
-                      <Search size={16} />
-                    </button>
+                <div className="form-row conta-lookup-row">
+                  <div className="form-group lookup-code-group">
+                    <label>Cód.</label>
+                    <div style={{ display: 'flex', gap: '4px' }}>
+                      <input type="text" value={(form.formaPagamentoId ?? 0) > 0 ? form.formaPagamentoId ?? 0 : ''} placeholder="ID" readOnly className="lookup-input" style={{ width: '100%', textAlign: 'center' }} />
+                      <button type="button" className="btn-lookup" onClick={() => setShowFormaLookup(true)} title="Pesquisar forma de pagamento" style={{ padding: '4px 8px' }}>
+                        <Search size={16} />
+                      </button>
+                    </div>
                   </div>
-                </div>
-                <div className="form-group" style={{ flex: 1 }}>
-                  <label>Forma de Pagamento *</label>
-                  <input type="text" readOnly className="lookup-input" value={selectedForma?.nomeFormaPagamento ?? ''} placeholder="Selecione uma forma de pagamento..." />
+                  <div className="form-group">
+                    <label>Forma de Pagamento *</label>
+                    <input type="text" readOnly className="lookup-input" value={selectedForma?.nomeFormaPagamento ?? ''} placeholder="Selecione uma forma de pagamento..." />
+                  </div>
                 </div>
               </div>
             </div>
@@ -281,14 +283,14 @@ export default function ContaPagarFormPage({ contaId, onClose }: { contaId?: num
             <div className="form-section">
               <h2 className="form-section-title">Valor da Compra</h2>
 
-              <div className="form-row">
+              <div className="form-row conta-valores-row">
                 <div className="form-group">
                   <label htmlFor="valorBruto">Valor Total *</label>
                   <CurrencyInput id="valorBruto" value={valorBruto} onChange={setValorBruto} />
                 </div>
-                <div className="form-group" style={{ flex: '0 0 100px' }}>
+                <div className="form-group">
                   <label htmlFor="numParcela">Nº de Parcelas *</label>
-                  <input id="numParcela" type="number" min={1} value={parcelas.length} onChange={e => setQtdParcelas(Number(e.target.value))} style={{ width: '100%' }} />
+                  <input id="numParcela" type="number" min={1} max={99} step={1} value={parcelas.length} onChange={e => setQtdParcelas(Number(e.target.value))} />
                 </div>
               </div>
             </div>
@@ -297,18 +299,18 @@ export default function ContaPagarFormPage({ contaId, onClose }: { contaId?: num
             <div className="form-section">
               <h2 className="form-section-title">Taxas</h2>
 
-              <div className="form-row">
-                <div className="form-group" style={{ flex: '0 0 120px' }}>
+              <div className="form-row condicao-taxas-row">
+                <div className="form-group">
                   <label htmlFor="taxaJuros">Juros por parcela (%)</label>
-                  <input id="taxaJuros" type="number" min={0} step={0.01} placeholder="0,00" value={form.juros} onChange={e => setForm({ ...form, juros: Number(e.target.value) })} style={{ width: '100%' }} />
+                  <input id="taxaJuros" type="number" min={0} step={0.01} placeholder="0,00" value={form.juros} onChange={e => setForm({ ...form, juros: Number(e.target.value) })} />
                 </div>
-                <div className="form-group" style={{ flex: '0 0 120px' }}>
+                <div className="form-group">
                   <label htmlFor="multa">Multa por atraso (%)</label>
-                  <input id="multa" type="number" min={0} step={0.01} placeholder="0,00" value={form.multa} onChange={e => setForm({ ...form, multa: Number(e.target.value) })} style={{ width: '100%' }} />
+                  <input id="multa" type="number" min={0} step={0.01} placeholder="0,00" value={form.multa} onChange={e => setForm({ ...form, multa: Number(e.target.value) })} />
                 </div>
-                <div className="form-group" style={{ flex: '0 0 120px' }}>
+                <div className="form-group">
                   <label htmlFor="desconto">Desconto pontualidade (%)</label>
-                  <input id="desconto" type="number" min={0} step={0.01} placeholder="0,00" value={form.desconto} onChange={e => setForm({ ...form, desconto: Number(e.target.value) })} style={{ width: '100%' }} />
+                  <input id="desconto" type="number" min={0} step={0.01} placeholder="0,00" value={form.desconto} onChange={e => setForm({ ...form, desconto: Number(e.target.value) })} />
                 </div>
               </div>
             </div>
@@ -318,7 +320,7 @@ export default function ContaPagarFormPage({ contaId, onClose }: { contaId?: num
               <h2 className="form-section-title">Parcelas</h2>
               <p className="form-hint">Preencha a data de pagamento apenas nas parcelas que já foram pagas.</p>
 
-              <table className="data-table" style={{ marginTop: 12 }}>
+              <table className="data-table conta-parcelas-table" style={{ marginTop: 12 }}>
                 <thead>
                   <tr><th>Parcela</th><th>Vencimento</th><th>Valor</th><th>Data de Pagamento</th></tr>
                 </thead>
