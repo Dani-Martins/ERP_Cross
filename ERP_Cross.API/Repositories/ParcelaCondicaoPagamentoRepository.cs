@@ -24,7 +24,7 @@ public class ParcelaCondicaoPagamentoRepository
 
     public async Task<IEnumerable<ParcelaCondicaoPagamento>> GetByCondicaoIdAsync(int condicaoId)
         => await _db.QueryAsync<ParcelaCondicaoPagamento>(
-            $"SELECT {SelectColumns} {FromJoin} WHERE pc.CondicaoPagamentoId = @CondicaoPagamentoId",
+            $"SELECT {SelectColumns} {FromJoin} WHERE pc.CondicaoPagamentoId = @CondicaoPagamentoId AND pc.Ativo = 1 ORDER BY pc.Numero",
             new { CondicaoPagamentoId = condicaoId });
 
     public async Task<ParcelaCondicaoPagamento?> GetByIdAsync(int id)

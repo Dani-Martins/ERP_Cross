@@ -117,7 +117,6 @@ export default function MarcaPage() {
               <tr>
                 <th>#</th>
                 <th>Marca</th>
-                <th>Descrição</th>
                 <th>Status</th>
                 <th className="col-actions">Ações</th>
               </tr>
@@ -127,7 +126,6 @@ export default function MarcaPage() {
                 <tr key={marca.id}>
                   <td className="col-id">{marca.id}</td>
                   <td className="col-name">{marca.nomeMarca}</td>
-                  <td>{marca.descricao || '—'}</td>
                   <td>
                     <span className={`status-badge ${marca.ativo ? 'status-active' : 'status-inactive'}`}>
                       {marca.ativo ? 'Ativo' : 'Inativo'}

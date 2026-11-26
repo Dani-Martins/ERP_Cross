@@ -117,7 +117,6 @@ export default function CategoriaPage() {
               <tr>
                 <th>#</th>
                 <th>Categoria</th>
-                <th>Descrição</th>
                 <th>Status</th>
                 <th className="col-actions">Ações</th>
               </tr>
@@ -127,7 +126,6 @@ export default function CategoriaPage() {
                 <tr key={categoria.id}>
                   <td className="col-id">{categoria.id}</td>
                   <td className="col-name">{categoria.nomeCategoria}</td>
-                  <td>{categoria.descricao || '—'}</td>
                   <td>
                     <span className={`status-badge ${categoria.ativo ? 'status-active' : 'status-inactive'}`}>
                       {categoria.ativo ? 'Ativo' : 'Inativo'}
